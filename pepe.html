@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydroponics Bay - Pixel Art UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Paleta exacta Pixel Art */
+            --ui-bg-main: #18253a;
+            --ui-bg-dark: #0f1725;
+            --ui-bg-light: #22344f;
+            
+            /* Bordes Biselados (Relieve) */
+            --border-outer: #05080e;
+            --border-light: #44658e;
+            --border-dark: #111a28;
+            
+            --text-blue: #93b3d6;
+            --text-white: #f1f5f9;
+            
+            --neon-green: #4ade80;
+            --neon-green-dark: #166534;
+            --neon-red: #ef4444;
+            --neon-red-dark: #7f1d1d;
+            --neon-orange: #f59e0b;
+            --neon-blue: #38bdf8;
+            --gold: #fbbf24;
+        }
+
+        * { box-sizing: border-box; user-select: none; }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            /* Fondo Espacial y Marciano generado con CSS/SVG */
+            background-color: #050811;
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="none"><path d="M0,800 L0,600 L100,550 L250,650 L400,500 L600,600 L800,450 L1000,550 L1200,500 L1400,650 L1400,800 Z" fill="%238a2e1d" opacity="0.6"/><path d="M0,800 L0,700 L150,650 L300,750 L500,600 L750,750 L950,650 L1200,750 L1400,600 L1400,800 Z" fill="%23a73c27"/></svg>'),
+                radial-gradient(1px 1px at 10% 20%, white 100%, transparent),
+                radial-gradient(1px 1px at 30% 40%, white 100%, transparent),
+                radial-gradient(1px 1px at 70% 15%, white 100%, transparent),
+                radial-gradient(2px 2px at 85% 45%, rgba(255,255,255,0.7) 100%, transparent),
+                linear-gradient(to bottom, #050811 0%, #1a0f14 50%, #3a1515 100%);
+            background-size: cover, 200px 200px, 250px 250px, 300px 300px, 400px 400px, cover;
+            
+            font-family: 'Press Start 2P', monospace;
+            color: var(--text-blue);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            overflow: hidden;
+        }
+
+        /* --- UTILIDAD PARA BORDES PIXEL ART --- */
+        .pixel-border {
+            border: 3px solid var(--border-outer);
+            box-shadow: inset 2px 2px 0px var(--border-light), inset -2px -2px 0px var(--border-dark);
+        }
+        
+        .pixel-btn {
+            background: var(--ui-bg-light);
+            border: 2px solid var(--border-outer);
+            box-shadow: inset 2px 2px 0px var(--border-light), inset -2px -2px 0px var(--border-dark);
+            color: var(--text-blue);
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .pixel-btn:active {
+            box-shadow: inset 2px 2px 0px var(--border-dark), inset -2px -2px 0px var(--border-light);
+            transform: translateY(2px);
+        }
+
+        /* --- BARRAS SUPERIORES E INFERIORES --- */
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            width: 1100px;
+            margin-bottom: 20px;
+        }
+
+        .hud-box {
+            background-color: var(--ui-bg-dark);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: var(--text-white);
+            border-radius: 4px;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .main-window {
+            width: 1100px;
+            height: 650px;
+            background-color: var(--ui-bg-main);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            position: relative;
+        }
+
+        .window-header {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ui-bg-main);
+            padding: 8px 25px;
+            color: var(--text-white);
+            font-size: 10px;
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: var(--neon-red);
+            box-shadow: inset 2px 2px 0px #f87171, inset -2px -2px 0px #991b1b;
+            color: white;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .window-content {
+            display: flex;
+            gap: 15px;
+            height: 100%;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        /* Paneles Laterales */
+        .panel-side {
+            width: 230px;
+            background: var(--ui-bg-dark);
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+        }
+
+        .panel-title {
+            text-align: center;
+            padding: 10px;
+            color: var(--text-white);
+            background: var(--ui-bg-light);
+            border-bottom: 2px solid var(--border-outer);
+        }
+
+        .module-list {
+            flex-grow: 1;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mod-item { color: var(--text-blue); cursor: pointer; }
+        .mod-item.active { color: var(--neon-green); }
+        .mod-item:hover:not(.active) { color: var(--text-white); }
+
+        .tasks-box {
+            padding: 15px;
+            border-top: 3px solid var(--border-outer);
+            line-height: 1.8;
+            color: #64748b;
+        }
+
+        /* Panel Central (Grilla) */
+        .panel-center {
+            flex-grow: 1;
+            background: var(--ui-bg-dark);
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 12px;
+            border-radius: 4px;
+        }
+
+        .plant-card {
+            background: var(--ui-bg-main);
+            border: 2px solid var(--neon-green);
+            box-shadow: inset 0 0 15px rgba(74, 222, 128, 0.1);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .plant-card.alert { border-color: var(--neon-orange); box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.1); }
+        .plant-card.critical { border-color: var(--neon-red); box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.2); }
+
+        .plant-img-box {
+            font-size: 18px; 
+            padding-right: 5px;
+        }
+        
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            margin-right: 4px;
+        }
+        .alert .status-dot { background: var(--neon-orange); }
+        .critical .status-dot { background: var(--neon-red); }
+
+        .bar-outer {
+            flex-grow: 1;
+            height: 8px;
+            background: var(--border-outer);
+            padding: 1px;
+            margin: 0 4px;
+        }
+        .bar-inner { height: 100%; background: var(--neon-blue); }
+
+        /* Acciones Derecha */
+        .stats-box { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .stat-val { color: var(--text-white); }
+        
+        .actions-box { margin-top: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-action { padding: 12px; font-size: 10px; }
+
+        /* Footer Main Window */
+        .window-footer { display: flex; gap: 10px; height: 35px; }
+        .log-box { display: flex; align-items: center; padding: 0 15px; background: var(--ui-bg-dark); }
+        
+        /* Tabs Footer */
+        .hud-bottom { display: flex; gap: 8px; margin-top: 15px; }
+        .tab-btn { padding: 12px 25px; font-size: 10px; border-radius: 4px; }
+        .tab-btn.active { color: var(--neon-green); box-shadow: inset 2px 2px 0px var(--neon-green-dark), inset -2px -2px 0px var(--border-outer); }
+    </style>
+</head>
+<body>
+
+    <!-- HUD SUPERIOR -->
+    <div class="hud-top">
+        <div class="hud-box pixel-border">
+            <span>🕒 SOL 138</span>
+        </div>
+        <div class="hud-box pixel-border">
+            <span style="color: var(--neon-blue);">💧 H2O: 14,850</span>
+            <span style="color: var(--gold);">⚡ PWR: 9,620</span>
+            <span style="color: #d97757;">📦 NTR: 6,430</span>
+            <span style="color: var(--neon-green);">🌱 BMS: 11,100</span>
+            <span style="color: var(--neon-blue);">💨 O2: 97%</span>
+        </div>
+    </div>
+
+    <!-- VENTANA PRINCIPAL -->
+    <div class="main-window pixel-border">
+        <div class="window-header pixel-border">HYDROPONICS BAY - SECTOR A</div>
+        <div class="btn-close pixel-border">X</div>
+
+        <div class="window-content">
+            
+            <!-- PANEL IZQUIERDO -->
+            <div class="panel-side pixel-border">
+                <div class="panel-title">MODULES LIST</div>
+                <div class="module-list" id="mod-list"></div>
+                <div class="tasks-box">
+                    <div style="color: var(--neon-green);">☑ Current tasks (For Br lvation center)</div>
+                    <div style="margin-top: 10px;">☐ Harvest become runting spacche space hydroponics</div>
+                </div>
+            </div>
+
+            <!-- PANEL CENTRAL -->
+            <div class="panel-center pixel-border" id="grid"></div>
+
+            <!-- PANEL DERECHO -->
+            <div class="panel-side pixel-border">
+                <div class="panel-title">SELECTED:</div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <div style="color: var(--text-white); font-size: 10px;">MOD 14</div>
+                    <div style="color: var(--neon-green); margin-top: 8px;">(Lettuce, Optimal)</div>
+                </div>
+                
+                <div class="stats-box">
+                    <div style="display: flex; justify-content: space-between;"><span>Growth:</span> <span class="stat-val">88%</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>H2O:</span> <span class="stat-val">95%</span></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Temp:</span> <span class="stat-val">23°C</span></div>
+                </div>
+
+                <div class="actions-box">
+                    <button class="pixel-btn btn-action">WATER</button>
+                    <button class="pixel-btn btn-action">FEED</button>
+                    <button class="pixel-btn btn-action" style="color: var(--gold);">REPAIR</button>
+                    <button class="pixel-btn btn-action" style="color: var(--neon-green);">HARVEST</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGS -->
+        <div class="window-footer">
+            <div class="log-box pixel-border" style="flex-grow: 1;">STATION LOGS</div>
+            <div class="log-box pixel-border" style="color: var(--neon-orange); gap: 15px;">
+                ⚠️ ALERTS (2 Active) 
+                <span style="color: var(--neon-green);">◀ ▶</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABS INFERIORES -->
+    <div class="hud-bottom">
+        <button class="pixel-btn tab-btn">BUILD</button>
+        <button class="pixel-btn tab-btn active">MANAGE</button>
+        <button class="pixel-btn tab-btn">CREW</button>
+        <button class="pixel-btn tab-btn">RESEARCH</button>
+        <button class="pixel-btn tab-btn">MAP</button>
+    </div>
+
+    <script>
+        // Llenar Módulos
+        const modList = document.getElementById('mod-list');
+        modList.innerHTML = `<div class="mod-item active">MOD 01 - MOD 24</div>`;
+        ["02 - MOD 16", "03 - MOD 18", "04 - MOD 20", "05 - MOD 21", "06 - MOD 22", "07 - MOD 23", "08 - MOD 24"].forEach(item => {
+            modList.innerHTML += `<div class="mod-item">MOD ${item}</div>`;
+        });
+
+        // Llenar Grilla (Misma data)
+        const plantsData = [
+            { name: "Lettuce", icon: "🥬", status: "Optimal", h2o: 90 }, { name: "Tomato", icon: "🍅", status: "Optimal", h2o: 90 }, { name: "Wheat", icon: "🌾", status: "Optimal", h2o: 50 }, { name: "Wheat", icon: "🌾", status: "Optimal", h2o: 90 },
+            { name: "Tomato", icon: "🍅", status: "Optimal", h2o: 50 }, { name: "Tomato", icon: "🍅", status: "Optimal", h2o: 90 }, { name: "Berry", icon: "🍇", status: "Optimal", h2o: 90 }, { name: "Berry", icon: "🫐", status: "Optimal", h2o: 90 },
+            { name: "Lettuce", icon: "🥬", status: "Optimal", h2o: 90 }, { name: "Tomato", icon: "🍅", status: "Optimal", h2o: 90 }, { name: "Lettuce", icon: "🥬", status: "Alert", h2o: 50, alertType: 'alert' }, { name: "Radish", icon: "🔴", status: "Critical Failure", h2o: 50, alertType: 'critical' },
+            { name: "Lettuce", icon: "🥬", status: "Optimal", h2o: 90 }, { name: "Wheat", icon: "🌾", status: "Optimal", h2o: 90 }, { name: "Lettuce", icon: "🥬", status: "Critical Failure", h2o: 50, alertType: 'critical' }, { name: "Lettuce", icon: "🥬", status: "Optimal", h2o: 90 }
+        ];
+
+        const grid = document.getElementById('grid');
+        plantsData.forEach(p => {
+            let cssClass = p.alertType || '';
+            grid.innerHTML += `
+                <div class="plant-card ${cssClass}">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="plant-img-box">${p.icon}</div>
+                        <div style="text-align: right;">
+                            <div style="color: var(--text-white); margin-bottom: 5px;">${p.name}</div>
+                            <div style="color: ${p.alertType == 'critical' ? 'var(--neon-red)' : p.alertType == 'alert' ? 'var(--neon-orange)' : 'var(--neon-green)'};"><span class="status-dot"></span>${p.status}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-top: 8px;">
+                        <span style="font-size: 6px;">H20:</span>
+                        <div class="bar-outer"><div class="bar-inner" style="width: ${p.h2o}%;"></div></div>
+                        <span style="font-size: 6px;">${p.h2o}%</span>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
