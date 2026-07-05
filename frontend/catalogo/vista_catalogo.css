@@ -1,0 +1,21 @@
+
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--neon-cyan);
+            margin: 0;
+            padding: 20px;
+            /* Fondo de grilla */
+            background-image: 
+                linear-gradient(rgba(45, 212, 191, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45, 212, 191, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Contenedor del Catálogo (Modal) */
+        
