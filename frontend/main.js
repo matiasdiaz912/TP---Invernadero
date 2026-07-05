@@ -1,6 +1,13 @@
 const catalog_button = document.getElementById("button_catalog");
 const main_view = document.getElementById("main_view");
+const cant_comida = document.getElementById("cant_comida")
+const cant_agua = document.getElementById("cant_agua")
+const cant_energia = document.getElementById("cant_energia")
+const cant_oxigeno = document.getElementById("cant_oxigeno")
+const cant_nutrientes = document.getElementById("cant_nutrientes")
 let btn_close;
+
+
 
 function cargarCatalogo(plantas) {
     const catalog = document.createElement("div");
@@ -70,21 +77,75 @@ const contador_dias = document.getElementById("contador_dias")
 let contador = 0
 let contador_encendido = false
 
-boton_avanzar_dia.addEventListener("click", () => {
+boton_avanzar_dia.addEventListener("click", async () => {
     contador_encendido = !contador_encendido
-    if(!contador_encendido){
+    if (!contador_encendido) {
         boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
         return
-    } 
-        boton_avanzar_dia.innerText = "DETENER CICLO DÍA"
-    let timer = setInterval(() => {
+    }
+    boton_avanzar_dia.innerText = "DETENER CICLO DÍA"
+    let timer = setInterval(async () => {
         if (!contador_encendido) {
             contador_encendido = false
             clearInterval(timer)
             return
         }
-        
+        if (contador == 0) {
+            generar_logs("SISTEMA INICIADO... [OK]", "info")
+        }
+
+        if (contador % 10 == 0) {
+            await generar_evento()
+        }
+        await obtener_recursos()
+
         contador++;
         contador_dias.innerText = `DÍA: [ ${contador} ]`
     }, 1000)
 })
+
+const generar_evento = async () => {
+    const response = await fetch("http://localhost:3000/evento")
+    const evento = await response.json()
+    let evento_banner = document.createElement("div")
+    evento_banner.innerHTML = `
+                    <h3>${evento.nombre}</h3>
+                    <p>${evento.descripcion}</p>
+                `
+    evento_banner.classList.add("evento-banner")
+    main_view.appendChild(evento_banner)
+    if (evento.tipo == "negativo") {
+        generar_logs(`DIA ${contador}: ALERTA! ${evento.nombre} - ${evento.descripcion}`, "alerta")
+    } else {
+        generar_logs(`DIA ${contador}: VAYA SUERTE!: ${evento.nombre} - ${evento.descripcion}`, "info")
+    }
+    setTimeout(() => {
+        evento_banner.remove()
+    }, 5000)
+}
+
+const generar_logs = (mensaje, tipo) => {
+    if (document.querySelector("footer").children.length == 5) {
+        document.querySelector("footer").children[0].remove()
+    }
+    let log_sistema_iniciado = document.createElement("div")
+    log_sistema_iniciado.classList.add("log-entry")
+    if (tipo == "alerta") {
+        log_sistema_iniciado.style.color = "var(--neon-alert)"
+    } else {
+        log_sistema_iniciado.style.color = "#94a3b8"
+    }
+    log_sistema_iniciado.innerText = mensaje
+    document.querySelector("footer").appendChild(log_sistema_iniciado)
+
+}
+
+const obtener_recursos = async () => {
+    const response = await fetch("http://localhost:3000/recursos")
+    const recursos = await response.json()    
+    cant_agua.innerText = recursos.cant_agua
+    cant_oxigeno.innerText = recursos.cant_oxigeno
+    cant_energia.innerText = recursos.cant_energia
+    cant_nutrientes.innerText = recursos.cant_nutrientes
+    cant_comida.innerText = recursos.cant_comida
+}
