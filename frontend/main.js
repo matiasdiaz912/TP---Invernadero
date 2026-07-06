@@ -142,10 +142,72 @@ const generar_logs = (mensaje, tipo) => {
 
 const obtener_recursos = async () => {
     const response = await fetch("http://localhost:3000/recursos")
-    const recursos = await response.json()    
+    const recursos = await response.json()
     cant_agua.innerText = recursos.cant_agua
     cant_oxigeno.innerText = recursos.cant_oxigeno
     cant_energia.innerText = recursos.cant_energia
     cant_nutrientes.innerText = recursos.cant_nutrientes
     cant_comida.innerText = recursos.cant_comida
+    return recursos
 }
+
+//Modulos
+
+let crear_modulo_button = document.getElementById("crear-modulo-button")
+crear_modulo_button.addEventListener("click", async () => {
+    let recursos = await obtener_recursos()
+    let form_modulo = document.createElement("form")
+    form_modulo.innerHTML = `
+        <button id="btn-close-modulo" class="btn-close btn-modulo">[ CERRAR ]</button>
+        <label>Nombre: </label>
+        <input required id="nombre_modulo" type="text"></input>
+        <label>Cantidad de agua suministrada:
+            <input value="${recursos.cant_agua}" id="input_agua" type="range" min="0" max="${recursos.cant_agua}"></input>
+            <p>${recursos.cant_agua}</p>
+        </label>
+        <label>Cantidad de oxígeno suministrado:
+            <input value="${recursos.cant_oxigeno}" id="input_oxigeno" type="range" min="0" max="${recursos.cant_oxigeno}"></input>
+            <p>${recursos.cant_oxigeno}</p>
+        </label>
+        <label>Cantidad de energía suministrada:
+            <input value="${recursos.cant_energia}" id="input_energia" type="range" min="0" max="${recursos.cant_energia}"></input>
+            <p>${recursos.cant_energia}</p>
+        </label>
+        <label>Cantidad de nutrientes suministrados:
+            <input value="${recursos.cant_nutrientes}" id="input_nutrientes" type="range" min="0" max="${recursos.cant_nutrientes}"></input>
+            <p>${recursos.cant_nutrientes}</p>
+        </label>
+        <button class="btn-close crear-modulo-boton" type="submit">CREAR MÓDULO</button>
+    `
+    form_modulo.classList.add("formulario-modulo")
+    main_view.appendChild(form_modulo)
+    let inputs = form_modulo.querySelectorAll("input")
+    let btn_cerrar = document.getElementById("btn-close-modulo")
+    btn_cerrar.addEventListener("click", () => {
+        form_modulo.remove()
+    })
+
+    form_modulo.addEventListener("submit", async () =>{
+        await fetch("http://localhost:3000/modulos", {
+            method: "POST",
+            body: JSON.stringify({
+               nombre: inputs[0].value,
+               cant_agua: inputs[1].value,
+               cant_oxigeno: inputs[2].value,
+               cant_energia: inputs[3].value,
+               cant_nutrientes: inputs[4].value
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+    })
+
+    form_modulo.querySelectorAll("input[type='range']").forEach((input) => {
+        input.addEventListener("input", (event) => {
+            const value = event.target.value;
+            const pElement = event.target.nextElementSibling;
+            pElement.textContent = value;
+        })
+    })
+})

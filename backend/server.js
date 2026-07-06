@@ -116,11 +116,13 @@ const PLANTAS = [
 
 ]
 
+const modulos = []
 
 const app = express()
 
 app.use(cors());
 app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando")
@@ -148,6 +150,13 @@ app.get("/evento", (req, res) => {
 
 app.get("/recursos", (req, res) => {
     res.status(200).json(RECURSOS)
+})
+
+app.post("/modulos", (req,res) =>{
+    let nuevo_modulo = {...req.body, id: modulos.length + 1, plantas: []}
+    modulos.push(nuevo_modulo)
+    console.log(modulos);
+    
 })
 
 function generarEventoAleatorio() {
