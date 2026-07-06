@@ -28,21 +28,20 @@
         <div>
             <h3 style="margin-top: 0;">ESTADO RECURSOS</h3>
             <ul class="resource-list">
-                <li><span>COMIDA</span> <span>075%</span></li>
-                <li><span>AGUA</span> <span>18 L</span></li>
-                <li><span>OXÍGENO</span> <span>15%</span></li>
-                <li><span>NUTRIENTES</span> <span>12 u</span></li>
-                <li><span>ENERGÍA</span> <span>10%</span></li>
+                <li><span>COMIDA</span> <span id="cant_comida">-</span></li>
+                <li><span>AGUA</span> <span id="cant_agua">-</span></li>
+                <li><span>OXÍGENO</span> <span id="cant_oxigeno">-</span></li>
+                <li><span>NUTRIENTES</span> <span id="cant_nutrientes">-</span></li>
+                <li><span>ENERGÍA</span> <span id="cant_energia">-</span></li>
             </ul>
         </div>
 
         <div style="flex-grow: 1;">
             <h3>PANEL DE CONTROL</h3>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button id="button_catalog" class="btn-action">CREAR MODULO</button>
+                <button class="btn-action">CREAR MODULO</button>
                 <button class="btn-action">GESTIONAR MÓDULO 1</button>
                 <button id="button_catalog" class="btn-action">CATÁLOGO DE SEMILLAS</button>
-                <button id="button_catalog" class="btn-action">ADQUIRIR SEMILLAS</button>
             </div>
         </div>
 
@@ -50,12 +49,12 @@
     </aside>
 
     <footer class="glass-panel">
-        <div class="log-entry" style="color: #94a3b8;">SISTEMA INICIADO... [OK]</div>
+        <!-- <div class="log-entry" style="color: #94a3b8;">SISTEMA INICIADO... [OK]</div>
         <div class="log-entry" style="color: #94a3b8;">RECURSOS OPTIMIZADOS.</div>
         <div class="log-entry">INVENTARIO ACTUALIZADO: SE HAN CONSUMIDO 5 UNIDADES DE COMIDA.</div>
         <div class="log-entry" style="color: var(--neon-alert);">ADVERTENCIA: SE DETECTA TORMENTA DE ARENA
             APROXIMÁNDOSE. PANELES SOLARES AL 50%.</div>
-        <div class="log-entry animate-pulse" style="margin-top: 10px;">ESPERANDO COMANDO_</div>
+        <div class="log-entry animate-pulse" style="margin-top: 10px;">ESPERANDO COMANDO_</div> -->
     </footer>
 
     <script src="main.js"></script>

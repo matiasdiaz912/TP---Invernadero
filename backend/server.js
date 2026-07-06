@@ -7,54 +7,53 @@ const EVENTOS_ALEATORIOS = [
         nombre: "Tormenta de Arena Marciana",
         descripcion: "El polvo denso bloquea los paneles solares y satura los filtros.",
         tipo: "negativo",
-        efectos: { energy: -15, oxygen: -5, water: 0, nutrients: 0 }
+        efectos: { energia: -15, oxigeno: -5, agua: 0, nutrientes: 0 }
     },
     {
         id: "fuga_tanques",
         nombre: "Microrrotura en Tanques",
         descripcion: "La fatiga del material provocó una leve fuga de líquidos antes de ser sellada.",
         tipo: "negativo",
-        efectos: { energy: 0, oxygen: 0, water: -8, nutrients: 0 }
+        efectos: { energia: 0, oxigeno: 0, agua: -8, nutrientes: 0 }
     },
     {
         id: "plaga_hongos",
         nombre: "Contaminación Fúngica",
         descripcion: "Un hongo resistente está consumiendo los sustratos de los módulos.",
         tipo: "negativo",
-        efectos: { energy: 0, oxygen: 0, water: 0, nutrients: -5 }
+        efectos: { energia: 0, oxigeno: 0, agua: 0, nutrientes: -5 }
     },
     {
         id: "vientos_optimos",
         nombre: "Corrientes de Viento Óptimas",
         descripcion: "Las turbinas eólicas auxiliares operaron a máxima capacidad esta noche.",
         tipo: "positivo",
-        efectos: { energy: +10, oxygen: 0, water: 0, nutrients: 0 }
+        efectos: { energia: +10, oxigeno: 0, agua: 0, nutrientes: 0 }
     },
     {
         id: "hielo_subterraneo",
         nombre: "Veta de Hielo Encontrada",
         descripcion: "El rover automatizado extrajo un bloque de permafrost marciano.",
         tipo: "positivo",
-        efectos: { energy: -2, oxygen: 0, water: +12, nutrients: 0 }
+        efectos: { energia: -2, oxigeno: 0, agua: +12, nutrientes: 0 }
     },
     {
         id: "falla_electrica",
         nombre: "Cortocircuito en Soporte Vital",
         descripcion: "Los sistemas de purificación se detuvieron temporalmente.",
         tipo: "negativo",
-        efectos: { energy: -5, oxygen: -10, water: 0, nutrients: 0 }
+        efectos: { energia: -5, oxigeno: -10, agua: 0, nutrientes: 0 }
     }
 ];
 
 
-const RECURSOS = [
-    {
-        cant_agua: 100,
-        cant_oxigeno: 100,
-        cant_energia: 100,
-        cant_nutrientes: 100
-    }
-]
+const RECURSOS = {
+    cant_agua: 1000,
+    cant_oxigeno: 100,
+    cant_energia: 90,
+    cant_nutrientes: 300,
+    cant_comida: 50
+}
 
 
 const PLANTAS = [
@@ -83,7 +82,7 @@ const PLANTAS = [
         duracion: 3,
         agua_producida: 3,
         nivel_requerido: 1,
-        pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>' 
+        pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>'
     },
 
     {
@@ -131,13 +130,29 @@ app.get("/plantas", (req, res) => {
     res.json(PLANTAS)
 })
 
-app.get("/ver_planta/:id", (req, res) =>{
+app.get("/ver_planta/:id", (req, res) => {
     let id = req.params.id
 
     let planta = PLANTAS.find((planta) => planta.id == parseInt(id))
     res.json(planta)
 })
 
+app.get("/evento", (req, res) => {
+    let evento = generarEventoAleatorio()
+    RECURSOS.cant_agua += evento.efectos.agua
+    RECURSOS.cant_oxigeno += evento.efectos.oxigeno
+    RECURSOS.cant_energia += evento.efectos.energia
+    RECURSOS.cant_nutrientes += evento.efectos.nutrientes
+    res.status(200).json(evento)
+})
 
+app.get("/recursos", (req, res) => {
+    res.status(200).json(RECURSOS)
+})
+
+function generarEventoAleatorio() {
+    const indiceAleatorio = Math.floor(Math.random() * EVENTOS_ALEATORIOS.length);
+    return EVENTOS_ALEATORIOS[indiceAleatorio];
+}
 
 app.listen(3000, () => console.log("Servidor iniciado"))
