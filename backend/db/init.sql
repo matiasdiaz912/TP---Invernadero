@@ -44,3 +44,15 @@ CREATE TABLE modulos (
     nutrientes       DECIMAL(8,2) DEFAULT 0,
     energia          DECIMAL(8,2) DEFAULT 0
 );
+
+CREATE TABLE plantas (
+    id                    SERIAL PRIMARY KEY,
+    modulo_id             INT NOT NULL REFERENCES modulos(id),
+    especie_id            INT NOT NULL REFERENCES especies(id),
+    dia_sembrado          INT NOT NULL,
+    dia_cosecha           INT NOT NULL,
+    estado                VARCHAR(30) DEFAULT 'creciendo'
+                          CHECK (estado IN ('creciendo', 'lista_para_cosechar', 'seca', 'perdida')),
+    porcentaje_agua       DECIMAL(5,2) DEFAULT 100,
+    porcentaje_nutrientes DECIMAL(5,2) DEFAULT 100
+);
