@@ -32,3 +32,15 @@ CREATE TABLE especies (
     nivel_requerido             INT NOT NULL,
     descripcion                 TEXT
 );
+
+CREATE TABLE modulos (
+    id               SERIAL PRIMARY KEY,
+    nivel            INT DEFAULT 1,
+    estado           VARCHAR(20) DEFAULT 'estable'
+                     CHECK (estado IN ('estable', 'critico', 'sobreriego', 'desechado')),
+    bloques_totales  INT DEFAULT 2,
+    bloques_ocupados INT DEFAULT 0,
+    agua             DECIMAL(8,2) DEFAULT 0,
+    nutrientes       DECIMAL(8,2) DEFAULT 0,
+    energia          DECIMAL(8,2) DEFAULT 0
+);
