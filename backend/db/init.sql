@@ -10,3 +10,11 @@ CREATE TABLE base_espacial (
     estado           VARCHAR(20) DEFAULT 'en_curso'
                      CHECK (estado IN ('en_curso', 'victoria', 'derrota'))
 );
+
+CREATE TABLE tripulantes (
+    id               SERIAL PRIMARY KEY,
+    cantidad         INT DEFAULT 10,
+    estado           VARCHAR(20) DEFAULT 'sano'
+                     CHECK (estado IN ('sano', 'desnutrido', 'critico')),
+    dias_sin_comer   INT DEFAULT 0
+);
