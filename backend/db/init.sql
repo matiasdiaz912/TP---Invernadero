@@ -66,3 +66,19 @@ CREATE TABLE registros_dia (
     nutrientes_consumidos DECIMAL(8,2),
     evento_random         TEXT
 );
+
+INSERT INTO base_espacial (dia_actual, nivel, agua, nutrientes, energia, comida, total_cosechas, estado)
+VALUES (1, 1, 20, 20, 10, 100, 0, 'en_curso');
+
+INSERT INTO tripulantes (cantidad, estado, dias_sin_comer)
+VALUES (10, 'sano', 0);
+
+INSERT INTO modulos (nivel, estado, bloques_totales, bloques_ocupados, agua, nutrientes, energia)
+VALUES (1, 'estable', 2, 0, 0, 0, 0);
+
+INSERT INTO especies (nombre, bloques_requeridos, agua_por_dia, nutrientes_por_dia, energia_por_dia, comida_por_dia, agua_producida_por_cosecha, dias_hasta_cosecha, nivel_requerido, descripcion)
+VALUES
+('Tomate',     1, 2.0, 2.0, 1.0, 1.0, 8.0,  5,  1, 'Planta resistente y versátil. Buena fuente de alimento con ciclo de cosecha medio.'),
+('Lechuga',    1, 1.0, 1.0, 0.5, 0.5, 3.0,  3,  1, 'Crece rápido y produce oxígeno. Ideal para los primeros días de la colonia.'),
+('Rábano',     1, 0.5, 1.0, 0.5, 1.0, 1.5,  3,  1, 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
+('Papa',       2, 3.0, 3.0, 1.5, 0.0, 15.0, 8,  3, 'Requiere espacio y paciencia, pero su cosecha es la más abundante en
