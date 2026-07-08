@@ -1,3 +1,4 @@
+import pool from './db/my_postgre.js'
 import express from 'express'
 import cors from 'cors'
 
