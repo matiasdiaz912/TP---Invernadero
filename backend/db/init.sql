@@ -18,3 +18,17 @@ CREATE TABLE tripulantes (
                      CHECK (estado IN ('sano', 'desnutrido', 'critico')),
     dias_sin_comer   INT DEFAULT 0
 );
+
+CREATE TABLE especies (
+    id                          SERIAL PRIMARY KEY,
+    nombre                      VARCHAR(100) NOT NULL,
+    bloques_requeridos          INT NOT NULL,
+    agua_por_dia                DECIMAL(5,2) NOT NULL,
+    nutrientes_por_dia          DECIMAL(5,2) NOT NULL,
+    energia_por_dia             DECIMAL(5,2) NOT NULL,
+    comida_por_dia              DECIMAL(5,2) NOT NULL,
+    agua_producida_por_cosecha  DECIMAL(5,2) NOT NULL,
+    dias_hasta_cosecha          INT NOT NULL,
+    nivel_requerido             INT NOT NULL,
+    descripcion                 TEXT
+);
