@@ -56,3 +56,13 @@ CREATE TABLE plantas (
     porcentaje_agua       DECIMAL(5,2) DEFAULT 100,
     porcentaje_nutrientes DECIMAL(5,2) DEFAULT 100
 );
+
+CREATE TABLE registros_dia (
+    id                    SERIAL PRIMARY KEY,
+    dia                   INT NOT NULL,
+    comida_inicio         INT NOT NULL,
+    comida_fin            INT NOT NULL,
+    agua_consumida        DECIMAL(8,2),
+    nutrientes_consumidos DECIMAL(8,2),
+    evento_random         TEXT
+);
