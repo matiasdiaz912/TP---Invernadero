@@ -299,3 +299,195 @@ footer {
     font-weight: bold;
     text-transform: uppercase;
 }
+/*--------ESTETICA DE LA VISTA MODULAR -----*/
+/* ==========================================================================
+   1. CONFIGURACIÓN GENERAL Y FONDO (Estilo HUD de Videojuegos)
+   ========================================================================== */
+body {
+    background-color: #050d12;
+    /* Rejilla cuadriculada azul cian de fondo */
+    background-image: linear-gradient(rgba(0, 242, 254, 0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0, 242, 254, 0.04) 1px, transparent 1px);
+    background-size: 35px 35px;
+    color: #ffffff;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    margin: 0;
+    padding: 30px;
+}
+
+/* Contenedor principal que centraliza toda la interfaz en pantalla */
+.hud-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   2. ENCABEZADO Y SELECTOR SUPERIOR
+   ========================================================================== */
+.hud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px dashed rgba(0, 242, 254, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+.hud-title {
+    color: #ff00ea;
+    text-shadow: 0 0 10px rgba(255, 0, 234, 0.5);
+    margin: 0;
+    font-size: 38px;
+}
+
+.hud-title span {
+    color: #00f2fe;
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+}
+
+.hud-status-top {
+    color: #00f2fe;
+    opacity: 0.8;
+}
+
+.control-section {
+    margin-bottom: 30px;
+}
+
+.selector-panel {
+    background-color: #172127;
+    border: 3px solid #485861;
+    border-radius: 8px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+    display: inline-block;
+    min-width: 320px;
+    padding: 4px;
+}
+
+.selector-border-inner {
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 4px;
+    padding: 10px 20px;
+}
+
+.selector-panel h2 {
+    color: #00f2fe;
+    font-size: 24px;
+    margin: 0 0 4px 0;
+}
+
+/* ==========================================================================
+   3. REJILLA PRINCIPAL (Fuerza las 3 columnas idénticas y simétricas)
+   ========================================================================== */
+.modules-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr); /* Columnas exactamente iguales */
+
+    gap: 25px; /* Espaciado uniforme */
+
+    max-width: 1100px;
+
+    margin: 0 auto; /* Centraliza la cuadrícula completa */
+
+} 
+
+ 
+
+/* ==========================================================================
+   4. TARJETAS DE MÓDULO (Clones perfectos en tamaño y altura)
+   ========================================================================== */
+.module-card {
+    background-color: rgba(6, 17, 24, 0.9);
+    border: 3px solid #ff00ea; /* Borde fucsia de tu diseño */
+    box-shadow: 0 0 15px rgba(255, 0, 234, 0.25);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Envía el botón siempre al fondo */
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 220px; /* Fuerza a que todas midan lo mismo de alto */
+}
+
+.card-inner-layout {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Espacio reservado para las cápsulas */
+.capsule-slot {
+    width: 80px;
+    height: 100px;
+    background-color: rgba(0, 242, 254, 0.05);
+    border: 2px solid rgba(0, 242, 254, 0.25);
+    border-radius: 12px;
+    flex-shrink: 0; /* Evita que se deforme el contenedor */
+}
+
+/* Textos de los módulos */
+.module-specs h3 {
+    margin: 0 0 6px 0;
+    font-size: 24px;
+    line-height: 1.1;
+    color: #ffffff;
+}
+
+.spec-line {
+    margin: 3px 0;
+    color: #8da4ad;
+}
+
+.white-text {
+    color: #ffffff;
+}
+
+/* Estados dinámicos de colores */
+.status-critical .status-indicator {
+    color: #ff3333;
+    text-shadow: 0 0 6px #ff3333;
+}
+
+.status-stable .status-indicator {
+    color: #00ff66;
+    text-shadow: 0 0 6px #00ff66;
+}
+
+/* ==========================================================================
+   5. BOTONES DE ACCIÓN (Estilo cian táctil)
+   ========================================================================== */
+.action-trigger {
+    background-color: transparent;
+    border: 2px solid #00f2fe;
+    color: #00f2fe;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    padding: 6px 0;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 6px;
+    text-shadow: 0 0 5px #00f2fe;
+    transition: all 0.15s ease;
+    margin-top: 15px;
+}
+
+.action-trigger:hover {
+    background-color: #00f2fe;
+    color: #050d12;
+    box-shadow: 0 0 15px #00f2fe;
+    text-shadow: none;
+}
+
+/* Oculta por completo el círculo intrusivo del fondo anterior */
+.greenhouse-center-backup {
+    display: none !important;
+}
+
+/* Diseño adaptativo para pantallas medianas */
+@media (max-width: 1000px) {
+    .modules-grid { grid-template-columns: repeat(2, 1fr); }
+}
