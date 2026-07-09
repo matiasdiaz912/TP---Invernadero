@@ -305,6 +305,11 @@ footer {
   border-radius: 5px;
 }
 
+.evento-positivo{
+  background-color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+}
+
 /* --- ESTILOS DEL RACK Y MÓDULOS --- */
 .modules-rack {
   position: absolute;
@@ -404,38 +409,57 @@ footer {
   opacity: 0.8;
 }
 
-
 /*Formulario modulo*/
 
-.formulario-modulo{
+.formulario-modulo {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   width: 50%;
-  height: 40%;
-  padding: 20px;
-  background-color: black;
+  height: 50%;
   border-radius: 10px;
   border: var(--neon-cyan) 2px solid;
+  text-transform: uppercase;
   color: white;
+  box-shadow: 0 0 5px var(--neon-cyan) inset;
 
-    & label{
+  & form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 80%;
+    padding: 20px;
+
+    & label {
       display: flex;
       align-items: center;
       gap: 10px;
-    }  
+    }
 
-    & .crear-modulo-boton{
+    & .crear-modulo-boton {
       border-radius: 10px;
       width: 50%;
       align-self: center;
       padding: 5px;
     }
 
-    & .btn-modulo{
+    & .btn-modulo {
       border-radius: 10px;
       width: 15%;
       align-self: end;
     }
+  }
 }
 
+.module-card {
+  display: flex;
+  justify-content: space-between;
+}
+
+.barra-info-modulos{
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(45, 212, 191, 0.05);
+  list-style: none;
+}

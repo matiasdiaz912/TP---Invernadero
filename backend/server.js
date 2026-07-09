@@ -69,6 +69,7 @@ const PLANTAS = [
         duracion: 5,
         agua_producida: 8,
         nivel_requerido: 1,
+        estado: "inicial",
         pathSvg: '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>'
     },
 
@@ -83,6 +84,7 @@ const PLANTAS = [
         duracion: 3,
         agua_producida: 3,
         nivel_requerido: 1,
+        estado: "inicial",
         pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>'
     },
 
@@ -97,6 +99,7 @@ const PLANTAS = [
         duracion: 8,
         agua_producida: 15,
         nivel_requerido: 2,
+        estado: "inicial",
         pathSvg: '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20 M35 25 Q50 30 65 25"/>'
     },
 
@@ -112,10 +115,12 @@ const PLANTAS = [
         duracion: 2,
         agua_producida: 4,
         nivel_requerido: 4,
+        estado: "inicial",
         pathSvg: '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>'
     },
 
 ]
+
 
 const modulos = []
 
@@ -156,9 +161,13 @@ app.get("/recursos", (req, res) => {
 app.post("/modulos", (req,res) =>{
     let nuevo_modulo = {...req.body, id: modulos.length + 1, plantas: []}
     modulos.push(nuevo_modulo)
-    console.log(modulos);
-    
 })
+
+app.get("/modulos", (req,res) =>{
+    res.json(modulos)
+})
+
+
 
 function generarEventoAleatorio() {
     const indiceAleatorio = Math.floor(Math.random() * EVENTOS_ALEATORIOS.length);
