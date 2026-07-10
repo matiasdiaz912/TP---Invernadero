@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal de Control - Invernadero</title>
+    <link rel="stylesheet" href="style.css?v=4">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="cyber-terminal">
+        <header class="terminal-header">
+            <h1 class="terminal-title">ÁREA DE MODULOS  // <span>INVERNADERO</span></h1>
+            <div class="terminal-diag">--Gestion y estados de  los modulos--</div>
+        </header>
+
+        <div class="monitor-bar">
+            <div class="monitor-box">
+                <p>Módulo Seleccionado: <span id="active-id">MOD-02 [SISTEMA INICIALIZADO]</span></p>
+            </div>
+        </div>
+
+        <main class="cyber-grid" id="dynamic-grid">
+            </main>
+    </div>
+
+    <script>
+    const modulosNuevos = [
+        { id: "02", nombre: "Hidropónico", nivel: 1, estado: "Crítico", tipo: "critical" },
+        { id: "03", nombre: "Aromáticas", nivel: 2, estado: "Estable", tipo: "stable" },
+        { id: "04", nombre: "Cultivo de Base", nivel: 1, estado: "Estable", tipo: "stable" },
+        { id: "05", nombre: "Investigación", nivel: 5, estado: "Estable", tipo: "stable" },
+        { id: "06", nombre: "Experimental", nivel: 3, estado: "Estable", tipo: "stable" },
+        { id: "10", nombre: "Biome Petri", nivel: 1, estado: "Perdida", tipo: "perdida" }
+    ];
+
+    const gridContainer = document.getElementById('dynamic-grid');
+    gridContainer.innerHTML = ""; 
+
+    modulosNuevos.forEach(mod => {
+        const card = document.createElement('div');
+        card.className = `cyber-card card-${mod.type}`;
+        
+        
+        let claseColorTexto = "text-stable"; // Por defecto verde
+        
+        if (mod.tipo === "critical") {
+            claseColorTexto = "text-critical"; // Asigna tu color rojo
+        } else if (mod.tipo === "perdida") {
+            claseColorTexto = "text-perdida";  // Asigna tu color naranja
+        }
+        
+        card.innerHTML = `
+            <div class="card-top-line">
+                <span>MOD_${mod.id}</span>
+                
+            </div>
+            
+            <div class="card-main">
+                <div class="module-visual-placeholder"></div>
+                <div class="module-info">
+                    <h3>Módulo ${mod.id}:<br>${mod.nombre}</h3>
+                    <p class="stat">Nivel: <span>${mod.nivel}</span></p>
+                    <p class="stat">Estado: <span class="status-text ${claseColorTexto}">${mod.estado}</span></p>
+                </div>
+            </div>
+
+            <button class="cyber-btn" onclick="document.getElementById('active-id').innerText='MOD-${mod.id} [${mod.nombre.toUpperCase()}]'">
+                [ VER ATRIBUTOS DETALLADOS ]
+            </button>
+        `;
+        gridContainer.appendChild(card);
+    });
+</script>
+</body>
+</html>
