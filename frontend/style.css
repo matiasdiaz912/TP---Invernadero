@@ -299,195 +299,185 @@ footer {
     font-weight: bold;
     text-transform: uppercase;
 }
-/*--------ESTETICA DE LA VISTA MODULAR -----*/
-/* ==========================================================================
-   1. CONFIGURACIÓN GENERAL Y FONDO (Estilo HUD de Videojuegos)
-   ========================================================================== */
+/*--------ESTETICA DE AREA MODULAR -----*/
 body {
-    background-color: #050d12;
-    /* Rejilla cuadriculada azul cian de fondo */
-    background-image: linear-gradient(rgba(0, 242, 254, 0.04) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(0, 242, 254, 0.04) 1px, transparent 1px);
-    background-size: 35px 35px;
-    color: #ffffff;
+    background-color: #03080c;
+    background-image: linear-gradient(rgba(0, 255, 170, 0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0, 255, 170, 0.02) 1px, transparent 1px);
+    background-size: 25px 25px;
+    color: #eceff1;
     font-family: 'VT323', monospace;
     font-size: 22px;
     margin: 0;
-    padding: 30px;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
 }
 
-/* Contenedor principal que centraliza toda la interfaz en pantalla */
-.hud-container {
+.cyber-terminal {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 25px;
+    background-color: rgba(5, 14, 20, 0.95);
+    border: 1px solid #1a323d;
+    border-radius: 6px;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+    box-sizing: border-box;
 }
 
-/* ==========================================================================
-   2. ENCABEZADO Y SELECTOR SUPERIOR
-   ========================================================================== */
-.hud-header {
+.terminal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px dashed rgba(0, 242, 254, 0.2);
-    padding-bottom: 10px;
-    margin-bottom: 25px;
+    border-bottom: 3px double #1a323d;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
 }
 
-.hud-title {
-    color: #ff00ea;
-    text-shadow: 0 0 10px rgba(255, 0, 234, 0.5);
+.terminal-title {
     margin: 0;
-    font-size: 38px;
+    font-size: 36px;
+    color: #00ffaa;
+    letter-spacing: 2px;
 }
+.terminal-title span { color: #ffffff; }
+.terminal-diag { color: #546e7a; font-size: 18px; }
 
-.hud-title span {
-    color: #00f2fe;
-    text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
-}
-
-.hud-status-top {
-    color: #00f2fe;
-    opacity: 0.8;
-}
-
-.control-section {
+.monitor-bar {
+    background-color: #071118;
+    border: 1px solid #102a36;
+    padding: 12px 18px;
     margin-bottom: 30px;
-}
-
-.selector-panel {
-    background-color: #172127;
-    border: 3px solid #485861;
-    border-radius: 8px;
-    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
-    display: inline-block;
-    min-width: 320px;
-    padding: 4px;
-}
-
-.selector-border-inner {
-    border: 1px solid rgba(0, 242, 254, 0.3);
     border-radius: 4px;
-    padding: 10px 20px;
 }
+.monitor-bar p { margin: 0; color: #00ffaa; }
+#active-id { color: #ffffff; font-weight: bold; }
 
-.selector-panel h2 {
-    color: #00f2fe;
-    font-size: 24px;
-    margin: 0 0 4px 0;
-}
-
-/* ==========================================================================
-   3. REJILLA PRINCIPAL (Fuerza las 3 columnas idénticas y simétricas)
-   ========================================================================== */
-.modules-grid {
-
+.cyber-grid {
     display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-    grid-template-columns: repeat(3, 1fr); /* Columnas exactamente iguales */
-
-    gap: 25px; /* Espaciado uniforme */
-
-    max-width: 1100px;
-
-    margin: 0 auto; /* Centraliza la cuadrícula completa */
-
-} 
-
- 
-
-/* ==========================================================================
-   4. TARJETAS DE MÓDULO (Clones perfectos en tamaño y altura)
-   ========================================================================== */
-.module-card {
-    background-color: rgba(6, 17, 24, 0.9);
-    border: 3px solid #ff00ea; /* Borde fucsia de tu diseño */
-    box-shadow: 0 0 15px rgba(255, 0, 234, 0.25);
-    border-radius: 16px;
+.cyber-card {
+    background-color: #09141c;
+    border: 1px solid #1c3d4f;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Envía el botón siempre al fondo */
+    justify-content: space-between;
     box-sizing: border-box;
-    width: 100%;
-    min-height: 220px; /* Fuerza a que todas midan lo mismo de alto */
+    min-height: 260px;
+    border-radius: 4px;
 }
 
-.card-inner-layout {
+.card-top-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #546e7a;
+    margin-bottom: 15px;
+}
+
+.card-main {
     display: flex;
     align-items: center;
     gap: 20px;
 }
 
-/* Espacio reservado para las cápsulas */
-.capsule-slot {
-    width: 80px;
-    height: 100px;
-    background-color: rgba(0, 242, 254, 0.05);
-    border: 2px solid rgba(0, 242, 254, 0.25);
-    border-radius: 12px;
-    flex-shrink: 0; /* Evita que se deforme el contenedor */
+.module-visual-placeholder {
+    width: 75px;
+    height: 95px;
+    background: linear-gradient(180deg, #102533 0%, #07121a 100%);
+    border: 1px solid #22495e;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    position: relative;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Textos de los módulos */
-.module-specs h3 {
-    margin: 0 0 6px 0;
-    font-size: 24px;
+.module-visual-placeholder::before {
+    content: "";
+    width: 32px;
+    height: 45px;
+    background-color: currentColor; 
+    border-radius: 0px 25px 0px 25px;
+    display: block;
+    filter: drop-shadow(0 0 8px currentColor);
+    transition: all 0.3s ease;
+}
+
+.module-visual-placeholder::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 35px;
+    background-color: rgba(3, 8, 12, 0.6);
+    transform: rotate(-30deg);
+}
+
+.module-info h3 {
+    margin: 0 0 10px 0;
+    color: #ffffff;
+    font-size: 26px;
     line-height: 1.1;
-    color: #ffffff;
+    letter-spacing: 1px;
 }
 
-.spec-line {
-    margin: 3px 0;
-    color: #8da4ad;
+.stat {
+    margin: 4px 0;
+    color: #a0a0a0;
+    font-size: 22px;
 }
 
-.white-text {
-    color: #ffffff;
+.stat span { color: #ffffff; }
+
+.status-text {
+    font-weight: bold;
+    text-shadow: 0 0 5px currentColor;
 }
 
-/* Estados dinámicos de colores */
-.status-critical .status-indicator {
-    color: #ff3333;
-    text-shadow: 0 0 6px #ff3333;
-}
+/* --- COLORES SEGÚN EL ESTADO  --- */
+.text-stable { color: #00ff00 !important; }
+.card-stable { border-top: 4px solid #00ff00 !important; }
+.card-stable .module-visual-placeholder { color: #00ff00 !important; border-color: rgba(0, 255, 0, 0.4); }
 
-.status-stable .status-indicator {
-    color: #00ff66;
-    text-shadow: 0 0 6px #00ff66;
-}
+.text-critical { color: hsl(0, 84%, 49%) !important; }
+.card-critical { border-top: 4px solid hsl(0, 84%, 49%)  !important; }
+.card-critical .module-visual-placeholder { color:hsl(0, 84%, 49%) !important; border-color: rgba(255, 51, 51, 0.4); }
 
-/* ==========================================================================
-   5. BOTONES DE ACCIÓN (Estilo cian táctil)
-   ========================================================================== */
-.action-trigger {
-    background-color: transparent;
-    border: 2px solid #00f2fe;
-    color: #00f2fe;
+.text-perdida { color: #ff9900 !important; }
+.card-perdida { border-top: 4px solid #ff9900 !important; }
+.card-perdida .module-visual-placeholder { color: #ff9900 !important; border-color: rgba(255, 153, 0, 0.4); }
+
+.cyber-btn {
+    background-color: #0c1f2b;
+    border: 1px solid #224a61;
+    color: #b0bec5;
     font-family: 'VT323', monospace;
-    font-size: 20px;
-    padding: 6px 0;
+    font-size: 19px;
+    padding: 7px 0;
     width: 100%;
     cursor: pointer;
-    border-radius: 6px;
-    text-shadow: 0 0 5px #00f2fe;
-    transition: all 0.15s ease;
     margin-top: 15px;
+    transition: all 0.15s ease;
+}
+.cyber-btn:hover {
+    background-color: #00ffaa;
+    color: #03080c;
+    border-color: #00ffaa;
+    box-shadow: 0 0 10px rgba(0, 255, 170, 0.4);
 }
 
-.action-trigger:hover {
-    background-color: #00f2fe;
-    color: #050d12;
-    box-shadow: 0 0 15px #00f2fe;
-    text-shadow: none;
-}
-
-/* Oculta por completo el círculo intrusivo del fondo anterior */
-.greenhouse-center-backup {
+.greenhouse-center-backup, div[class*="greenhouse"], div[class*="circle"], svg {
     display: none !important;
 }
 
-/* Diseño adaptativo para pantallas medianas */
-@media (max-width: 1000px) {
-    .modules-grid { grid-template-columns: repeat(2, 1fr); }
-}
+@media (max-width: 950px) { .cyber-grid { grid-template-columns: repeat(2, 1fr); } }
