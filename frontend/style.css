@@ -481,3 +481,149 @@ body {
 }
 
 @media (max-width: 950px) { .cyber-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/*estetica de boton menu-- */
+.btn-regresar {
+    color: #00ffcc; 
+    text-decoration: none;
+    font-family: monospace; 
+    font-weight: bold;
+    padding: 5px 10px;
+    border: 1px solid #00ffcc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Efecto cuando pasás el mouse */
+.btn-regresar:hover {
+    background-color: #00ffcc;
+    color: #0b131a; 
+    box-shadow: 0 0 10px #00ffcc;
+}
+.monitor-box {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;        
+}
+/*ESTETICA DE PLANTAS.HTML-------*/
+/* --- CONFIGURACIÓN MINIMAL MODERN --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.sim-interface {
+    background-color: #1a1f26;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 30px;
+}
+
+/* --- HEADER --- */
+.sim-header { margin-bottom: 25px; }
+.sim-header h1 { font-size: 22px; font-weight: 700; color: #ff00aa; }
+.sim-header .header-tag { color: #00ffaa; font-size: 14px; font-weight: 400; margin-left: 10px; }
+
+/* --- BARRA DE RECURSOS MEJORADA CON CONTROLES --- */
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.resource-card {
+    background-color: #242b35;
+    border: 1px solid #2e3743;
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.res-icon { font-size: 20px; }
+.res-info { display: flex; flex-direction: column; flex-grow: 1; }
+.res-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.res-title { font-size: 11px; color: #8fa0b5; font-weight: 600; }
+.res-value { font-size: 15px; font-weight: 700; }
+
+/* Asignación de colores de texto planos */
+.bg-cyan .res-value { color: #00f0ff; }
+.bg-green .res-value { color: #00ffaa; }
+.bg-orange .res-value { color: #ffaa00; }
+.bg-pink .res-value { color: #ff00aa; }
+
+/* --- DISEÑO DE LAS BARRAS DE PROGRESO --- */
+progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    appearance: none;
+    border: none;
+    background-color: #1a1f26;
+}
+
+/* Estilos de las barras según el tipo de recurso */
+.bg-cyan progress::-webkit-progress-value { background-color: #00f0ff; }
+.bg-green progress::-webkit-progress-value { background-color: #00ffaa; }
+.bg-orange progress::-webkit-progress-value { background-color: #ffaa00; }
+.bg-pink progress::-webkit-progress-value { background-color: #ff00aa; }
+
+progress::-webkit-progress-bar { background-color: #1a1f26; }
+
+/* --- BOTÓN INDIVIDUAL DE INCREMENTO [ + ] --- */
+.btn-increment {
+    background: #384252;
+    color: #ffffff;
+    border: none;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.bg-cyan .btn-increment:hover { background: #00f0ff; color: #1a1f26; }
+.bg-green .btn-increment:hover { background: #00ffaa; color: #1a1f26; }
+.bg-orange .btn-increment:hover { background: #ffaa00; color: #1a1f26; }
+.bg-pink .btn-increment:hover { background: #ff00aa; color: #1a1f26; }
+
+/* --- GRID INVERNADERO WORKSPACE --- */
+.sim-workspace {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.content-panel { background-color: #242b35; border: 1px solid #2e3743; border-radius: 6px; padding: 20px; }
+.content-panel h2 { font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 18px; }
+
+/* MÚLTIPLES FILAS */
+.metric-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px solid #2e3743; }
+.metric-row span { color: #8fa0b5; }
+.badge-status-ok { color: #00ffaa; font-weight: 700; }
+.text-pink { color: #ff00aa; }
+
+/* CONTROLES */
+.actions-list { display: flex; flex-direction: column; gap: 10px; }
+.sim-btn { display: block; width: 100%; padding: 12px; font-size: 13px; font-weight: 700; text-align: center; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+.btn-back { background-color: #384252; color: #ffffff; }
+.btn-back:hover { background-color: #475468; }
+.btn-action { background-color: #ff00aa; color: #ffffff; }
+.btn-action:hover { background-color: #d6008f; }
+
+/* TARJETAS DERECHA */
+.plants-stack { display: flex; flex-direction: column; gap: 15px; }
+.plant-item-card { background-color: #1a1f26; border: 1px solid #2e3743; border-radius: 4px; padding: 15px; }
+.plant-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.plant-item-header h3 { font-size: 15px; color: #ffffff; }
+.block-indicator { background-color: #384252; color: #00ffaa; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 3px; }
+.plant-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #8fa0b5; }
+.text-green-flat { color: #00ffaa; font-weight: 600; }
