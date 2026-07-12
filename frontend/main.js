@@ -211,21 +211,29 @@ crear_modulo_button.addEventListener("click", async () => {
         activar_botones()
     })
 
-    form_modulo.addEventListener("submit", async () => {
-        await fetch("http://localhost:3000/modulos", {
-            method: "POST",
-            body: JSON.stringify({
-                nombre: inputs[0].value,
-                cant_agua: inputs[1].value,
-                cant_oxigeno: inputs[2].value,
-                cant_energia: inputs[3].value,
-                cant_nutrientes: inputs[4].value
-            }),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
+    form_modulo.addEventListener("submit", async (event) => {
+    event.preventDefault()
+
+    const response = await fetch("http://localhost:3000/modulos", {
+        method: "POST",
+        body: JSON.stringify({
+            nombre: inputs[0].value,
+            cant_agua: inputs[1].value,
+            cant_oxigeno: inputs[2].value,
+            cant_energia: inputs[3].value,
+            cant_nutrientes: inputs[4].value
+        }),
+        headers: { "Content-Type": "application/json" }
     })
+
+    if (response.ok) {
+        generar_logs(`Módulo "${inputs[0].value}" creado correctamente`, "info")
+        form_modulo.remove()
+        activar_botones()
+    } else {
+        generar_logs("No se pudo crear el módulo", "alerta")
+    }
+})
 
     form_modulo.querySelectorAll("input[type='range']").forEach((input) => {
         input.addEventListener("input", (event) => {
