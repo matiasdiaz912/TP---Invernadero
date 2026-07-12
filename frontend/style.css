@@ -305,7 +305,7 @@ footer {
   border-radius: 5px;
 }
 
-.evento-positivo{
+.evento-positivo {
   background-color: var(--neon-cyan);
   border: 1px solid var(--neon-cyan);
 }
@@ -453,13 +453,63 @@ footer {
 .module-card {
   display: flex;
   justify-content: space-between;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px 20px;
+  align-items: center;
 }
 
-.barra-info-modulos{
+.barra-info-modulos {
   padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(45, 212, 191, 0.05);
   list-style: none;
+}
+
+.module-details {
+  display: flex;
+  justify-content: space-around;
+}
+
+.module-plantas {
+  margin: 10px;
+}
+
+.btn-acciones-modulo {
+  display: flex;
+  flex-direction: column;
+}
+
+.planta-descripcion {
+  width: 90%;
+  max-width: 1000px;
+  background: var(--panel-bg);
+  border: 2px solid var(--neon-cyan);
+  box-shadow:
+    0 0 20px rgba(45, 212, 191, 0.2) inset,
+    0 0 30px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+  padding: 10px;
+}
+
+.plant-card-descripcion{
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.plant-card-descripcion-desactivada{
+  border: #f97316 solid 2px;
+  color: #f97316;
+}
+
+.header-planta{
+  width: 100%;
+  padding: 15px 10px;
 }
