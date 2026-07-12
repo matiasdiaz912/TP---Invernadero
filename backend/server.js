@@ -167,6 +167,13 @@ app.get("/modulos", (req,res) =>{
     res.json(modulos)
 })
 
+app.get("/modulo/:id", (req,res) =>{
+    const { id } = req.params
+    let modulo = modulos.find((modulo) =>{
+        return modulo.id == id
+    })
+    res.json(modulo)
+})
 
 
 function generarEventoAleatorio() {

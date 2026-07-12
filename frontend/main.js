@@ -288,10 +288,14 @@ module_manage_button.addEventListener("click", async () => {
             `
             modulos_contenedor.appendChild(module)
 
-            module.addEventListener("click", () =>{
-                let modulo_detalles = document.createElement("div")
-                modulo_detalles.classList.add("catalog-window")
-                modulo_detalles.innerHTML = `
+            module.addEventListener("click", async() =>{
+                let modulo_detalles_div = document.createElement("div")
+                modulo_detalles_div.classList.add("catalog-window")
+
+                let modulo_detalles = await fetch(`http://localhost:3000/modulo/${module.children[0].textContent}`)
+                modulo_detalles = await modulo_detalles.json()                
+
+                modulo_detalles_div.innerHTML = `
                     <div class="catalog-header">
                         <h2>> DETALLES DEL MÓDULO</h2>
                         <div>
@@ -299,28 +303,46 @@ module_manage_button.addEventListener("click", async () => {
                             <button id="btn-close-modulo-detalles" class="btn-close">[ CERRAR ]</button>
                         </div>
                     </div>
-                    <div class="module-details">
-                        <p><strong>ID:</strong> ${modulo.id}</p>
-                        <p><strong>Nombre:</strong> ${modulo.nombre}</p>
-                        <p><strong>Agua:</strong> ${modulo.cant_agua}</p>
-                        <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}</p>
-                        <p><strong>Energía:</strong> ${modulo.cant_energia}</p>
-                        <p><strong>Nutrientes:</strong> ${modulo.cant_nutrientes}</p>
-                    </div>
+                    <h2><strong>MODULO:</strong> ${modulo.nombre}</h2>
                 `
 
+                if(modulo_detalles.plantas.length > 0){
+                    modulo_detalles.plantas.forEach((planta) =>{
+                        let planta_div = document.createElement("div")
+                        planta_div.classList.add("planta-div")
+                        planta_div.innerHTML = ` 
+                            <p>aaa</p>
+                        `
+                        modulo_detalles_div.appendChild(planta_div)
+                    })
+                    
+                    let modulo_buttons = `
+                        <div class="module-buttons">
+                            <button id="agregar_planta" class="btn-close">AGREGAR PLANTA</button>
+                            <button id="desechar_planta" class="btn-close">DESECHAR PLANTA</button>
+                            <button id="mejorar_planta" class="btn-close">MEJORAR PLANTA</button>
+                        </div>
+                    `
+                    modulo_detalles_div.appendChild(modulo_buttons)
+
+                }else{
+                    let no_plantas = document.createElement("p")
+                    no_plantas.textContent = "No hay plantas en este módulo."
+                    modulo_detalles_div.appendChild(no_plantas)
+                }
+
                 modulos_contenedor.remove()
-                main_view.appendChild(modulo_detalles)
+                main_view.appendChild(modulo_detalles_div)
                 let btn_back = document.getElementById("btn-back-modulo-detalles")
                 let btn_close_module = document.getElementById("btn-close-modulo-detalles")
 
                 btn_back.addEventListener("click", () =>{
-                    modulo_detalles.remove()
+                    modulo_detalles_div.remove()
                     main_view.appendChild(modulos_contenedor)
                 })
 
                 btn_close_module.addEventListener("click", () =>{
-                    modulo_detalles.remove()
+                    modulo_detalles_div.remove()
                     activar_botones()
                 })
             })

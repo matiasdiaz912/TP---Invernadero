@@ -463,3 +463,21 @@ footer {
   background: rgba(45, 212, 191, 0.05);
   list-style: none;
 }
+
+.module-buttons{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  
+  & button {
+    border-radius: 10px;
+    padding: 10px 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 5px var(--neon-cyan) inset;
+    background: transparent;
+    color: var(--neon-cyan);
+    border: 1px solid var(--neon-cyan);
+  }
+}
