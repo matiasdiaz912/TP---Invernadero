@@ -81,4 +81,4 @@ VALUES
 ('Tomate',     1, 2.0, 2.0, 1.0, 1.0, 8.0,  5,  1, 'Planta resistente y versátil. Buena fuente de alimento con ciclo de cosecha medio.'),
 ('Lechuga',    1, 1.0, 1.0, 0.5, 0.5, 3.0,  3,  1, 'Crece rápido y produce oxígeno. Ideal para los primeros días de la colonia.'),
 ('Rábano',     1, 0.5, 1.0, 0.5, 1.0, 1.5,  3,  1, 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
-('Papa',       2, 3.0, 3.0, 1.5, 0.0, 15.0, 8,  3, 'Requiere espacio y paciencia, pero su cosecha es la más abundante en
+('Papa',       2, 3.0, 3.0, 1.5, 0.0, 15.0, 8,  3, 'Requiere espacio y paciencia, pero su cosecha es la más abundante en')
