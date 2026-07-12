@@ -212,28 +212,28 @@ crear_modulo_button.addEventListener("click", async () => {
     })
 
     form_modulo.addEventListener("submit", async (event) => {
-    event.preventDefault()
+        event.preventDefault()
 
-    const response = await fetch("http://localhost:3000/modulos", {
-        method: "POST",
-        body: JSON.stringify({
-            nombre: inputs[0].value,
-            cant_agua: inputs[1].value,
-            cant_oxigeno: inputs[2].value,
-            cant_energia: inputs[3].value,
-            cant_nutrientes: inputs[4].value
-        }),
-        headers: { "Content-Type": "application/json" }
+        const response = await fetch("http://localhost:3000/modulos", {
+            method: "POST",
+            body: JSON.stringify({
+                nombre: inputs[0].value,
+                cant_agua: inputs[1].value,
+                cant_oxigeno: inputs[2].value,
+                cant_energia: inputs[3].value,
+                cant_nutrientes: inputs[4].value
+            }),
+            headers: { "Content-Type": "application/json" }
+        })
+
+        if (response.ok) {
+            generar_logs(`Módulo "${inputs[0].value}" creado correctamente`, "info")
+            form_modulo.remove()
+            activar_botones()
+        } else {
+            generar_logs("No se pudo crear el módulo", "alerta")
+        }
     })
-
-    if (response.ok) {
-        generar_logs(`Módulo "${inputs[0].value}" creado correctamente`, "info")
-        form_modulo.remove()
-        activar_botones()
-    } else {
-        generar_logs("No se pudo crear el módulo", "alerta")
-    }
-})
 
     form_modulo.querySelectorAll("input[type='range']").forEach((input) => {
         input.addEventListener("input", (event) => {
@@ -296,41 +296,8 @@ module_manage_button.addEventListener("click", async () => {
             `
             modulos_contenedor.appendChild(module)
 
-            module.addEventListener("click", () =>{
-                let modulo_detalles = document.createElement("div")
-                modulo_detalles.classList.add("catalog-window")
-                modulo_detalles.innerHTML = `
-                    <div class="catalog-header">
-                        <h2>> DETALLES DEL MÓDULO</h2>
-                        <div>
-                            <button id="btn-back-modulo-detalles" class="btn-close">[ VOLVER ATRAS ]</button>
-                            <button id="btn-close-modulo-detalles" class="btn-close">[ CERRAR ]</button>
-                        </div>
-                    </div>
-                    <div class="module-details">
-                        <p><strong>ID:</strong> ${modulo.id}</p>
-                        <p><strong>Nombre:</strong> ${modulo.nombre}</p>
-                        <p><strong>Agua:</strong> ${modulo.cant_agua}</p>
-                        <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}</p>
-                        <p><strong>Energía:</strong> ${modulo.cant_energia}</p>
-                        <p><strong>Nutrientes:</strong> ${modulo.cant_nutrientes}</p>
-                    </div>
-                `
-
-                modulos_contenedor.remove()
-                main_view.appendChild(modulo_detalles)
-                let btn_back = document.getElementById("btn-back-modulo-detalles")
-                let btn_close_module = document.getElementById("btn-close-modulo-detalles")
-
-                btn_back.addEventListener("click", () =>{
-                    modulo_detalles.remove()
-                    main_view.appendChild(modulos_contenedor)
-                })
-
-                btn_close_module.addEventListener("click", () =>{
-                    modulo_detalles.remove()
-                    activar_botones()
-                })
+            module.addEventListener("click", () => {
+                mostrarDetalleModulo(modulo.id, modulos_contenedor)
             })
         })
     }
@@ -340,3 +307,99 @@ module_manage_button.addEventListener("click", async () => {
         activar_botones()
     })
 })
+
+async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
+    const [modulosRes, plantasRes] = await Promise.all([
+        fetch("http://localhost:3000/modulos"),
+        fetch("http://localhost:3000/plantas")
+    ])
+    const modulos_data = await modulosRes.json()
+    const catalogo = await plantasRes.json()
+    const modulo = modulos_data.find(m => m.id == modulo_id)
+
+    document.getElementById("modulo-detalles-window")?.remove()
+    modulos_contenedor.remove()
+
+    let modulo_detalles = document.createElement("div")
+    modulo_detalles.id = "modulo-detalles-window"
+    modulo_detalles.classList.add("catalog-window")
+    modulo_detalles.innerHTML = `
+        <div class="catalog-header">
+            <h2>> DETALLES DEL MÓDULO</h2>
+            <div>
+                <button id="btn-back-modulo-detalles" class="btn-close">[ VOLVER ATRAS ]</button>
+                <button id="btn-close-modulo-detalles" class="btn-close">[ CERRAR ]</button>
+            </div>
+        </div>
+        <div class="module-details">
+            <p><strong>ID:</strong> ${modulo.id}</p>
+            <p><strong>Nombre:</strong> ${modulo.nombre}</p>
+            <p><strong>Agua:</strong> ${modulo.cant_agua}</p>
+            <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}</p>
+            <p><strong>Energía:</strong> ${modulo.cant_energia}</p>
+            <p><strong>Nutrientes:</strong> ${modulo.cant_nutrientes}</p>
+        </div>
+        <div class="module-plantas">
+            <h3>> PLANTAS SEMBRADAS</h3>
+            <ul id="lista-plantas-modulo"></ul>
+        </div>
+        <div class="sembrar-planta">
+            <label>Elegir especie:
+                <select id="select-especie"></select>
+            </label>
+            <button id="btn-sembrar" class="btn-action">SEMBRAR</button>
+        </div>
+    `
+
+    main_view.appendChild(modulo_detalles)
+
+    const lista_plantas = document.getElementById("lista-plantas-modulo")
+    if (modulo.plantas.length === 0) {
+        lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
+    } else {
+        modulo.plantas.forEach((planta) => {
+            const especie = catalogo.find(p => p.id == planta.especie_id)
+            const li = document.createElement("li")
+            li.textContent = `${especie ? especie.nombre : "?"} — ${planta.estado} (día ${planta.dias_transcurridos}/${especie ? especie.duracion : "?"})`
+            lista_plantas.appendChild(li)
+        })
+    }
+
+    const select = document.getElementById("select-especie")
+    const especies_disponibles = catalogo.filter(p => p.nivel_requerido <= nivelActual)
+    if (especies_disponibles.length === 0) {
+        select.innerHTML = "<option disabled>No hay especies desbloqueadas</option>"
+    } else {
+        especies_disponibles.forEach((especie) => {
+            const option = document.createElement("option")
+            option.value = especie.id
+            option.textContent = especie.nombre
+            select.appendChild(option)
+        })
+    }
+
+    document.getElementById("btn-sembrar").addEventListener("click", async () => {
+        const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/plantas`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ especie_id: parseInt(select.value) })
+        })
+
+        if (response.ok) {
+            generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
+        } else {
+            generar_logs("No se pudo sembrar la planta", "alerta")
+        }
+        mostrarDetalleModulo(modulo.id, modulos_contenedor)
+    })
+
+    document.getElementById("btn-back-modulo-detalles").addEventListener("click", () => {
+        modulo_detalles.remove()
+        main_view.appendChild(modulos_contenedor)
+    })
+
+    document.getElementById("btn-close-modulo-detalles").addEventListener("click", () => {
+        modulo_detalles.remove()
+        activar_botones()
+    })
+}
