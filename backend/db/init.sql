@@ -20,17 +20,19 @@ CREATE TABLE tripulantes (
 );
 
 CREATE TABLE especies (
-    id                          SERIAL PRIMARY KEY,
-    nombre                      VARCHAR(100) NOT NULL,
-    bloques_requeridos          INT NOT NULL,
-    agua_por_dia                DECIMAL(5,2) NOT NULL,
-    nutrientes_por_dia          DECIMAL(5,2) NOT NULL,
-    energia_por_dia             DECIMAL(5,2) NOT NULL,
-    comida_por_dia              DECIMAL(5,2) NOT NULL,
-    agua_producida_por_cosecha  DECIMAL(5,2) NOT NULL,
-    dias_hasta_cosecha          INT NOT NULL,
-    nivel_requerido             INT NOT NULL,
-    descripcion                 TEXT
+    id                    SERIAL PRIMARY KEY,
+    nombre                VARCHAR(100) NOT NULL,
+    tamanio               INT NOT NULL,
+    agua_requerida        DECIMAL(5,2) NOT NULL,
+    oxigeno_requerido     DECIMAL(5,2) NOT NULL,
+    nutrientes_requeridos DECIMAL(5,2) NOT NULL,
+    nutrientes_generados  DECIMAL(5,2) NOT NULL,
+    duracion              INT NOT NULL,
+    agua_producida        DECIMAL(5,2) NOT NULL,
+    nivel_requerido       INT NOT NULL,
+    estado                VARCHAR(20) DEFAULT 'inicial',
+    path_svg              TEXT,
+    descripcion           TEXT
 );
 
 CREATE TABLE modulos (
