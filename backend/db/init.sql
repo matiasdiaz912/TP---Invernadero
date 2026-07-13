@@ -84,3 +84,15 @@ VALUES
 ('Lechuga',    1, 1.0, 1.0, 0.5, 0.5, 3.0,  3,  1, 'Crece rápido y produce oxígeno. Ideal para los primeros días de la colonia.'),
 ('Rábano',     1, 0.5, 1.0, 0.5, 1.0, 1.5,  3,  1, 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
 ('Papa',       2, 3.0, 3.0, 1.5, 0.0, 15.0, 8,  3, 'Requiere espacio y paciencia, pero su cosecha es la más abundante en')
+
+CREATE TABLE eventos (
+    id                  VARCHAR(50) PRIMARY KEY,
+    nombre              VARCHAR(100) NOT NULL,
+    descripcion         TEXT NOT NULL,
+    tipo                VARCHAR(20) NOT NULL
+                        CHECK (tipo IN ('positivo', 'negativo')),
+    efecto_energia      INT DEFAULT 0,
+    efecto_oxigeno      INT DEFAULT 0,
+    efecto_agua         INT DEFAULT 0,
+    efecto_nutrientes   INT DEFAULT 0
+);
