@@ -5,6 +5,7 @@ CREATE TABLE base_espacial (
     agua             DECIMAL(8,2) DEFAULT 20,
     nutrientes       INT DEFAULT 20,
     energia          DECIMAL(5,2) DEFAULT 10,
+    oxigeno          DECIMAL(5,2) DEFAULT 100,
     comida           INT DEFAULT 100,
     total_cosechas   INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'en_curso'
@@ -69,8 +70,8 @@ CREATE TABLE registros_dia (
     evento_random         TEXT
 );
 
-INSERT INTO base_espacial (dia_actual, nivel, agua, nutrientes, energia, comida, total_cosechas, estado)
-VALUES (1, 1, 20, 20, 10, 100, 0, 'en_curso');
+INSERT INTO base_espacial (dia_actual, nivel, agua, nutrientes, energia, oxigeno, comida, total_cosechas, estado)
+VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso');
 
 INSERT INTO tripulantes (cantidad, estado, dias_sin_comer)
 VALUES (10, 'sano', 0);
