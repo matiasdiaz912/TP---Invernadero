@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base Marte - Terminal</title>
     <link rel="stylesheet" href="style.css">
+    <title>Base Marte - Terminal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 
 <body>
 
@@ -22,6 +27,7 @@
     <main id="main_view">
         <div class="dome-label">VISTA DOMO PRINCIPAL</div>
         <!-- Aquí irían los módulos dibujados con divs o imágenes -->
+        
     </main>
 
     <aside class="glass-panel">
@@ -39,13 +45,14 @@
         <div style="flex-grow: 1;">
             <h3>PANEL DE CONTROL</h3>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="btn-action">CREAR MODULO</button>
-                <button class="btn-action">GESTIONAR MÓDULO 1</button>
+                <button id="crear-modulo-button" class="btn-action">CREAR MODULO</button>
+                <button id="modules_manage_button" class="btn-action">GESTIONAR MÓDULO</button>
                 <button id="button_catalog" class="btn-action">CATÁLOGO DE SEMILLAS</button>
             </div>
         </div>
 
-        <button id="button_advance_day" class="btn-action btn-alert" style="padding: 20px; font-size: 1.2rem;">AVANZAR CICLO DÍA</button>
+        <button id="button_advance_day" class="btn-action btn-alert" style="padding: 20px; font-size: 1.2rem;">AVANZAR
+            CICLO DÍA</button>
     </aside>
 
     <footer class="glass-panel">
@@ -59,5 +66,6 @@
 
     <script src="main.js"></script>
 </body>
+
 
 </html>

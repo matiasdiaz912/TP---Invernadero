@@ -1,3 +1,4 @@
+import pool from './db/my_postgre.js'
 import express from 'express'
 import cors from 'cors'
 
@@ -68,6 +69,7 @@ const PLANTAS = [
         duracion: 5,
         agua_producida: 8,
         nivel_requerido: 1,
+        estado: "inicial",
         pathSvg: '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>'
     },
 
@@ -82,6 +84,7 @@ const PLANTAS = [
         duracion: 3,
         agua_producida: 3,
         nivel_requerido: 1,
+        estado: "inicial",
         pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>'
     },
 
@@ -96,6 +99,7 @@ const PLANTAS = [
         duracion: 8,
         agua_producida: 15,
         nivel_requerido: 2,
+        estado: "inicial",
         pathSvg: '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20 M35 25 Q50 30 65 25"/>'
     },
 
@@ -111,16 +115,20 @@ const PLANTAS = [
         duracion: 2,
         agua_producida: 4,
         nivel_requerido: 4,
+        estado: "inicial",
         pathSvg: '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>'
     },
 
 ]
 
 
+const modulos = []
+
 const app = express()
 
 app.use(cors());
 app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando")
@@ -149,6 +157,115 @@ app.get("/evento", (req, res) => {
 app.get("/recursos", (req, res) => {
     res.status(200).json(RECURSOS)
 })
+
+app.post("/modulos", (req,res) =>{
+    let nuevo_modulo = {...req.body, id: modulos.length + 1, plantas: []}
+    modulos.push(nuevo_modulo)
+    res.status(201).json(nuevo_modulo)
+})
+
+app.get("/modulos", (req,res) =>{
+    res.json(modulos)
+})
+
+app.post("/modulos/:id/plantas", (req, res) => {
+    const modulo = modulos.find(m => m.id == parseInt(req.params.id))
+    if (!modulo) return res.status(404).json({ error: "Modulo no encontrado" })
+
+    const especie = PLANTAS.find(p => p.id == req.body.especie_id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+
+    const nueva_planta = {
+        especie_id: especie.id,
+        estado: "creciendo",
+        porcentaje_agua: 100,
+        porcentaje_nutrientes: 100,
+        dias_transcurridos: 0
+    }
+    modulo.plantas.push(nueva_planta)
+    res.status(201).json(nueva_planta)
+})
+
+const ESTADO_JUEGO = {
+    dia_actual: 1,
+    estado: "en_curso",
+    total_cosechas: 0
+}
+
+app.post("/avanzar-dia", (req, res) => {
+    if (ESTADO_JUEGO.estado !== "en_curso") {
+        return res.status(400).json({ error: "La partida ya terminó", estado: ESTADO_JUEGO.estado })
+    }
+
+    let eventos_del_dia = []
+
+    modulos.forEach((modulo) => {
+        modulo.plantas.forEach((planta) => {
+            if (["seca", "perdida"].includes(planta.estado)) return
+
+            const especie = PLANTAS.find(p => p.id == planta.especie_id)
+            if (!especie) return
+
+            if (modulo.cant_agua >= especie.agua_requerida) {
+                modulo.cant_agua -= especie.agua_requerida
+            } else {
+                planta.porcentaje_agua -= 20
+            }
+
+            if (modulo.cant_nutrientes >= especie.nutrientes_requeridos) {
+                modulo.cant_nutrientes -= especie.nutrientes_requeridos
+            } else {
+                planta.porcentaje_nutrientes -= 20
+            }
+
+            modulo.cant_oxigeno -= especie.oxigeno_requerido
+
+            if (planta.porcentaje_agua <= 0) {
+                planta.estado = "seca"
+                eventos_del_dia.push(`Una planta de ${especie.nombre} se secó en "${modulo.nombre}"`)
+                return
+            }
+            if (planta.porcentaje_nutrientes <= 30) {
+                planta.estado = "perdida"
+                eventos_del_dia.push(`Se perdió una planta de ${especie.nombre} por falta de nutrientes`)
+                return
+            }
+
+            RECURSOS.cant_comida += especie.nutrientes_generados || 0
+
+            planta.dias_transcurridos++
+            if (planta.dias_transcurridos >= especie.duracion) {
+                planta.estado = "lista_para_cosechar"
+                RECURSOS.cant_agua += especie.agua_producida
+                ESTADO_JUEGO.total_cosechas++
+                planta.dias_transcurridos = 0
+                eventos_del_dia.push(`Cosecha lista de ${especie.nombre} en "${modulo.nombre}"`)
+            }
+        })
+    })
+
+    RECURSOS.cant_comida -= 5
+    if (RECURSOS.cant_comida < 0) RECURSOS.cant_comida = 0
+
+    ESTADO_JUEGO.dia_actual++
+
+    if (RECURSOS.cant_comida <= 0) {
+        ESTADO_JUEGO.estado = "derrota"
+    } else if (ESTADO_JUEGO.dia_actual >= 180) {
+        ESTADO_JUEGO.estado = "victoria"
+    }
+
+    res.status(200).json({
+        dia_actual: ESTADO_JUEGO.dia_actual,
+        estado: ESTADO_JUEGO.estado,
+        total_cosechas: ESTADO_JUEGO.total_cosechas,
+        recursos: RECURSOS,
+        modulos,
+        eventos: eventos_del_dia
+    })
+})
+
+
 
 function generarEventoAleatorio() {
     const indiceAleatorio = Math.floor(Math.random() * EVENTOS_ALEATORIOS.length);
