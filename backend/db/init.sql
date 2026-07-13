@@ -96,3 +96,12 @@ CREATE TABLE eventos (
     efecto_agua         INT DEFAULT 0,
     efecto_nutrientes   INT DEFAULT 0
 );
+
+INSERT INTO eventos (id, nombre, descripcion, tipo, efecto_energia, efecto_oxigeno, efecto_agua, efecto_nutrientes)
+VALUES
+('tormenta_arena',  'Tormenta de Arena Marciana',    'El polvo denso bloquea los paneles solares y satura los filtros.',              'negativo', -15, -5,   0,  0),
+('fuga_tanques',    'Microrrotura en Tanques',        'La fatiga del material provocó una leve fuga de líquidos antes de ser sellada.', 'negativo',   0,  0,  -8,  0),
+('plaga_hongos',    'Contaminación Fúngica',          'Un hongo resistente está consumiendo los sustratos de los módulos.',             'negativo',   0,  0,   0, -5),
+('vientos_optimos', 'Corrientes de Viento Óptimas',   'Las turbinas eólicas auxiliares operaron a máxima capacidad esta noche.',        'positivo',  10,  0,   0,  0),
+('hielo_subterraneo','Veta de Hielo Encontrada',      'El rover automatizado extrajo un bloque de permafrost marciano.',                'positivo',  -2,  0,  12,  0),
+('falla_electrica', 'Cortocircuito en Soporte Vital', 'Los sistemas de purificación se detuvieron temporalmente.',                     'negativo',  -5, -10,  0,  0);
