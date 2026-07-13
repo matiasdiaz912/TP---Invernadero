@@ -78,12 +78,14 @@ VALUES (10, 'sano', 0);
 INSERT INTO modulos (nivel, estado, bloques_totales, bloques_ocupados, agua, nutrientes, energia)
 VALUES (1, 'estable', 2, 0, 0, 0, 0);
 
-INSERT INTO especies (nombre, bloques_requeridos, agua_por_dia, nutrientes_por_dia, energia_por_dia, comida_por_dia, agua_producida_por_cosecha, dias_hasta_cosecha, nivel_requerido, descripcion)
+INSERT INTO especies (nombre, tamanio, agua_requerida, oxigeno_requerido, nutrientes_requeridos, nutrientes_generados, duracion, agua_producida, nivel_requerido, estado, path_svg, descripcion)
 VALUES
-('Tomate',     1, 2.0, 2.0, 1.0, 1.0, 8.0,  5,  1, 'Planta resistente y versátil. Buena fuente de alimento con ciclo de cosecha medio.'),
-('Lechuga',    1, 1.0, 1.0, 0.5, 0.5, 3.0,  3,  1, 'Crece rápido y produce oxígeno. Ideal para los primeros días de la colonia.'),
-('Rábano',     1, 0.5, 1.0, 0.5, 1.0, 1.5,  3,  1, 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
-('Papa',       2, 3.0, 3.0, 1.5, 0.0, 15.0, 8,  3, 'Requiere espacio y paciencia, pero su cosecha es la más abundante en')
+('Tomate',     1, 2.0, 1.0, 2.0, 1.0, 5,  8.0,  1, 'inicial', '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>',                                                          'Planta resistente y versátil. Buena fuente de alimento con ciclo de cosecha medio.'),
+('Lechuga',    1, 1.0, 0.5, 1.0, 0.5, 3,  3.0,  1, 'inicial', '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>',                                                   'Crece rápido y produce oxígeno. Ideal para los primeros días de la colonia.'),
+('Rábano',     1, 0.5, 0.5, 1.0, 1.0, 3,  1.5,  1, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>',                                               'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
+('Papa',       2, 3.0, 1.5, 3.0, 0.0, 8,  15.0, 3, 'inicial', '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20"/>',   'Requiere espacio y paciencia, pero su cosecha es la más abundante en agua.'),
+('Espirulina', 1, 4.0, 0.1, 1.0, 4.0, 2,  4.0,  4, 'inicial', '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>',      'Microalga de alta eficiencia. Produce mucho oxígeno y alimento en poco tiempo.'),
+('Soja',       3, 5.0, 2.5, 4.0, 1.0, 12, 25.0, 5, 'inicial', '<path d="M50 80 V20 M35 35 Q50 45 65 35 M35 55 Q50 65 65 55"/>' ,                                                                    'La planta más exigente pero la más productiva en agua. Solo para bases avanzadas.');
 
 CREATE TABLE eventos (
     id                  VARCHAR(50) PRIMARY KEY,
