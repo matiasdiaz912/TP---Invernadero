@@ -46,6 +46,7 @@ CREATE TABLE modulos (
     agua             DECIMAL(8,2) DEFAULT 0,
     nutrientes       DECIMAL(8,2) DEFAULT 0,
     energia          DECIMAL(8,2) DEFAULT 0
+    oxigeno          DECIMAL(8,2) DEFAULT 0,
 );
 
 CREATE TABLE plantas (
