@@ -19,12 +19,14 @@ function activar_botones() {
     crear_modulo_button.disabled = false
     module_manage_button.disabled = false
     catalog_button.disabled = false
+    boton_avanzar_dia.disabled = false
 }
 
 function desactivar_botones() {
     crear_modulo_button.disabled = true
     module_manage_button.disabled = true
     catalog_button.disabled = true
+    boton_avanzar_dia.disabled = true
 }
 
 
@@ -36,7 +38,7 @@ function cargarCatalogo(plantas, modulo) {
     catalog.innerHTML = `
                     <div class="catalog-header">
                         <h2>> CATÁLOGO DE SEMILLAS</h2>
-                        <button id="btn-close" class="btn-close">[ CERRAR ]</button>
+                        <button id="btn-close" class="btn-action">[ CERRAR ]</button>
                     </div>
             
                     <div class="plant-grid" id="catalog-grid">
@@ -80,7 +82,7 @@ function cargarCatalogo(plantas, modulo) {
             card_descripcion.innerHTML = `
                 <div class="catalog-header header-planta">
                         <h2>> DETALLES SEMILLA</h2>
-                        <button id="btn-close" class="btn-close">[ CERRAR ]</button>
+                        <button id="btn-close" class="btn-action">[ CERRAR ]</button>
                 </div>
                 <div class="plant-card-descripcion">
                     <div class="plant-image-container">
@@ -101,7 +103,7 @@ function cargarCatalogo(plantas, modulo) {
             if (bloqueado) {
                 card_descripcion.classList.add("plant-card-descripcion-desactivada")
             }
-            
+
             main_view.appendChild(card_descripcion);
 
             btn_close = document.getElementById("btn-close");
@@ -110,10 +112,10 @@ function cargarCatalogo(plantas, modulo) {
                 activar_botones();
             });
             let btn_sembrar = document.getElementById("sembrar-button")
-            if(modulo == null){
+            if (modulo == null) {
                 btn_sembrar.disabled = true
             }
-            btn_sembrar.addEventListener("click", async () =>{
+            btn_sembrar.addEventListener("click", async () => {
                 let response = await fetch(`http://localhost:3000/modulos/${modulo.id}/${planta.id}`)
                 let msg = await response.json()
                 if (response.ok) {
@@ -140,7 +142,7 @@ catalog_button.addEventListener("click", () => {
     fetch("http://localhost:3000/plantas")
         .then((res) => res.json())
         .then((data) => {
-            let info = cargarCatalogo(data,null)
+            let info = cargarCatalogo(data, null)
         })
         .catch((error) => console.error("Error al cargar el catálogo:", error));
 });
@@ -150,8 +152,25 @@ btn_close?.addEventListener("click", () => {
     catalogWindow.style.display = "none";
 });
 
-//Manejo del contador de días
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Manejo del contador de días
 boton_avanzar_dia.addEventListener("click", async () => {
     contador_encendido = !contador_encendido
     if (!contador_encendido) {
@@ -165,22 +184,54 @@ boton_avanzar_dia.addEventListener("click", async () => {
             clearInterval(timer)
             return
         }
-        if (contador == 0) {
+
+        const response = await fetch("http://localhost:3000/avanzar-dia")
+        const data = await response.json()
+        if (data.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
 
-        if (contador % 10 == 0) {
+        if (data.dia_actual % 10 == 0) {
             await generar_evento()
         }
-        const recursos = await obtener_recursos()
-        cant_agua.innerText = recursos.cant_agua
-        cant_oxigeno.innerText = recursos.cant_oxigeno
-        cant_energia.innerText = recursos.cant_energia
-        cant_nutrientes.innerText = recursos.cant_nutrientes
-        cant_comida.innerText = recursos.cant_comida
-        
-        contador++;
-        contador_dias.innerText = `DÍA: [ ${contador} ]`
+
+        if (data.eventos.length != 0) {
+            data.eventos.forEach((evento) => {
+                if (evento.tipo == "alerta") generar_logs(`DIA ${data.dia_actual}: ALERTA! ${evento.mensaje}`, "alerta")
+                else generar_logs(`DIA ${data.dia_actual}: ALERTA! ${evento.mensaje}`, "info")
+            })
+        }
+
+        if (data.estado == "victoria") {
+            const banner_victoria = document.createElement("div")
+            banner_victoria.classList.add("banner-juego-finalizado")
+            banner_victoria.innerHTML = `
+                <h1>FELICIDADES, LOGRASTE SALVAR A LA CIVILIZACION</h1>
+                <button class="btn-action">JUGAR DE NUEVO</button>
+            `
+            main_view.appendChild(banner_victoria)
+            desactivar_botones()
+            contador_encendido = false
+        } else if (data.estado == "derrota") {
+            const banner_derrota = document.createElement("div")
+            banner_derrota.classList.add("banner-juego-finalizado", "banner-derrota")
+            banner_derrota.innerHTML = `
+                <h1>HAS PERDIDO, LOS TRIPULANTES HAN MUERTO</h1>
+                <button class="btn-action">JUGAR DE NUEVO</button>
+            `
+            main_view.appendChild(banner_derrota)
+            desactivar_botones()
+            contador_encendido = false
+        }
+
+        cant_agua.innerText = data.recursos.cant_agua
+        cant_oxigeno.innerText = data.recursos.cant_oxigeno
+        cant_energia.innerText = data.recursos.cant_energia
+        cant_nutrientes.innerText = data.recursos.cant_nutrientes
+        cant_comida.innerText = data.recursos.cant_comida
+
+        contador = data.dia_actual
+        contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
     }, 1000)
 })
 
@@ -227,6 +278,22 @@ const obtener_recursos = async () => {
     return recursos
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Modulos
 crear_modulo_button.addEventListener("click", async () => {
     let recursos = await obtener_recursos()
@@ -234,7 +301,7 @@ crear_modulo_button.addEventListener("click", async () => {
     form_modulo.innerHTML = `
         <div class="catalog-header">
             <h2>> CREAR MÓDULO</h2>
-            <button id="btn-close-modulo" class="btn-close btn-modulo">[ CERRAR ]</button>
+            <button id="btn-close-modulo" class="btn-action btn-modulo">[ CERRAR ]</button>
         </div>
         <form>
             <label>Nombre: </label>
@@ -255,7 +322,7 @@ crear_modulo_button.addEventListener("click", async () => {
                 <input value="${recursos.cant_nutrientes}" id="input_nutrientes" type="range" min="0" max="${recursos.cant_nutrientes}"></input>
                 <p>${recursos.cant_nutrientes}</p>
             </label>
-            <button class="btn-close crear-modulo-boton" type="submit">CREAR MÓDULO</button>
+            <button class="btn-action crear-modulo-boton" type="submit">CREAR MÓDULO</button>
         </form>
     `
     form_modulo.classList.add("formulario-modulo")
@@ -278,7 +345,7 @@ crear_modulo_button.addEventListener("click", async () => {
                 cant_agua: inputs[1].value,
                 cant_oxigeno: inputs[2].value,
                 cant_energia: inputs[3].value,
-                cant_nutrientes: inputs[4].value, 
+                cant_nutrientes: inputs[4].value,
                 capacidad_max: 2,
             }),
             headers: { "Content-Type": "application/json" }
@@ -308,7 +375,7 @@ function create_header(title) {
         <div class="catalog-header">
             <h2>>${title}</h2>
 
-            <button id="btn-close-modulo" class="btn-close">[ CERRAR ]</button>
+            <button id="btn-close-modulo" class="btn-action">[ CERRAR ]</button>
         </div>
     `
 }
@@ -385,8 +452,8 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         <div class="catalog-header">
             <h2>> DETALLES DEL MÓDULO</h2>
             <div>
-                <button id="btn-back-modulo-detalles" class="btn-close">[ VOLVER ATRAS ]</button>
-                <button id="btn-close-modulo-detalles" class="btn-close">[ CERRAR ]</button>
+                <button id="btn-back-modulo-detalles" class="btn-action">[ VOLVER ATRAS ]</button>
+                <button id="btn-close-modulo-detalles" class="btn-action">[ CERRAR ]</button>
             </div>
         </div>
         <div class="module-details">

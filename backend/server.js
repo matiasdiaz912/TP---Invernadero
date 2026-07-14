@@ -57,7 +57,7 @@ const RECURSOS = {
 }
 
 
-const PLANTAS = [
+const ESPECIES = [
     {
         id: 1,
         nombre: "Tomate",
@@ -131,13 +131,13 @@ app.get("/", (req, res) => {
 })
 
 app.get("/plantas", (req, res) => {
-    res.json(PLANTAS)
+    res.json(ESPECIES)
 })
 
 app.get("/ver_planta/:id", (req, res) => {
     let id = req.params.id
 
-    let planta = PLANTAS.find((planta) => planta.id == parseInt(id))
+    let planta = ESPECIES.find((planta) => planta.id == parseInt(id))
     res.json(planta)
 })
 
@@ -172,7 +172,7 @@ app.get("/modulos/:moduloId/:plantaId", (req, res) => {
     if (modulo.capacidad_max == modulo.plantas.length) return res.status(404).json({ error: "Modulo a su capacidad maxima" })
 
     const nueva_planta = {
-        // especie_id: especie.id,
+        especie_id: especie.id,
         estado: "creciendo",
         porcentaje_agua: 100,
         porcentaje_nutrientes: 100,
@@ -183,24 +183,17 @@ app.get("/modulos/:moduloId/:plantaId", (req, res) => {
 })
 
 const ESTADO_JUEGO = {
-    dia_actual: 1,
+    dia_actual: 0,
     estado: "en_curso",
     total_cosechas: 0
 }
 
 app.get("/avanzar-dia", (req, res) => {
-    if (ESTADO_JUEGO.estado !== "en_curso") {
-        return res.status(400).json({ error: "La partida ya terminó", estado: ESTADO_JUEGO.estado })
-    }
-
     let eventos_del_dia = []
 
     modulos.forEach((modulo) => {
         modulo.plantas.forEach((planta) => {
             if (["seca", "perdida"].includes(planta.estado)) return
-
-            const especie = PLANTAS.find(p => p.id == planta.especie_id)
-            if (!especie) return
 
             if (modulo.cant_agua >= especie.agua_requerida) {
                 modulo.cant_agua -= especie.agua_requerida
@@ -218,12 +211,12 @@ app.get("/avanzar-dia", (req, res) => {
 
             if (planta.porcentaje_agua <= 0) {
                 planta.estado = "seca"
-                eventos_del_dia.push(`Una planta de ${especie.nombre} se secó en "${modulo.nombre}"`)
+                eventos_del_dia.push({mensaje: `Una planta de ${especie.nombre} se secó en "${modulo.nombre}"`, tipo: "alerta"})
                 return
             }
             if (planta.porcentaje_nutrientes <= 30) {
                 planta.estado = "perdida"
-                eventos_del_dia.push(`Se perdió una planta de ${especie.nombre} por falta de nutrientes`)
+                eventos_del_dia.push({mensaje: `Se perdió una planta de ${especie.nombre} por falta de nutrientes`, tipo: "alerta"})
                 return
             }
 
@@ -235,7 +228,7 @@ app.get("/avanzar-dia", (req, res) => {
                 RECURSOS.cant_agua += especie.agua_producida
                 ESTADO_JUEGO.total_cosechas++
                 planta.dias_transcurridos = 0
-                eventos_del_dia.push(`Cosecha lista de ${especie.nombre} en "${modulo.nombre}"`)
+                eventos_del_dia.push({mensaje: `Cosecha lista de ${especie.nombre} en "${modulo.nombre}"`, tipo: "info"})
             }
         })
     })
@@ -247,7 +240,7 @@ app.get("/avanzar-dia", (req, res) => {
 
     if (RECURSOS.cant_comida <= 0) {
         ESTADO_JUEGO.estado = "derrota"
-    } else if (ESTADO_JUEGO.dia_actual >= 180) {
+    } else if (ESTADO_JUEGO.dia_actual == 180) {
         ESTADO_JUEGO.estado = "victoria"
     }
 

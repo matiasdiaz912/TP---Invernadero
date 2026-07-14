@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
 
 :root {
-  --bg-color: #0f172a; 
+  --bg-color: #0f172a;
   --grid-color: rgba(45, 212, 191, 0.1);
   --neon-cyan: #2dd4bf;
   --neon-alert: #f97316;
@@ -48,7 +48,6 @@ header {
   gap: 20px;
   font-size: 1.2rem;
 }
-
 
 main {
   grid-column: 1 / 2;
@@ -167,19 +166,6 @@ footer {
   font-size: 1.5rem;
   letter-spacing: 2px;
   text-shadow: 0 0 5px var(--neon-cyan);
-}
-
-.btn-close {
-  background: transparent;
-  color: var(--neon-cyan);
-  border: 1px solid var(--neon-cyan);
-  font-family: inherit;
-  cursor: pointer;
-  padding: 5px 10px;
-}
-.btn-close:hover {
-  background: var(--neon-cyan);
-  color: var(--bg-color);
 }
 
 /* Grilla de Plantas */
@@ -313,7 +299,7 @@ footer {
   transform: translateX(-50%);
   width: 85%;
   display: flex;
-  flex-direction: column-reverse; 
+  flex-direction: column-reverse;
   gap: 20px;
   z-index: 5;
 }
@@ -487,18 +473,47 @@ footer {
   padding: 10px;
 }
 
-.plant-card-descripcion{
+.plant-card-descripcion {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
-.plant-card-descripcion-desactivada{
+.plant-card-descripcion-desactivada {
   border: #f97316 solid 2px;
   color: #f97316;
 }
 
-.header-planta{
+.header-planta {
   width: 100%;
   padding: 15px 10px;
+}
+
+/* BANNER-JUEGO-FINALIZADO */
+.banner-juego-finalizado {
+  width: 80%;
+  height: 70%;
+  background-color: var(--bg-color);
+  border: var(--neon-cyan) 2px solid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.banner-derrota {
+  border: var(--neon-alert) 2px solid;
+  color: var(--neon-alert);
+}
+
+.banner-derrota button {
+  border: var(--neon-alert) 2px solid;
+  color: var(--neon-alert);
+}
+
+.banner-derrota button:hover {
+  border: var(--neon-alert) 2px solid;
+  background-color: var(--neon-alert);
+  color: black
 }
