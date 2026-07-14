@@ -12,14 +12,6 @@ CREATE TABLE base_espacial (
                      CHECK (estado IN ('en_curso', 'victoria', 'derrota'))
 );
 
-CREATE TABLE tripulantes (
-    id               SERIAL PRIMARY KEY,
-    cantidad         INT DEFAULT 10,
-    estado           VARCHAR(20) DEFAULT 'sano'
-                     CHECK (estado IN ('sano', 'desnutrido', 'critico')),
-    dias_sin_comer   INT DEFAULT 0
-);
-
 CREATE TABLE especies (
     id                    SERIAL PRIMARY KEY,
     nombre                VARCHAR(100) NOT NULL,

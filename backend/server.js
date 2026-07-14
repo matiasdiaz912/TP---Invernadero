@@ -69,7 +69,6 @@ const PLANTAS = [
         duracion: 5,
         agua_producida: 8,
         nivel_requerido: 1,
-        estado: "inicial",
         pathSvg: '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>'
     },
 
@@ -84,7 +83,6 @@ const PLANTAS = [
         duracion: 3,
         agua_producida: 3,
         nivel_requerido: 1,
-        estado: "inicial",
         pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>'
     },
 
@@ -99,7 +97,6 @@ const PLANTAS = [
         duracion: 8,
         agua_producida: 15,
         nivel_requerido: 2,
-        estado: "inicial",
         pathSvg: '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20 M35 25 Q50 30 65 25"/>'
     },
 
@@ -115,7 +112,6 @@ const PLANTAS = [
         duracion: 2,
         agua_producida: 4,
         nivel_requerido: 4,
-        estado: "inicial",
         pathSvg: '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>'
     },
 
@@ -168,15 +164,15 @@ app.get("/modulos", (req,res) =>{
     res.json(modulos)
 })
 
-app.post("/modulos/:id/plantas", (req, res) => {
-    const modulo = modulos.find(m => m.id == parseInt(req.params.id))
-    if (!modulo) return res.status(404).json({ error: "Modulo no encontrado" })
+app.get("/modulos/:moduloId/:plantaId", (req, res) => {
+    const {moduloId, plantaId} = req.params
 
-    const especie = PLANTAS.find(p => p.id == req.body.especie_id)
-    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    const modulo = modulos.find(m => m.id == parseInt(moduloId))
+    
+    if (modulo.capacidad_max == modulo.plantas.length) return res.status(404).json({ error: "Modulo a su capacidad maxima" })
 
     const nueva_planta = {
-        especie_id: especie.id,
+        // especie_id: especie.id,
         estado: "creciendo",
         porcentaje_agua: 100,
         porcentaje_nutrientes: 100,
@@ -192,7 +188,7 @@ const ESTADO_JUEGO = {
     total_cosechas: 0
 }
 
-app.post("/avanzar-dia", (req, res) => {
+app.get("/avanzar-dia", (req, res) => {
     if (ESTADO_JUEGO.estado !== "en_curso") {
         return res.status(400).json({ error: "La partida ya terminó", estado: ESTADO_JUEGO.estado })
     }
@@ -272,4 +268,13 @@ function generarEventoAleatorio() {
     return EVENTOS_ALEATORIOS[indiceAleatorio];
 }
 
+function actualizar_dias_planta(){
+    modulos.forEach(modulo => {
+        modulo.plantas.forEach((planta) => {
+            if(planta.dias_transcurridos != planta.duracion){
+                planta.dias_transcurridos += 1
+            }
+        })
+    });
+}
 app.listen(3000, () => console.log("Servidor iniciado"))
