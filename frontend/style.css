@@ -168,6 +168,10 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
 }
 
+.catalog-hidden{
+  display: none;
+}
+
 /* Grilla de Plantas */
 .plant-grid {
   display: grid;
@@ -396,6 +400,7 @@ footer {
   text-transform: uppercase;
   text-shadow: 0 0 5px var(--neon-cyan);
   box-shadow: 0 0 5px var(--neon-cyan) inset;
+  background-color: #0f172a;
 
   & form {
     display: flex;
@@ -403,6 +408,15 @@ footer {
     justify-content: space-between;
     height: 80%;
     padding: 20px;
+
+    & .input-nombre-modulo{
+      background-color: var(--bg-color);
+      border: var(--neon-cyan) 2px solid;
+      padding: 5px;
+      border-radius: 7px;
+      color: wheat;
+      margin-top: 3px;
+    }
 
     & label {
       display: flex;
@@ -515,5 +529,16 @@ footer {
 .banner-derrota button:hover {
   border: var(--neon-alert) 2px solid;
   background-color: var(--neon-alert);
-  color: black
+  color: black;
+}
+
+.lista-plantas-modulo {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+
+  & button{
+    padding: 5px;
+    font-size: 10px;
+  }
 }

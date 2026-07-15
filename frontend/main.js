@@ -9,6 +9,8 @@ let crear_modulo_button = document.getElementById("crear-modulo-button")
 let module_manage_button = document.getElementById("modules_manage_button")
 const boton_avanzar_dia = document.getElementById("button_advance_day")
 const contador_dias = document.getElementById("contador_dias")
+const cant_tripulantes = document.getElementById("cant_tripulantes")
+const contador_nivel = document.getElementById("contador_nivel")
 let btn_close;
 
 const nivelActual = 3;
@@ -29,6 +31,12 @@ function desactivar_botones() {
     boton_avanzar_dia.disabled = true
 }
 
+const reiniciarJuego = async () => {
+    activar_botones()
+    const response = await fetch("http://localhost:3000/reiniciar")
+    let data = await response.json()
+    return data
+}
 
 function cargarCatalogo(plantas, modulo) {
     let planta_retornada = null
@@ -76,13 +84,17 @@ function cargarCatalogo(plantas, modulo) {
                 `;
         catalogGrid.appendChild(card_planta);
         card_planta.addEventListener("click", () => {
-            catalog.remove();
+            catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion")
             card_descripcion.innerHTML = `
                 <div class="catalog-header header-planta">
                         <h2>> DETALLES SEMILLA</h2>
+                    <div>
+                        <button id="btn-back" class="btn-action">[ VOLVER ATRAS ]</button>
                         <button id="btn-close" class="btn-action">[ CERRAR ]</button>
+                    </div>
+            
                 </div>
                 <div class="plant-card-descripcion">
                     <div class="plant-image-container">
@@ -107,10 +119,16 @@ function cargarCatalogo(plantas, modulo) {
             main_view.appendChild(card_descripcion);
 
             btn_close = document.getElementById("btn-close");
+            let btn_back = document.getElementById("btn-back")
             btn_close.addEventListener("click", () => {
                 card_descripcion.remove();
                 activar_botones();
             });
+
+            btn_back.addEventListener("click", () =>{
+                card_descripcion.remove();
+                catalog.classList.remove("catalog-hidden");
+            })
             let btn_sembrar = document.getElementById("sembrar-button")
             if (modulo == null) {
                 btn_sembrar.disabled = true
@@ -207,7 +225,7 @@ boton_avanzar_dia.addEventListener("click", async () => {
             banner_victoria.classList.add("banner-juego-finalizado")
             banner_victoria.innerHTML = `
                 <h1>FELICIDADES, LOGRASTE SALVAR A LA CIVILIZACION</h1>
-                <button class="btn-action">JUGAR DE NUEVO</button>
+                <button id="btn-reiniciar" class="btn-action">JUGAR DE NUEVO</button>
             `
             main_view.appendChild(banner_victoria)
             desactivar_botones()
@@ -217,21 +235,21 @@ boton_avanzar_dia.addEventListener("click", async () => {
             banner_derrota.classList.add("banner-juego-finalizado", "banner-derrota")
             banner_derrota.innerHTML = `
                 <h1>HAS PERDIDO, LOS TRIPULANTES HAN MUERTO</h1>
-                <button class="btn-action">JUGAR DE NUEVO</button>
+                <button id="btn-reiniciar" class="btn-action">JUGAR DE NUEVO</button>
             `
             main_view.appendChild(banner_derrota)
             desactivar_botones()
             contador_encendido = false
+
+            let btn_reiniciar = document.getElementById("btn-reiniciar")
+            btn_reiniciar.addEventListener("click", async () => {
+                const datos_iniciales = await reiniciarJuego()
+                generar_nuevos_datos(datos_iniciales)
+                banner_derrota.remove()
+            })
         }
+        generar_nuevos_datos(data)
 
-        cant_agua.innerText = data.recursos.cant_agua
-        cant_oxigeno.innerText = data.recursos.cant_oxigeno
-        cant_energia.innerText = data.recursos.cant_energia
-        cant_nutrientes.innerText = data.recursos.cant_nutrientes
-        cant_comida.innerText = data.recursos.cant_comida
-
-        contador = data.dia_actual
-        contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
     }, 1000)
 })
 
@@ -279,7 +297,16 @@ const obtener_recursos = async () => {
 }
 
 
-
+const generar_nuevos_datos = (data) => {
+    cant_agua.innerText = data.recursos.cant_agua
+    cant_oxigeno.innerText = data.recursos.cant_oxigeno
+    cant_energia.innerText = data.recursos.cant_energia
+    cant_nutrientes.innerText = data.recursos.cant_nutrientes
+    cant_comida.innerText = data.recursos.cant_comida
+    cant_tripulantes.innerText = `TRIPULACIÓN: [ ${data.tripulantes}/30 ]`
+    contador = data.dia_actual
+    contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
+}
 
 
 
@@ -305,7 +332,7 @@ crear_modulo_button.addEventListener("click", async () => {
         </div>
         <form>
             <label>Nombre: </label>
-            <input required id="nombre_modulo" type="text"></input>
+            <input required id="nombre_modulo" class="input-nombre-modulo" type="text"></input>
             <label>Cantidad de agua suministrada:
                 <input value="${recursos.cant_agua}" id="input_agua" type="range" min="0" max="${recursos.cant_agua}"></input>
                 <p>${recursos.cant_agua}</p>
@@ -470,8 +497,8 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         </div>
         <div class="btn-acciones-modulo">
             <button id="btn-sembrar" class="btn-action">SEMBRAR</button>
-            <button id="btn-cosechar" class="btn-action">COSECHAR</button>
             <button id="btn-gestionar" class="btn-action">GESTIONAR RECURSOS</button>
+            <button id="btn-eliminar-modulo" class="btn-action">ELIMINAR MODULO</button>
         </div>
     `
 
@@ -482,10 +509,28 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
     } else {
         modulo.plantas.forEach((planta) => {
-            const especie = catalogo.find(p => p.id == planta.especie_id)
-            const li = document.createElement("li")
-            li.textContent = `${especie ? especie.nombre : "?"} — ${planta.estado} (día ${planta.dias_transcurridos}/${especie ? especie.duracion : "?"})`
-            lista_plantas.appendChild(li)
+            const planta_sembrada = document.createElement("div")
+            planta_sembrada.classList.add("lista-plantas-modulo")
+            planta_sembrada.innerHTML = `<li>${planta.nombre} — ${planta.estado} (día ${planta.dias_transcurridos}/${planta.duracion})</li>`
+            if (planta.estado == "lista_para_cosechar") {
+                const btn_cosechar = document.createElement("button")
+                btn_cosechar.innerHTML = "[ COSECHAR }"
+                btn_cosechar.classList.add("btn-action")
+                planta_sembrada.appendChild(btn_cosechar)
+
+                btn_cosechar.addEventListener("click", async () => {
+                    planta_sembrada.remove()
+                    let nivelActual = await fetch(`http://localhost:3000/modulos/${modulo.id}`, {
+                        method: "PUT",
+                        body: JSON.stringify(planta),
+                        headers: { "Content-Type": "application/json" }
+                    })
+                    nivelActual = await nivelActual.json()
+                    
+                    contador_nivel.textContent = `NIVEL: [ ${nivelActual.nivel} ]`
+                })
+            }
+            lista_plantas.appendChild(planta_sembrada)
         })
     }
 
@@ -494,6 +539,15 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         modulo_detalles.remove()
         desactivar_botones()
         cargarCatalogo(catalogo, modulo)
+    })
+
+    let btn_eliminar_modulo = document.getElementById("btn-eliminar-modulo")
+    btn_eliminar_modulo.addEventListener("click", async () =>{
+        modulo_detalles.remove()
+        activar_botones()
+        await fetch(`http://localhost:3000/modulos/${modulo.id}`, {
+            method: "DELETE"
+        })
     })
 
     document.getElementById("btn-back-modulo-detalles").addEventListener("click", () => {
