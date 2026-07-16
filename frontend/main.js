@@ -5,13 +5,14 @@ const cant_agua = document.getElementById("cant_agua")
 const cant_energia = document.getElementById("cant_energia")
 const cant_oxigeno = document.getElementById("cant_oxigeno")
 const cant_nutrientes = document.getElementById("cant_nutrientes")
-let crear_modulo_button = document.getElementById("crear-modulo-button")
-let module_manage_button = document.getElementById("modules_manage_button")
+const crear_modulo_button = document.getElementById("crear-modulo-button")
+const module_manage_button = document.getElementById("modules_manage_button")
 const boton_avanzar_dia = document.getElementById("button_advance_day")
 const contador_dias = document.getElementById("contador_dias")
 const cant_tripulantes = document.getElementById("cant_tripulantes")
 const contador_nivel = document.getElementById("contador_nivel")
-let btn_close;
+const button_resources = document.getElementById("button-resources")
+const button_help = document.getElementById("button-help")
 
 const nivelActual = 3;
 let contador = 0
@@ -22,6 +23,8 @@ function activar_botones() {
     module_manage_button.disabled = false
     catalog_button.disabled = false
     boton_avanzar_dia.disabled = false
+    button_resources.disabled = false
+    button_help.disabled = false
 }
 
 function desactivar_botones() {
@@ -29,6 +32,8 @@ function desactivar_botones() {
     module_manage_button.disabled = true
     catalog_button.disabled = true
     boton_avanzar_dia.disabled = true
+    button_resources.disabled = true
+    button_help.disabled = true
 }
 
 const reiniciarJuego = async () => {
@@ -46,7 +51,7 @@ function cargarCatalogo(plantas, modulo) {
     catalog.innerHTML = `
                     <div class="catalog-header">
                         <h2>> CATÁLOGO DE SEMILLAS</h2>
-                        <button id="btn-close" class="btn-action">[ CERRAR ]</button>
+                        <button id="btn-close-catalog" class="btn-action">[ CERRAR ]</button>
                     </div>
             
                     <div class="plant-grid" id="catalog-grid">
@@ -56,6 +61,11 @@ function cargarCatalogo(plantas, modulo) {
     main_view.appendChild(catalog);
     const nivelActual = 3; // Nivel actual del jugador, esto debería venir de la lógica del juego
     const catalogGrid = document.getElementById("catalog-grid");
+    let btn_close_catalog = document.getElementById("btn-close-catalog")
+    btn_close_catalog.addEventListener("click", () => {
+        catalog.remove()
+        activar_botones();
+    })
     plantas.forEach((planta) => {
         const bloqueado = planta.nivel_requerido > nivelActual;
         const statusClass = bloqueado ? "locked" : "";
@@ -92,7 +102,7 @@ function cargarCatalogo(plantas, modulo) {
                         <h2>> DETALLES SEMILLA</h2>
                     <div>
                         <button id="btn-back" class="btn-action">[ VOLVER ATRAS ]</button>
-                        <button id="btn-close" class="btn-action">[ CERRAR ]</button>
+                        <button  id="btn-close" class="btn-action">[ CERRAR ]</button>
                     </div>
             
                 </div>
@@ -118,17 +128,18 @@ function cargarCatalogo(plantas, modulo) {
 
             main_view.appendChild(card_descripcion);
 
-            btn_close = document.getElementById("btn-close");
+            let btn_close = document.getElementById("btn-close");
             let btn_back = document.getElementById("btn-back")
             btn_close.addEventListener("click", () => {
                 card_descripcion.remove();
                 activar_botones();
             });
 
-            btn_back.addEventListener("click", () =>{
+            btn_back.addEventListener("click", () => {
                 card_descripcion.remove();
                 catalog.classList.remove("catalog-hidden");
             })
+
             let btn_sembrar = document.getElementById("sembrar-button")
             if (modulo == null) {
                 btn_sembrar.disabled = true
@@ -165,10 +176,6 @@ catalog_button.addEventListener("click", () => {
         .catch((error) => console.error("Error al cargar el catálogo:", error));
 });
 
-btn_close?.addEventListener("click", () => {
-    const catalogWindow = document.getElementById("catalogo-header");
-    catalogWindow.style.display = "none";
-});
 
 
 
@@ -373,7 +380,6 @@ crear_modulo_button.addEventListener("click", async () => {
                 cant_oxigeno: inputs[2].value,
                 cant_energia: inputs[3].value,
                 cant_nutrientes: inputs[4].value,
-                capacidad_max: 2,
             }),
             headers: { "Content-Type": "application/json" }
         })
@@ -490,6 +496,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}</p>
             <p><strong>Energía:</strong> ${modulo.cant_energia}</p>
             <p><strong>Nutrientes:</strong> ${modulo.cant_nutrientes}</p>
+            <p><strong>NIVEL:</strong>${modulo.nivel}</p>
         </div>
         <div class="module-plantas">
             <h3>> PLANTAS SEMBRADAS</h3>
@@ -498,6 +505,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         <div class="btn-acciones-modulo">
             <button id="btn-sembrar" class="btn-action">SEMBRAR</button>
             <button id="btn-gestionar" class="btn-action">GESTIONAR RECURSOS</button>
+            <button id="btn-mejorar-modulo" class="btn-action">MEJORAR MODULO</button>
             <button id="btn-eliminar-modulo" class="btn-action">ELIMINAR MODULO</button>
         </div>
     `
@@ -526,7 +534,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
                         headers: { "Content-Type": "application/json" }
                     })
                     nivelActual = await nivelActual.json()
-                    
+
                     contador_nivel.textContent = `NIVEL: [ ${nivelActual.nivel} ]`
                 })
             }
@@ -542,13 +550,46 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     })
 
     let btn_eliminar_modulo = document.getElementById("btn-eliminar-modulo")
-    btn_eliminar_modulo.addEventListener("click", async () =>{
+    btn_eliminar_modulo.addEventListener("click", async () => {
         modulo_detalles.remove()
         activar_botones()
+        generar_logs(`Modulo ${modulo.nombre} eliminado`, "alerta")
         await fetch(`http://localhost:3000/modulos/${modulo.id}`, {
             method: "DELETE"
         })
     })
+
+    let btn_mejorar_modulo = document.getElementById("btn-mejorar-modulo")
+    btn_mejorar_modulo.addEventListener("click", async () => {
+        console.log(btn_mejorar_modulo);
+
+        const response = await fetch(`http://localhost:3000/modulos`, {
+            method: "PUT",
+            body: JSON.stringify(modulo),
+            headers: { "Content-Type": "application/json" }
+        })
+        const data = await response.json()
+        if (data.type == "error") {
+            generar_logs(data.msg, "alerta")
+        } else {
+            generar_logs(data.msg, "info")
+        }
+
+        const newMsg = document.createElement("div")
+        modulo_detalles.remove()
+        newMsg.innerHTML = `
+            <h2>${data.msg}</h2>
+            <button id="btn-back-modulo-details" class="btn-action" >[ VOLVER ]</button>
+        `
+        newMsg.classList.add("catalog-window", "modulo-modificado")
+        main_view.appendChild(newMsg)
+
+        document.getElementById("btn-back-modulo-details").addEventListener("click", () => {
+            newMsg.remove()
+            main_view.appendChild(modulo_detalles)
+        })
+    })
+
 
     document.getElementById("btn-back-modulo-detalles").addEventListener("click", () => {
         modulo_detalles.remove()
@@ -560,3 +601,149 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         activar_botones()
     })
 }
+
+
+
+// AYUDA
+
+button_help.addEventListener("click", () => {
+    main_view.innerHTML = `
+        <h1>AYUDA</h1>
+        <h3>CUANDO TERMINA EL JUEGO</h3>
+        <p>El usuario ganara el juego cuando logre llegar al dia 180 con al menos un tripulante vivo</p>
+        <h3>COMO GESTIONAR LOS RECURSOS</h3>
+        <p>Los recursos se iran reduciendo a medida que el juego avanza, pero la clave esta en la gestion de recursos en los modulos. \n 
+            si bien se pueden usar todos los recursos para alimentar un modulo, esto conllevaria a una escases de recursos para los tripulantes.
+            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.
+
+        </p>
+    `
+})
+
+
+//RECURSOS
+
+
+button_resources.addEventListener("click", async () => {
+    desactivar_botones()
+    const grafico_estadisticas = document.createElement("div")
+    grafico_estadisticas.classList.add("stats-panel")
+    grafico_estadisticas.innerHTML = `
+        <div class="catalog-header">
+            <h2>> ESTADO RECURSOS </h2>
+            <button id="btn-close" class="btn-action">[ CERRAR ]</button>
+        </div>
+
+        <div class="vital-rings-container">
+            <div class="ring-wrapper" id="ring-energy">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-circle-bg" cx="50" cy="50" r="40" />
+                    <circle class="progress-ring-circle" cx="50" cy="50" r="40" />
+                </svg>
+                <div class="ring-value" id="val-energy">0%</div>
+                <div class="ring-label">ENERGÍA</div>
+            </div>
+
+            <div class="ring-wrapper" id="ring-oxygen">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-circle-bg" cx="50" cy="50" r="40" />
+                    <circle class="progress-ring-circle" cx="50" cy="50" r="40" />
+                </svg>
+                <div class="ring-value" id="val-oxygen">0%</div>
+                <div class="ring-label">OXÍGENO</div>
+            </div>
+
+            <div class="ring-wrapper" id="ring-water">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-circle-bg" cx="50" cy="50" r="40" />
+                    <circle class="progress-ring-circle" cx="50" cy="50" r="40" />
+                </svg>
+                <div class="ring-value" id="val-water">0 L</div>
+                <div class="ring-label">AGUA</div>
+            </div>
+        </div>
+
+        <div class="inventory-bars-container">
+            
+            <div class="stat-row" id="bar-food">
+                <div class="stat-info">
+                    <span>RESERVAS DE COMIDA</span>
+                    <span class="stat-trend trend-down">▼ -5/día</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" id="fill-food"></div>
+                </div>
+                <div style="text-align: right; font-size: 0.7rem;" id="val-food">0 / 100 ítems</div>
+            </div>
+
+            <div class="stat-row" id="bar-nutrients">
+                <div class="stat-info">
+                    <span>NUTRIENTES SINTÉTICOS</span>
+                    <span class="stat-trend trend-up">▲ +2/día</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" id="fill-nutrients"></div>
+                </div>
+                <div style="text-align: right; font-size: 0.7rem;" id="val-nutrients">0 / 50 ítems</div>
+            </div>
+
+        </div>
+    `
+
+    main_view.appendChild(grafico_estadisticas)
+    document.getElementById("btn-close").addEventListener("click", () =>{
+        grafico_estadisticas.remove()
+        activar_botones()
+    })
+
+    function setRingProgress(elementId, percent, valueText, maxPercent = 100) {
+            const wrapper = document.getElementById(elementId);
+            const circle = wrapper.querySelector('.progress-ring-circle');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            
+            const safePercent = Math.min(Math.max(percent, 0), maxPercent);
+            const offset = circumference - (safePercent / maxPercent) * circumference;
+            
+            circle.style.strokeDashoffset = offset;
+            document.getElementById(`val-${elementId.split('-')[1]}`).innerText = valueText;
+
+            // Cambiar a color de alerta si baja de ciertos umbrales
+            wrapper.classList.remove('warning', 'critical');
+            if (percent <= 20) wrapper.classList.add('critical');
+            else if (percent <= 50) wrapper.classList.add('warning');
+        }
+
+        // Función para actualizar las barras horizontales
+        function setBarProgress(elementId, current, max, trendText) {
+            const row = document.getElementById(elementId);
+            const fill = document.getElementById(`fill-${elementId.split('-')[1]}`);
+            const textVal = document.getElementById(`val-${elementId.split('-')[1]}`);
+            
+            const percent = Math.min((current / max) * 100, 100);
+            fill.style.width = `${percent}%`;
+            textVal.innerText = `${current} / ${max} ítems`;
+
+            // Cambiar a color de alerta si está por debajo del 30%
+            row.classList.remove('warning');
+            if (percent <= 30) row.classList.add('warning');
+        }  
+
+        const response = await fetch("http://localhost:3000/recursos")
+        const recursos = await response.json()
+
+        setTimeout(() => {
+            setRingProgress('ring-energy', recursos.cant_energia, `${recursos.cant_energia}%`);
+            setRingProgress('ring-oxygen', recursos.cant_oxigeno, `${recursos.cant_oxigeno}%`);
+            
+            const aguaActual = recursos.cant_agua;
+            const aguaMax = 600;
+            const porcentajeAgua = (aguaActual / aguaMax) * 100;
+            setRingProgress('ring-water', porcentajeAgua, `${aguaActual}L`);
+
+        
+            setBarProgress('bar-food', recursos.cant_comida, 75);
+            setBarProgress('bar-nutrients', recursos.cant_nutrientes, 350);
+            
+        }, 100);
+})

@@ -168,7 +168,7 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
 }
 
-.catalog-hidden{
+.catalog-hidden {
   display: none;
 }
 
@@ -409,7 +409,7 @@ footer {
     height: 80%;
     padding: 20px;
 
-    & .input-nombre-modulo{
+    & .input-nombre-modulo {
       background-color: var(--bg-color);
       border: var(--neon-cyan) 2px solid;
       padding: 5px;
@@ -537,8 +537,195 @@ footer {
   gap: 20px;
   align-items: center;
 
-  & button{
+  & button {
     padding: 5px;
     font-size: 10px;
   }
+}
+
+.modulo-modificado {
+  color: white;
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
+  gap: 30px;
+}
+
+/* Contenedor Principal del Panel de Estadísticas */
+.stats-panel {
+  width: 50%;
+  background: var(--panel-bg);
+  border: 1px solid var(--neon-cyan);
+  box-shadow:
+    0 0 15px rgba(45, 212, 191, 0.1) inset,
+    0 5px 20px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--neon-cyan);
+  padding: 10px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* --- SECCIÓN 1: ANILLOS VITALES (Soporte de Vida) --- */
+.vital-rings-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.ring-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* SVG para el anillo de progreso */
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg); /* Para que empiece arriba */
+}
+
+.progress-ring-circle-bg {
+  fill: transparent;
+  stroke: rgba(45, 212, 191, 0.1);
+  stroke-width: 6;
+}
+
+.progress-ring-circle {
+  fill: transparent;
+  stroke: var(--neon-cyan);
+  stroke-width: 6;
+  stroke-dasharray: 251.2; /* Circunferencia = 2 * PI * r (r=40) */
+  stroke-dashoffset: 251.2; /* Inicia vacío, se llena con JS */
+  stroke-linecap: round;
+  transition:
+    stroke-dashoffset 1s ease-out,
+    stroke 0.3s ease;
+  filter: drop-shadow(0 0 4px var(--neon-cyan));
+}
+
+/* Modificadores de color según estado */
+.ring-wrapper.warning .progress-ring-circle {
+  stroke: var(--neon-alert);
+  filter: drop-shadow(0 0 4px var(--neon-alert));
+}
+.ring-wrapper.critical .progress-ring-circle {
+  stroke: var(--neon-critical);
+  filter: drop-shadow(0 0 4px var(--neon-critical));
+}
+
+.ring-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-shadow: 0 0 5px currentColor;
+}
+.ring-label {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* --- SECCIÓN 2: BARRAS DE INVENTARIO (Consumibles) --- */
+.inventory-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.stat-trend {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+.trend-up {
+  color: var(--neon-green);
+}
+.trend-down {
+  color: var(--neon-alert);
+}
+
+/* Estilo de barra fragmentada/segmentada tecnológica */
+.bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--neon-cyan),
+    var(--neon-cyan) 5px,
+    rgba(45, 212, 191, 0.8) 5px,
+    rgba(45, 212, 191, 0.8) 10px
+  );
+  width: 0%; /* Se llena con JS */
+  transition:
+    width 1s ease-out,
+    background 0.3s ease;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+}
+
+/* Patrón de cuadrícula sobre la barra para darle textura */
+.bar-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-color) 1px,
+    transparent 1px
+  );
+  background-size: 10px 100%;
+  opacity: 0.5;
+}
+
+.stat-row.warning .bar-fill {
+  background: var(--neon-alert);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+}
+.stat-row.warning .bar-bg {
+  border-color: rgba(249, 115, 22, 0.3);
 }
