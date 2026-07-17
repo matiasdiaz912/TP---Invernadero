@@ -241,6 +241,9 @@ let ESTADO_JUEGO = {
     total_cosechas: 0,
     tripulantes: 30,
     dias_comida_insuficiente: 0,
+    dias_agua_insuficiente: 0,
+    dias_oxigeno_insuficiente: 0,
+    dias_usados_trajes: 0,
     nivel: 1
 }
 
@@ -289,18 +292,43 @@ app.get("/avanzar-dia", (req, res) => {
         })
     })
 
-    if (ESTADO_JUEGO.tripulantes > RECURSOS.cant_comida) {
+    if (RECURSOS.cant_comida < 60) {
         ESTADO_JUEGO.dias_comida_insuficiente += 1
-        if (ESTADO_JUEGO.dias_comida_insuficiente == 3) {
+        if (ESTADO_JUEGO.dias_comida_insuficiente > 7) {
             ESTADO_JUEGO.tripulantes -= 1
         }
     }
-    RECURSOS.cant_comida -= ESTADO_JUEGO.tripulantes * 0.2
+    
+    if (RECURSOS.cant_agua < 50 && RECURSOS.cant_agua > 30) {
+        ESTADO_JUEGO.dias_agua_insuficiente += 1
+        if (ESTADO_JUEGO.dias_agua_insuficiente > 5) {
+            ESTADO_JUEGO.tripulantes -= 1
+        }
+    }else if (RECURSOS.cant_agua < 30 && RECURSOS.cant_agua > 15) {
+        ESTADO_JUEGO.dias_agua_insuficiente += 1
+        if (ESTADO_JUEGO.dias_agua_insuficiente > 5) {
+            ESTADO_JUEGO.tripulantes -= 2
+        }
+    }else if (RECURSOS.cant_agua < 15 && RECURSOS.cant_agua >= 0) {
+        ESTADO_JUEGO.dias_agua_insuficiente += 1
+        if (ESTADO_JUEGO.dias_agua_insuficiente > 5) {
+            ESTADO_JUEGO.tripulantes -= 3
+        }
+    }
+
+    if(RECURSOS.cant_oxigeno <= 0){
+        ESTADO_JUEGO.dias_oxigeno_insuficiente += 1
+    }
+
+    RECURSOS.cant_comida -= ESTADO_JUEGO.tripulantes * 0.1
+    RECURSOS.cant_agua -= ESTADO_JUEGO.tripulantes * 0.2
+    RECURSOS.cant_oxigeno -= ESTADO_JUEGO.tripulantes * 0.2
     if (RECURSOS.cant_comida < 0) RECURSOS.cant_comida = 0
+    if (RECURSOS.cant_agua < 0) RECURSOS.cant_agua = 0
 
     ESTADO_JUEGO.dia_actual++
 
-    if (RECURSOS.cant_comida <= 0) {
+    if (ESTADO_JUEGO.tripulantes == 0 || ESTADO_JUEGO.dias_oxigeno_insuficiente == 3) { //SE USAN LOS TRAJES ESPACIALES
         ESTADO_JUEGO.estado = "derrota"
     } else if (ESTADO_JUEGO.dia_actual == 180) {
         ESTADO_JUEGO.estado = "victoria"
@@ -316,6 +344,9 @@ app.get("/avanzar-dia", (req, res) => {
     })
 })
 
+app.get("/estado-juego", (req, res) => {
+    res.status(200).json(ESTADO_JUEGO)
+})
 
 
 

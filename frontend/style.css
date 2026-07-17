@@ -61,6 +61,10 @@ main {
   background-size: 50%;
 }
 
+.resources-danger{
+  border: var(--neon-alert) 2px solid;
+}
+
 .dome-label {
   position: absolute;
   top: 20px;
@@ -224,7 +228,7 @@ footer {
   padding: 2px 5px;
 }
 
-.level-badge.locked {
+.locked {
   border-color: var(--neon-alert);
   color: var(--neon-alert);
 }
@@ -729,3 +733,4 @@ footer {
 .stat-row.warning .bar-bg {
   border-color: rgba(249, 115, 22, 0.3);
 }
+

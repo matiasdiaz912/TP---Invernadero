@@ -43,7 +43,7 @@ const reiniciarJuego = async () => {
     return data
 }
 
-function cargarCatalogo(plantas, modulo) {
+const cargarCatalogo = (plantas, modulo, nivel) => {
     let planta_retornada = null
     const catalog = document.createElement("div");
     catalog.classList.add("catalog-window");
@@ -59,7 +59,7 @@ function cargarCatalogo(plantas, modulo) {
                     </div>`;
 
     main_view.appendChild(catalog);
-    const nivelActual = 3; // Nivel actual del jugador, esto debería venir de la lógica del juego
+    const nivelActual = nivel;
     const catalogGrid = document.getElementById("catalog-grid");
     let btn_close_catalog = document.getElementById("btn-close-catalog")
     btn_close_catalog.addEventListener("click", () => {
@@ -101,8 +101,8 @@ function cargarCatalogo(plantas, modulo) {
                 <div class="catalog-header header-planta">
                         <h2>> DETALLES SEMILLA</h2>
                     <div>
-                        <button id="btn-back" class="btn-action">[ VOLVER ATRAS ]</button>
-                        <button  id="btn-close" class="btn-action">[ CERRAR ]</button>
+                        <button id="btn-back" class="btn-action ${statusClass}">[ VOLVER ATRAS ]</button>
+                        <button id="btn-close-detalles" class="btn-action ${statusClass}">[ CERRAR ]</button>
                     </div>
             
                 </div>
@@ -122,15 +122,15 @@ function cargarCatalogo(plantas, modulo) {
                 <button id="sembrar-button" class="btn-action">SEMBRAR</button>
             `;
 
+            
             if (bloqueado) {
                 card_descripcion.classList.add("plant-card-descripcion-desactivada")
             }
-
             main_view.appendChild(card_descripcion);
 
-            let btn_close = document.getElementById("btn-close");
+            let btn_close_detalles = document.getElementById("btn-close-detalles");
             let btn_back = document.getElementById("btn-back")
-            btn_close.addEventListener("click", () => {
+            btn_close_detalles.addEventListener("click", () => {
                 card_descripcion.remove();
                 activar_botones();
             });
@@ -141,10 +141,11 @@ function cargarCatalogo(plantas, modulo) {
             })
 
             let btn_sembrar = document.getElementById("sembrar-button")
-            if (modulo == null) {
+            if (modulo == null || bloqueado) {
                 btn_sembrar.disabled = true
             }
             btn_sembrar.addEventListener("click", async () => {
+
                 let response = await fetch(`http://localhost:3000/modulos/${modulo.id}/${planta.id}`)
                 let msg = await response.json()
                 if (response.ok) {
@@ -157,21 +158,24 @@ function cargarCatalogo(plantas, modulo) {
     })
 
     desactivar_botones();
-    btn_close = document.getElementById("btn-close");
+    let btn_close = document.getElementById("btn-close-catalog");
     btn_close.addEventListener("click", () => {
-        const catalogWindow = document.getElementById("catalogo-header");
-        catalogWindow.remove();
+        // const catalogWindow = document.getElementById("catalogo-header");
+        catalog.remove();
         activar_botones();
     });
 
     return planta_retornada
 }
 
-catalog_button.addEventListener("click", () => {
+catalog_button.addEventListener("click", async () => {
     fetch("http://localhost:3000/plantas")
         .then((res) => res.json())
-        .then((data) => {
-            let info = cargarCatalogo(data, null)
+        .then(async (data) => {
+            const response = await fetch("http://localhost:3000/estado-juego")
+            const estado_juego = await response.json()
+            let nivel = estado_juego.nivel
+            let info = cargarCatalogo(data, null, nivel)
         })
         .catch((error) => console.error("Error al cargar el catálogo:", error));
 });
@@ -212,6 +216,14 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
         const response = await fetch("http://localhost:3000/avanzar-dia")
         const data = await response.json()
+
+        if (data.recursos.cant_agua < 50 || data.recursos.cant_comida < 60 || data.recursos.cant_oxigeno == 0) {
+            main_view.classList.add("resources-danger")
+            setTimeout(() => {
+                main_view.classList.remove("resources-danger")
+            }, 500)
+        }
+
         if (data.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
@@ -546,7 +558,10 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     btn_sembrar.addEventListener("click", async () => {
         modulo_detalles.remove()
         desactivar_botones()
-        cargarCatalogo(catalogo, modulo)
+        const response = await fetch("http://localhost:3000/estado-juego")
+        const estado_juego = await response.json()
+        let nivel = estado_juego.nivel
+        cargarCatalogo(catalogo, modulo, nivel)
     })
 
     let btn_eliminar_modulo = document.getElementById("btn-eliminar-modulo")
@@ -614,15 +629,13 @@ button_help.addEventListener("click", () => {
         <h3>COMO GESTIONAR LOS RECURSOS</h3>
         <p>Los recursos se iran reduciendo a medida que el juego avanza, pero la clave esta en la gestion de recursos en los modulos. \n 
             si bien se pueden usar todos los recursos para alimentar un modulo, esto conllevaria a una escases de recursos para los tripulantes.
-            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.
-
+            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.\n
         </p>
     `
 })
 
 
 //RECURSOS
-
 
 button_resources.addEventListener("click", async () => {
     desactivar_botones()
@@ -691,59 +704,59 @@ button_resources.addEventListener("click", async () => {
     `
 
     main_view.appendChild(grafico_estadisticas)
-    document.getElementById("btn-close").addEventListener("click", () =>{
+    document.getElementById("btn-close").addEventListener("click", () => {
         grafico_estadisticas.remove()
         activar_botones()
     })
 
     function setRingProgress(elementId, percent, valueText, maxPercent = 100) {
-            const wrapper = document.getElementById(elementId);
-            const circle = wrapper.querySelector('.progress-ring-circle');
-            const radius = circle.r.baseVal.value;
-            const circumference = radius * 2 * Math.PI;
-            
-            const safePercent = Math.min(Math.max(percent, 0), maxPercent);
-            const offset = circumference - (safePercent / maxPercent) * circumference;
-            
-            circle.style.strokeDashoffset = offset;
-            document.getElementById(`val-${elementId.split('-')[1]}`).innerText = valueText;
+        const wrapper = document.getElementById(elementId);
+        const circle = wrapper.querySelector('.progress-ring-circle');
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
 
-            // Cambiar a color de alerta si baja de ciertos umbrales
-            wrapper.classList.remove('warning', 'critical');
-            if (percent <= 20) wrapper.classList.add('critical');
-            else if (percent <= 50) wrapper.classList.add('warning');
-        }
+        const safePercent = Math.min(Math.max(percent, 0), maxPercent);
+        const offset = circumference - (safePercent / maxPercent) * circumference;
 
-        // Función para actualizar las barras horizontales
-        function setBarProgress(elementId, current, max, trendText) {
-            const row = document.getElementById(elementId);
-            const fill = document.getElementById(`fill-${elementId.split('-')[1]}`);
-            const textVal = document.getElementById(`val-${elementId.split('-')[1]}`);
-            
-            const percent = Math.min((current / max) * 100, 100);
-            fill.style.width = `${percent}%`;
-            textVal.innerText = `${current} / ${max} ítems`;
+        circle.style.strokeDashoffset = offset;
+        document.getElementById(`val-${elementId.split('-')[1]}`).innerText = valueText;
 
-            // Cambiar a color de alerta si está por debajo del 30%
-            row.classList.remove('warning');
-            if (percent <= 30) row.classList.add('warning');
-        }  
+        // Cambiar a color de alerta si baja de ciertos umbrales
+        wrapper.classList.remove('warning', 'critical');
+        if (percent <= 20) wrapper.classList.add('critical');
+        else if (percent <= 50) wrapper.classList.add('warning');
+    }
 
-        const response = await fetch("http://localhost:3000/recursos")
-        const recursos = await response.json()
+    // Función para actualizar las barras horizontales
+    function setBarProgress(elementId, current, max, trendText) {
+        const row = document.getElementById(elementId);
+        const fill = document.getElementById(`fill-${elementId.split('-')[1]}`);
+        const textVal = document.getElementById(`val-${elementId.split('-')[1]}`);
 
-        setTimeout(() => {
-            setRingProgress('ring-energy', recursos.cant_energia, `${recursos.cant_energia}%`);
-            setRingProgress('ring-oxygen', recursos.cant_oxigeno, `${recursos.cant_oxigeno}%`);
-            
-            const aguaActual = recursos.cant_agua;
-            const aguaMax = 600;
-            const porcentajeAgua = (aguaActual / aguaMax) * 100;
-            setRingProgress('ring-water', porcentajeAgua, `${aguaActual}L`);
+        const percent = Math.min((current / max) * 100, 100);
+        fill.style.width = `${percent}%`;
+        textVal.innerText = `${current} / ${max} ítems`;
 
-        
-            setBarProgress('bar-food', recursos.cant_comida, 75);
-            setBarProgress('bar-nutrients', recursos.cant_nutrientes, 350);
-            
-        }, 100);
+        // Cambiar a color de alerta si está por debajo del 30%
+        row.classList.remove('warning');
+        if (percent <= 30) row.classList.add('warning');
+    }
+
+    const response = await fetch("http://localhost:3000/recursos")
+    const recursos = await response.json()
+
+    setTimeout(() => {
+        setRingProgress('ring-energy', recursos.cant_energia, `${recursos.cant_energia}%`);
+        setRingProgress('ring-oxygen', recursos.cant_oxigeno, `${recursos.cant_oxigeno}%`);
+
+        const aguaActual = recursos.cant_agua;
+        const aguaMax = 150;
+        const porcentajeAgua = (aguaActual / aguaMax) * 100;
+        setRingProgress('ring-water', porcentajeAgua, `${aguaActual}L`);
+
+
+        setBarProgress('bar-food', recursos.cant_comida, 75);
+        setBarProgress('bar-nutrients', recursos.cant_nutrientes, 350);
+
+    }, 100);
 })
