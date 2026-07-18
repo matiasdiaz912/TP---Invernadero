@@ -12,14 +12,6 @@ CREATE TABLE base_espacial (
                      CHECK (estado IN ('en_curso', 'victoria', 'derrota'))
 );
 
-CREATE TABLE tripulantes (
-    id               SERIAL PRIMARY KEY,
-    cantidad         INT DEFAULT 10,
-    estado           VARCHAR(20) DEFAULT 'sano'
-                     CHECK (estado IN ('sano', 'desnutrido', 'critico')),
-    dias_sin_comer   INT DEFAULT 0
-);
-
 CREATE TABLE especies (
     id                    SERIAL PRIMARY KEY,
     nombre                VARCHAR(100) NOT NULL,
@@ -73,9 +65,6 @@ CREATE TABLE registros_dia (
 
 INSERT INTO base_espacial (dia_actual, nivel, agua, nutrientes, energia, oxigeno, comida, total_cosechas, estado)
 VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso');
-
-INSERT INTO tripulantes (cantidad, estado, dias_sin_comer)
-VALUES (10, 'sano', 0);
 
 INSERT INTO modulos (nivel, estado, bloques_totales, bloques_ocupados, agua, nutrientes, energia)
 VALUES (1, 'estable', 2, 0, 0, 0, 0);

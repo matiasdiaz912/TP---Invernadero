@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
 
 :root {
-  --bg-color: #0f172a; /* Azul espacial oscuro */
+  --bg-color: #0f172a;
   --grid-color: rgba(45, 212, 191, 0.1);
   --neon-cyan: #2dd4bf;
   --neon-alert: #f97316;
@@ -12,7 +12,6 @@ body {
   margin: 0;
   height: 100vh;
   background-color: var(--bg-color);
-  /* Cuadrícula de fondo inspirada en tu imagen */
   background-image:
     linear-gradient(var(--grid-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
@@ -25,7 +24,6 @@ body {
   overflow: hidden;
 }
 
-/* Paneles estilo cristal/holograma */
 .glass-panel {
   background: var(--panel-bg);
   border: 1px solid var(--neon-cyan);
@@ -34,7 +32,6 @@ body {
   backdrop-filter: blur(4px);
 }
 
-/* Top HUD - Estadísticas Rápidas */
 header {
   grid-column: 1 / 3;
   display: flex;
@@ -52,18 +49,20 @@ header {
   font-size: 1.2rem;
 }
 
-/* Área Central - El Domo */
 main {
   grid-column: 1 / 2;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* Aquí podrías poner el paisaje de fondo de tu imagen */
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" stroke="%232dd4bf" stroke-width="2" fill="none"/></svg>');
   background-repeat: no-repeat;
   background-position: center;
   background-size: 50%;
+}
+
+.resources-danger{
+  border: var(--neon-alert) 2px solid;
 }
 
 .dome-label {
@@ -74,7 +73,6 @@ main {
   letter-spacing: 2px;
 }
 
-/* Panel Lateral - Gestión */
 aside {
   grid-column: 2 / 3;
   border-left: 2px solid var(--neon-cyan);
@@ -174,17 +172,8 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
 }
 
-.btn-close {
-  background: transparent;
-  color: var(--neon-cyan);
-  border: 1px solid var(--neon-cyan);
-  font-family: inherit;
-  cursor: pointer;
-  padding: 5px 10px;
-}
-.btn-close:hover {
-  background: var(--neon-cyan);
-  color: var(--bg-color);
+.catalog-hidden {
+  display: none;
 }
 
 /* Grilla de Plantas */
@@ -239,7 +228,7 @@ footer {
   padding: 2px 5px;
 }
 
-.level-badge.locked {
+.locked {
   border-color: var(--neon-alert);
   color: var(--neon-alert);
 }
@@ -304,334 +293,6 @@ footer {
   padding: 5px 15px;
   border-radius: 5px;
 }
-/*--------ESTETICA DE AREA MODULAR -----*/
-body {
-    background-color: #03080c;
-    background-image: linear-gradient(rgba(0, 255, 170, 0.02) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(0, 255, 170, 0.02) 1px, transparent 1px);
-    background-size: 25px 25px;
-    color: #eceff1;
-    font-family: 'VT323', monospace;
-    font-size: 22px;
-    margin: 0;
-    padding: 40px 20px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-}
-
-.cyber-terminal {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 25px;
-    background-color: rgba(5, 14, 20, 0.95);
-    border: 1px solid #1a323d;
-    border-radius: 6px;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
-    box-sizing: border-box;
-}
-
-.terminal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 3px double #1a323d;
-    padding-bottom: 12px;
-    margin-bottom: 20px;
-}
-
-.terminal-title {
-    margin: 0;
-    font-size: 36px;
-    color: #00ffaa;
-    letter-spacing: 2px;
-}
-.terminal-title span { color: #ffffff; }
-.terminal-diag { color: #546e7a; font-size: 18px; }
-
-.monitor-bar {
-    background-color: #071118;
-    border: 1px solid #102a36;
-    padding: 12px 18px;
-    margin-bottom: 30px;
-    border-radius: 4px;
-}
-.monitor-bar p { margin: 0; color: #00ffaa; }
-#active-id { color: #ffffff; font-weight: bold; }
-
-.cyber-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.cyber-card {
-    background-color: #09141c;
-    border: 1px solid #1c3d4f;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-sizing: border-box;
-    min-height: 260px;
-    border-radius: 4px;
-}
-
-.card-top-line {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    color: #546e7a;
-    margin-bottom: 15px;
-}
-
-.card-main {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.module-visual-placeholder {
-    width: 75px;
-    height: 95px;
-    background: linear-gradient(180deg, #102533 0%, #07121a 100%);
-    border: 1px solid #22495e;
-    border-radius: 6px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center; 
-    position: relative;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.module-visual-placeholder::before {
-    content: "";
-    width: 32px;
-    height: 45px;
-    background-color: currentColor; 
-    border-radius: 0px 25px 0px 25px;
-    display: block;
-    filter: drop-shadow(0 0 8px currentColor);
-    transition: all 0.3s ease;
-}
-
-.module-visual-placeholder::after {
-    content: "";
-    position: absolute;
-    width: 2px;
-    height: 35px;
-    background-color: rgba(3, 8, 12, 0.6);
-    transform: rotate(-30deg);
-}
-
-.module-info h3 {
-    margin: 0 0 10px 0;
-    color: #ffffff;
-    font-size: 26px;
-    line-height: 1.1;
-    letter-spacing: 1px;
-}
-
-.stat {
-    margin: 4px 0;
-    color: #a0a0a0;
-    font-size: 22px;
-}
-
-.stat span { color: #ffffff; }
-
-.status-text {
-    font-weight: bold;
-    text-shadow: 0 0 5px currentColor;
-}
-
-/* --- COLORES SEGÚN EL ESTADO  --- */
-.text-stable { color: #00ff00 !important; }
-.card-stable { border-top: 4px solid #00ff00 !important; }
-.card-stable .module-visual-placeholder { color: #00ff00 !important; border-color: rgba(0, 255, 0, 0.4); }
-
-.text-critical { color: hsl(0, 84%, 49%) !important; }
-.card-critical { border-top: 4px solid hsl(0, 84%, 49%)  !important; }
-.card-critical .module-visual-placeholder { color:hsl(0, 84%, 49%) !important; border-color: rgba(255, 51, 51, 0.4); }
-
-.text-perdida { color: #ff9900 !important; }
-.card-perdida { border-top: 4px solid #ff9900 !important; }
-.card-perdida .module-visual-placeholder { color: #ff9900 !important; border-color: rgba(255, 153, 0, 0.4); }
-
-.cyber-btn {
-    background-color: #0c1f2b;
-    border: 1px solid #224a61;
-    color: #b0bec5;
-    font-family: 'VT323', monospace;
-    font-size: 19px;
-    padding: 7px 0;
-    width: 100%;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: all 0.15s ease;
-}
-.cyber-btn:hover {
-    background-color: #00ffaa;
-    color: #03080c;
-    border-color: #00ffaa;
-    box-shadow: 0 0 10px rgba(0, 255, 170, 0.4);
-}
-
-.greenhouse-center-backup, div[class*="greenhouse"], div[class*="circle"], svg {
-    display: none !important;
-}
-
-@media (max-width: 950px) { .cyber-grid { grid-template-columns: repeat(2, 1fr); } }
-
-/*estetica de boton menu-- */
-.btn-regresar {
-    color: #00ffcc; 
-    text-decoration: none;
-    font-family: monospace; 
-    font-weight: bold;
-    padding: 5px 10px;
-    border: 1px solid #00ffcc;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-/* Efecto cuando pasás el mouse */
-.btn-regresar:hover {
-    background-color: #00ffcc;
-    color: #0b131a; 
-    box-shadow: 0 0 10px #00ffcc;
-}
-.monitor-box {
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;        
-}
-/*ESTETICA DE PLANTAS.HTML-------*/
-/* --- CONFIGURACIÓN MINIMAL MODERN --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body.sim-interface {
-    background-color: #1a1f26;
-    color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 30px;
-}
-
-/* --- HEADER --- */
-.sim-header { margin-bottom: 25px; }
-.sim-header h1 { font-size: 22px; font-weight: 700; color: #ff00aa; }
-.sim-header .header-tag { color: #00ffaa; font-size: 14px; font-weight: 400; margin-left: 10px; }
-
-/* --- BARRA DE RECURSOS MEJORADA CON CONTROLES --- */
-.resources-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.resource-card {
-    background-color: #242b35;
-    border: 1px solid #2e3743;
-    border-radius: 6px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.res-icon { font-size: 20px; }
-.res-info { display: flex; flex-direction: column; flex-grow: 1; }
-.res-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.res-title { font-size: 11px; color: #8fa0b5; font-weight: 600; }
-.res-value { font-size: 15px; font-weight: 700; }
-
-/* Asignación de colores de texto planos */
-.bg-cyan .res-value { color: #00f0ff; }
-.bg-green .res-value { color: #00ffaa; }
-.bg-orange .res-value { color: #ffaa00; }
-.bg-pink .res-value { color: #ff00aa; }
-
-/* --- DISEÑO DE LAS BARRAS DE PROGRESO --- */
-progress {
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    overflow: hidden;
-    appearance: none;
-    border: none;
-    background-color: #1a1f26;
-}
-
-/* Estilos de las barras según el tipo de recurso */
-.bg-cyan progress::-webkit-progress-value { background-color: #00f0ff; }
-.bg-green progress::-webkit-progress-value { background-color: #00ffaa; }
-.bg-orange progress::-webkit-progress-value { background-color: #ffaa00; }
-.bg-pink progress::-webkit-progress-value { background-color: #ff00aa; }
-
-progress::-webkit-progress-bar { background-color: #1a1f26; }
-
-/* --- BOTÓN INDIVIDUAL DE INCREMENTO [ + ] --- */
-.btn-increment {
-    background: #384252;
-    color: #ffffff;
-    border: none;
-    padding: 6px 10px;
-    font-size: 13px;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.bg-cyan .btn-increment:hover { background: #00f0ff; color: #1a1f26; }
-.bg-green .btn-increment:hover { background: #00ffaa; color: #1a1f26; }
-.bg-orange .btn-increment:hover { background: #ffaa00; color: #1a1f26; }
-.bg-pink .btn-increment:hover { background: #ff00aa; color: #1a1f26; }
-
-/* --- GRID INVERNADERO WORKSPACE --- */
-.sim-workspace {
-    display: grid;
-    grid-template-columns: 290px 1fr;
-    gap: 25px;
-    align-items: start;
-}
-
-.content-panel { background-color: #242b35; border: 1px solid #2e3743; border-radius: 6px; padding: 20px; }
-.content-panel h2 { font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 18px; }
-
-/* MÚLTIPLES FILAS */
-.metric-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px solid #2e3743; }
-.metric-row span { color: #8fa0b5; }
-.badge-status-ok { color: #00ffaa; font-weight: 700; }
-.text-pink { color: #ff00aa; }
-
-/* CONTROLES */
-.actions-list { display: flex; flex-direction: column; gap: 10px; }
-.sim-btn { display: block; width: 100%; padding: 12px; font-size: 13px; font-weight: 700; text-align: center; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
-.btn-back { background-color: #384252; color: #ffffff; }
-.btn-back:hover { background-color: #475468; }
-.btn-action { background-color: #ff00aa; color: #ffffff; }
-.btn-action:hover { background-color: #d6008f; }
-
-/* TARJETAS DERECHA */
-.plants-stack { display: flex; flex-direction: column; gap: 15px; }
-.plant-item-card { background-color: #1a1f26; border: 1px solid #2e3743; border-radius: 4px; padding: 15px; }
-.plant-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.plant-item-header h3 { font-size: 15px; color: #ffffff; }
-.block-indicator { background-color: #384252; color: #00ffaa; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 3px; }
-.plant-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #8fa0b5; }
-.text-green-flat { color: #00ffaa; font-weight: 600; }
 
 .evento-positivo {
   background-color: var(--neon-cyan);
@@ -646,7 +307,7 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   transform: translateX(-50%);
   width: 85%;
   display: flex;
-  flex-direction: column-reverse; /* Apila de abajo hacia arriba */
+  flex-direction: column-reverse;
   gap: 20px;
   z-index: 5;
 }
@@ -657,7 +318,6 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   gap: 25px;
 }
 
-/* El módulo base (Bandeja de cultivo) */
 .visual-module {
   display: flex;
   flex-direction: column;
@@ -683,7 +343,6 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   filter: drop-shadow(0 0 8px var(--neon-alert));
 }
 
-/* Área de las plantas dentro del módulo */
 .module-plants-area {
   display: flex;
   justify-content: center;
@@ -694,7 +353,6 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   padding: 0 10px;
 }
 
-/* SVG Base para la geometría de las plantas */
 .plant-wireframe {
   width: 55px;
   height: 50px;
@@ -705,7 +363,6 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   stroke-linejoin: round;
 }
 
-/* La bandeja/soporte técnico inferior del módulo */
 .module-base {
   width: 100%;
   height: 20px;
@@ -714,7 +371,6 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   position: relative;
 }
 
-/* Detalles técnicos de la bandeja */
 .module-base::after {
   content: "";
   position: absolute;
@@ -726,7 +382,6 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   opacity: 0.5;
 }
 
-/* Etiqueta flotante del módulo */
 .module-label {
   position: absolute;
   top: -15px;
@@ -747,8 +402,9 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   border-radius: 10px;
   border: var(--neon-cyan) 2px solid;
   text-transform: uppercase;
-  color: white;
+  text-shadow: 0 0 5px var(--neon-cyan);
   box-shadow: 0 0 5px var(--neon-cyan) inset;
+  background-color: #0f172a;
 
   & form {
     display: flex;
@@ -756,6 +412,15 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
     justify-content: space-between;
     height: 80%;
     padding: 20px;
+
+    & .input-nombre-modulo {
+      background-color: var(--bg-color);
+      border: var(--neon-cyan) 2px solid;
+      padding: 5px;
+      border-radius: 7px;
+      color: wheat;
+      margin-top: 3px;
+    }
 
     & label {
       display: flex;
@@ -826,18 +491,246 @@ progress::-webkit-progress-bar { background-color: #1a1f26; }
   padding: 10px;
 }
 
-.plant-card-descripcion{
+.plant-card-descripcion {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
-.plant-card-descripcion-desactivada{
+.plant-card-descripcion-desactivada {
   border: #f97316 solid 2px;
   color: #f97316;
 }
 
-.header-planta{
+.header-planta {
   width: 100%;
   padding: 15px 10px;
 }
+
+/* BANNER-JUEGO-FINALIZADO */
+.banner-juego-finalizado {
+  width: 80%;
+  height: 70%;
+  background-color: var(--bg-color);
+  border: var(--neon-cyan) 2px solid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.banner-derrota {
+  border: var(--neon-alert) 2px solid;
+  color: var(--neon-alert);
+}
+
+.banner-derrota button {
+  border: var(--neon-alert) 2px solid;
+  color: var(--neon-alert);
+}
+
+.banner-derrota button:hover {
+  border: var(--neon-alert) 2px solid;
+  background-color: var(--neon-alert);
+  color: black;
+}
+
+.lista-plantas-modulo {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+
+  & button {
+    padding: 5px;
+    font-size: 10px;
+  }
+}
+
+.modulo-modificado {
+  color: white;
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1em;
+  gap: 30px;
+}
+
+/* Contenedor Principal del Panel de Estadísticas */
+.stats-panel {
+  width: 50%;
+  background: var(--panel-bg);
+  border: 1px solid var(--neon-cyan);
+  box-shadow:
+    0 0 15px rgba(45, 212, 191, 0.1) inset,
+    0 5px 20px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--neon-cyan);
+  padding: 10px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 5px var(--neon-cyan);
+}
+
+/* --- SECCIÓN 1: ANILLOS VITALES (Soporte de Vida) --- */
+.vital-rings-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.ring-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+/* SVG para el anillo de progreso */
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotate(-90deg); /* Para que empiece arriba */
+}
+
+.progress-ring-circle-bg {
+  fill: transparent;
+  stroke: rgba(45, 212, 191, 0.1);
+  stroke-width: 6;
+}
+
+.progress-ring-circle {
+  fill: transparent;
+  stroke: var(--neon-cyan);
+  stroke-width: 6;
+  stroke-dasharray: 251.2; /* Circunferencia = 2 * PI * r (r=40) */
+  stroke-dashoffset: 251.2; /* Inicia vacío, se llena con JS */
+  stroke-linecap: round;
+  transition:
+    stroke-dashoffset 1s ease-out,
+    stroke 0.3s ease;
+  filter: drop-shadow(0 0 4px var(--neon-cyan));
+}
+
+/* Modificadores de color según estado */
+.ring-wrapper.warning .progress-ring-circle {
+  stroke: var(--neon-alert);
+  filter: drop-shadow(0 0 4px var(--neon-alert));
+}
+.ring-wrapper.critical .progress-ring-circle {
+  stroke: var(--neon-critical);
+  filter: drop-shadow(0 0 4px var(--neon-critical));
+}
+
+.ring-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-shadow: 0 0 5px currentColor;
+}
+.ring-label {
+  font-size: 0.6rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* --- SECCIÓN 2: BARRAS DE INVENTARIO (Consumibles) --- */
+.inventory-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+}
+
+.stat-trend {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+.trend-up {
+  color: var(--neon-green);
+}
+.trend-down {
+  color: var(--neon-alert);
+}
+
+/* Estilo de barra fragmentada/segmentada tecnológica */
+.bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--neon-cyan),
+    var(--neon-cyan) 5px,
+    rgba(45, 212, 191, 0.8) 5px,
+    rgba(45, 212, 191, 0.8) 10px
+  );
+  width: 0%; /* Se llena con JS */
+  transition:
+    width 1s ease-out,
+    background 0.3s ease;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+}
+
+/* Patrón de cuadrícula sobre la barra para darle textura */
+.bar-bg::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-color) 1px,
+    transparent 1px
+  );
+  background-size: 10px 100%;
+  opacity: 0.5;
+}
+
+.stat-row.warning .bar-fill {
+  background: var(--neon-alert);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+}
+.stat-row.warning .bar-bg {
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
