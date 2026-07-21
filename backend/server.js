@@ -2,274 +2,156 @@ import pool from './db/my_postgre.js'
 import express from 'express'
 import cors from 'cors'
 
-const EVENTOS_ALEATORIOS = [
-    {
-        id: "tormenta_arena",
-        nombre: "Tormenta de Arena Marciana",
-        descripcion: "El polvo denso bloquea los paneles solares y satura los filtros.",
-        tipo: "negativo",
-        efectos: { energia: -15, oxigeno: -5, agua: 0, nutrientes: 0 }
-    },
-    {
-        id: "fuga_tanques",
-        nombre: "Microrrotura en Tanques",
-        descripcion: "La fatiga del material provocó una leve fuga de líquidos antes de ser sellada.",
-        tipo: "negativo",
-        efectos: { energia: 0, oxigeno: 0, agua: -8, nutrientes: 0 }
-    },
-    {
-        id: "plaga_hongos",
-        nombre: "Contaminación Fúngica",
-        descripcion: "Un hongo resistente está consumiendo los sustratos de los módulos.",
-        tipo: "negativo",
-        efectos: { energia: 0, oxigeno: 0, agua: 0, nutrientes: -5 }
-    },
-    {
-        id: "vientos_optimos",
-        nombre: "Corrientes de Viento Óptimas",
-        descripcion: "Las turbinas eólicas auxiliares operaron a máxima capacidad esta noche.",
-        tipo: "positivo",
-        efectos: { energia: +10, oxigeno: 0, agua: 0, nutrientes: 0 }
-    },
-    {
-        id: "hielo_subterraneo",
-        nombre: "Veta de Hielo Encontrada",
-        descripcion: "El rover automatizado extrajo un bloque de permafrost marciano.",
-        tipo: "positivo",
-        efectos: { energia: -2, oxigeno: 0, agua: +12, nutrientes: 0 }
-    },
-    {
-        id: "falla_electrica",
-        nombre: "Cortocircuito en Soporte Vital",
-        descripcion: "Los sistemas de purificación se detuvieron temporalmente.",
-        tipo: "negativo",
-        efectos: { energia: -5, oxigeno: -10, agua: 0, nutrientes: 0 }
-    }
-];
-
-
-const RECURSOS = {
-    cant_agua: 1000,
-    cant_oxigeno: 100,
-    cant_energia: 90,
-    cant_nutrientes: 300,
-    cant_comida: 50
-}
-
-
-const PLANTAS = [
-    {
-        id: 1,
-        nombre: "Tomate",
-        tamanio: 1,
-        agua_requerida: 2,
-        oxigeno_requerido: 1,
-        nutrientes_requeridos: 2,
-        nutrientes_generados: 1,
-        duracion: 5,
-        agua_producida: 8,
-        nivel_requerido: 1,
-        estado: "inicial",
-        pathSvg: '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>'
-    },
-
-    {
-        id: 2,
-        nombre: "Lechuga",
-        tamanio: 1,
-        agua_requerida: 2,
-        oxigeno_requerido: 0.5,
-        nutrientes_requeridos: 1,
-        nutrientes_generados: 0.5,
-        duracion: 3,
-        agua_producida: 3,
-        nivel_requerido: 1,
-        estado: "inicial",
-        pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>'
-    },
-
-    {
-        id: 3,
-        nombre: "Papa",
-        tamanio: 2,
-        agua_requerida: 3,
-        oxigeno_requerido: 1.5,
-        nutrientes_requeridos: 3,
-        nutrientes_generados: 0,
-        duracion: 8,
-        agua_producida: 15,
-        nivel_requerido: 2,
-        estado: "inicial",
-        pathSvg: '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20 M35 25 Q50 30 65 25"/>'
-    },
-
-    {
-        id: 4,
-        nombre: "Espirulina",
-        tamanio: 1,
-        agua_requerida: 4,
-        oxigeno_requerido: 0.1,
-        nutrientes_requeridos: 1,
-        oxigeno_generado: 10,
-        nutrientes_generados: 4,
-        duracion: 2,
-        agua_producida: 4,
-        nivel_requerido: 4,
-        estado: "inicial",
-        pathSvg: '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>'
-    },
-
-]
-
-
-const modulos = []
-
 const app = express()
 
+// Middlewares
 app.use(cors());
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
 
+// Ruta base de chequeo
 app.get("/", (req, res) => {
     res.send("Servidor funcionando")
 })
 
-app.get("/plantas", (req, res) => {
-    res.json(PLANTAS)
-})
+/* 
+   RUTAS PLANTAS GENERALES
+ */
 
-app.get("/ver_planta/:id", (req, res) => {
-    let id = req.params.id
-
-    let planta = PLANTAS.find((planta) => planta.id == parseInt(id))
-    res.json(planta)
-})
-
-app.get("/evento", (req, res) => {
-    let evento = generarEventoAleatorio()
-    RECURSOS.cant_agua += evento.efectos.agua
-    RECURSOS.cant_oxigeno += evento.efectos.oxigeno
-    RECURSOS.cant_energia += evento.efectos.energia
-    RECURSOS.cant_nutrientes += evento.efectos.nutrientes
-    res.status(200).json(evento)
-})
-
-app.get("/recursos", (req, res) => {
-    res.status(200).json(RECURSOS)
-})
-
-app.post("/modulos", (req,res) =>{
-    let nuevo_modulo = {...req.body, id: modulos.length + 1, plantas: []}
-    modulos.push(nuevo_modulo)
-    res.status(201).json(nuevo_modulo)
-})
-
-app.get("/modulos", (req,res) =>{
-    res.json(modulos)
-})
-
-app.post("/modulos/:id/plantas", (req, res) => {
-    const modulo = modulos.find(m => m.id == parseInt(req.params.id))
-    if (!modulo) return res.status(404).json({ error: "Modulo no encontrado" })
-
-    const especie = PLANTAS.find(p => p.id == req.body.especie_id)
-    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-
-    const nueva_planta = {
-        especie_id: especie.id,
-        estado: "creciendo",
-        porcentaje_agua: 100,
-        porcentaje_nutrientes: 100,
-        dias_transcurridos: 0
+app.get("/plantas", async (req, res) => {
+    try {
+        const resultado = await pool.query("SELECT * FROM especies");
+        res.json(resultado.rows);
+    } catch (error) {
+        console.error("Error al traer especies:", error);
+        res.status(500).json({ error: "Error al consultar la base de datos" });
     }
-    modulo.plantas.push(nueva_planta)
-    res.status(201).json(nueva_planta)
-})
+});
 
-const ESTADO_JUEGO = {
-    dia_actual: 1,
-    estado: "en_curso",
-    total_cosechas: 0
-}
-
-app.post("/avanzar-dia", (req, res) => {
-    if (ESTADO_JUEGO.estado !== "en_curso") {
-        return res.status(400).json({ error: "La partida ya terminó", estado: ESTADO_JUEGO.estado })
+app.get("/ver_planta/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const resultado = await pool.query("SELECT * FROM especies WHERE id = $1", [id]);
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ error: "Planta no encontrada" });
+        }
+        res.json(resultado.rows[0]);
+    } catch (error) {
+        console.error("Error al ver planta:", error);
+        res.status(500).json({ error: "Error en el servidor" });
     }
+});
 
-    let eventos_del_dia = []
+/* RUTAS DE RECURSOS */
 
-    modulos.forEach((modulo) => {
-        modulo.plantas.forEach((planta) => {
-            if (["seca", "perdida"].includes(planta.estado)) return
-
-            const especie = PLANTAS.find(p => p.id == planta.especie_id)
-            if (!especie) return
-
-            if (modulo.cant_agua >= especie.agua_requerida) {
-                modulo.cant_agua -= especie.agua_requerida
-            } else {
-                planta.porcentaje_agua -= 20
-            }
-
-            if (modulo.cant_nutrientes >= especie.nutrientes_requeridos) {
-                modulo.cant_nutrientes -= especie.nutrientes_requeridos
-            } else {
-                planta.porcentaje_nutrientes -= 20
-            }
-
-            modulo.cant_oxigeno -= especie.oxigeno_requerido
-
-            if (planta.porcentaje_agua <= 0) {
-                planta.estado = "seca"
-                eventos_del_dia.push(`Una planta de ${especie.nombre} se secó en "${modulo.nombre}"`)
-                return
-            }
-            if (planta.porcentaje_nutrientes <= 30) {
-                planta.estado = "perdida"
-                eventos_del_dia.push(`Se perdió una planta de ${especie.nombre} por falta de nutrientes`)
-                return
-            }
-
-            RECURSOS.cant_comida += especie.nutrientes_generados || 0
-
-            planta.dias_transcurridos++
-            if (planta.dias_transcurridos >= especie.duracion) {
-                planta.estado = "lista_para_cosechar"
-                RECURSOS.cant_agua += especie.agua_producida
-                ESTADO_JUEGO.total_cosechas++
-                planta.dias_transcurridos = 0
-                eventos_del_dia.push(`Cosecha lista de ${especie.nombre} en "${modulo.nombre}"`)
-            }
-        })
-    })
-
-    RECURSOS.cant_comida -= 5
-    if (RECURSOS.cant_comida < 0) RECURSOS.cant_comida = 0
-
-    ESTADO_JUEGO.dia_actual++
-
-    if (RECURSOS.cant_comida <= 0) {
-        ESTADO_JUEGO.estado = "derrota"
-    } else if (ESTADO_JUEGO.dia_actual >= 180) {
-        ESTADO_JUEGO.estado = "victoria"
+// Obtener el estado de la base espacial
+app.get("/recursos", async (req, res) => {
+    try {
+        const resultado = await pool.query("SELECT * FROM base_espacial WHERE id = 1");
+        res.status(200).json(resultado.rows[0]);
+    } catch (error) {
+        console.error("Error al traer recursos:", error);
+        res.status(500).json({ error: "Error en el servidor" });
     }
+});
 
-    res.status(200).json({
-        dia_actual: ESTADO_JUEGO.dia_actual,
-        estado: ESTADO_JUEGO.estado,
-        total_cosechas: ESTADO_JUEGO.total_cosechas,
-        recursos: RECURSOS,
-        modulos,
-        eventos: eventos_del_dia
-    })
-})
+// Desencadenar un evento aleatorio de la BDD e impactar sus efectos
+app.get("/evento", async (req, res) => {
+    try {
+        // Traer un evento al azar de la BDD
+        const eventoResult = await pool.query("SELECT * FROM eventos ORDER BY RANDOM() LIMIT 1");
+        const evento = eventoResult.rows[0];
 
+        // ACCION :los efectos numéricos directo en la tabla de la base espacial
+        await pool.query(
+            `UPDATE base_espacial 
+             SET agua = agua + $1, 
+                 oxigeno = oxigeno + $2, 
+                 energia = energia + $3, 
+                 nutrientes = nutrientes + $4 
+             WHERE id = 1`,
+            [evento.efecto_agua, evento.efecto_oxigeno, evento.efecto_energia, evento.efecto_nutrientes]
+        );
 
+        res.status(200).json(evento);
+    } catch (error) {
+        console.error("Error al procesar el evento:", error);
+        res.status(500).json({ error: "Error al procesar el evento en la BDD" });
+    }
+});
 
-function generarEventoAleatorio() {
-    const indiceAleatorio = Math.floor(Math.random() * EVENTOS_ALEATORIOS.length);
-    return EVENTOS_ALEATORIOS[indiceAleatorio];
-}
+/* RUTAS DE MÓDULOS */
 
-app.listen(3000, () => console.log("Servidor iniciado"))
+// Obtener todos los módulos creados en el Invernadero
+app.get("/modulos", async (req, res) => {
+    try {
+        const resultado = await pool.query("SELECT * FROM modulos ORDER BY id ASC");
+        res.json(resultado.rows);
+    } catch (error) {
+        console.error("Error al traer los módulos:", error);
+        res.status(500).json({ error: "Error al obtener módulos" });
+    }
+});
+
+// Crear un nuevo módulo e insertarlo en la BDD
+app.post("/modulos", async (req, res) => {
+    const { nivel, estado, bloques_totales, bloques_ocupados, agua, nutrientes, energia, oxigeno } = req.body;
+    try {
+        const nuevoModulo = await pool.query(
+            `INSERT INTO modulos (nivel, estado, bloques_totales, bloques_ocupados, agua, nutrientes, energia, oxigeno) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+            [
+                nivel || 1, 
+                estado || 'estable', 
+                bloques_totales || 2, 
+                bloques_ocupados || 0, 
+                agua || 0, 
+                nutrientes || 0, 
+                energia || 0, 
+                oxigeno || 0
+            ]
+        );
+        res.status(201).json(nuevoModulo.rows[0]);
+    } catch (error) {
+        console.error("Error al crear el módulo:", error);
+        res.status(500).json({ error: "No se pudo guardar el módulo en la base de datos" });
+    }
+});
+
+/*  PLANTADO DENTRO DE LOS MÓDULOS*/
+
+// Sembrar una planta dentro de un módulo específico
+app.post("/modulos/:id/plantas", async (req, res) => {
+    const moduloId = parseInt(req.params.id);
+    const { especie_id } = req.body;
+
+    try {
+        // Verificar si el módulo existe en la BDD
+        const moduloCheck = await pool.query("SELECT * FROM modulos WHERE id = $1", [moduloId]);
+        if (moduloCheck.rows.length === 0) return res.status(404).json({ error: "Módulo no encontrado" });
+
+        // Verificar si la especie existe en la BDD
+        const especieCheck = await pool.query("SELECT * FROM especies WHERE id = $1", [especie_id]);
+        if (especieCheck.rows.length === 0) return res.status(404).json({ error: "Especie no encontrada" });
+
+        // Obtener el día actual de la simulación desde la base espacial
+        const baseResult = await pool.query("SELECT dia_actual FROM base_espacial WHERE id = 1");
+        const diaActual = baseResult.rows[0].dia_actual;
+        const duracionEspecie = especieCheck.rows[0].duracion;
+
+        // Insertar la planta en la tabla relacional 'plantas'
+        const nuevaPlanta = await pool.query(
+            `INSERT INTO plantas (modulo_id, especie_id, dia_sembrado, dia_cosecha, estado, porcentaje_agua, porcentaje_nutrientes) 
+             VALUES ($1, $2, $3, $4, 'creciendo', 100, 100) RETURNING *`,
+            [moduloId, especie_id, diaActual, diaActual + duracionEspecie]
+        );
+
+        res.status(201).json(nuevaPlanta.rows[0]);
+    } catch (error) {
+        console.error("Error al sembrar la planta:", error);
+        res.status(500).json({ error: "Error en el servidor al intentar sembrar" });
+    }
+});
+
+// Servidor 
+app.listen(3000, () => console.log("Servidor iniciado en el puerto 3000"));
