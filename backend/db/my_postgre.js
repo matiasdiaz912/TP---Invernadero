@@ -4,7 +4,7 @@ import pg from 'pg'
 dotenv.config()
 
 const { Pool } = pg
-
+//sector donde se relaciona con el archivo .env
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,

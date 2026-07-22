@@ -4,7 +4,7 @@ import cors from 'cors'
 
 const app = express()
 
-// Middlewares
+
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -55,14 +55,14 @@ app.get("/recursos", async (req, res) => {
     }
 });
 
-// Desencadenar un evento aleatorio de la BDD e impactar sus efectos
+
 app.get("/evento", async (req, res) => {
     try {
         // Traer un evento al azar de la BDD
         const eventoResult = await pool.query("SELECT * FROM eventos ORDER BY RANDOM() LIMIT 1");
         const evento = eventoResult.rows[0];
 
-        // ACCION :los efectos numéricos directo en la tabla de la base espacial
+        
         await pool.query(
             `UPDATE base_espacial 
              SET agua = agua + $1, 
@@ -126,20 +126,20 @@ app.post("/modulos/:id/plantas", async (req, res) => {
     const { especie_id } = req.body;
 
     try {
-        // Verificar si el módulo existe en la BDD
+        // Verificar si el módulo existe 
         const moduloCheck = await pool.query("SELECT * FROM modulos WHERE id = $1", [moduloId]);
         if (moduloCheck.rows.length === 0) return res.status(404).json({ error: "Módulo no encontrado" });
 
-        // Verificar si la especie existe en la BDD
+        // Verificar si la especie existe 
         const especieCheck = await pool.query("SELECT * FROM especies WHERE id = $1", [especie_id]);
         if (especieCheck.rows.length === 0) return res.status(404).json({ error: "Especie no encontrada" });
 
-        // Obtener el día actual de la simulación desde la base espacial
+        // Obtener el día actual de la simulación 
         const baseResult = await pool.query("SELECT dia_actual FROM base_espacial WHERE id = 1");
         const diaActual = baseResult.rows[0].dia_actual;
         const duracionEspecie = especieCheck.rows[0].duracion;
 
-        // Insertar la planta en la tabla relacional 'plantas'
+        
         const nuevaPlanta = await pool.query(
             `INSERT INTO plantas (modulo_id, especie_id, dia_sembrado, dia_cosecha, estado, porcentaje_agua, porcentaje_nutrientes) 
              VALUES ($1, $2, $3, $4, 'creciendo', 100, 100) RETURNING *`,
