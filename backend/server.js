@@ -1,7 +1,8 @@
 import pool from './db/my_postgre.js'
 import express from 'express'
 import cors from 'cors'
-import { CANT_COMIDA, CANT_AGUA, CANT_OXIGENO, CANT_NUTRIENTES, CANT_ENERGIA } from './constantes.js';
+import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA } from './constantes.js';
+import { procesarModulos } from './dia.js';
 
 const EVENTOS_ALEATORIOS = [
     {
@@ -49,81 +50,9 @@ const EVENTOS_ALEATORIOS = [
 ];
 
 
-let RECURSOS = {
-    cant_agua: CANT_AGUA,
-    cant_oxigeno: CANT_OXIGENO,
-    cant_energia: CANT_ENERGIA,
-    cant_nutrientes: CANT_NUTRIENTES,
-    cant_comida: CANT_COMIDA
-}
+let RECURSOS = { ...RECURSOS_INICIALES }
 
 
-const ESPECIES = [
-    {
-        id: 1,
-        nombre: "Tomate",
-        tamanio: 1,
-        agua_requerida: 5,
-        oxigeno_requerido: 1,
-        nutrientes_requeridos: 2,
-        oxigeno_generado: 0,
-        nutrientes_generados: 1,
-        comida_generada: 4,
-        duracion: 5,
-        agua_producida: 15,
-        nivel_requerido: 1,
-        pathSvg: '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>'
-    },
-
-    {
-        id: 2,
-        nombre: "Lechuga",
-        tamanio: 1,
-        agua_requerida: 7,
-        oxigeno_requerido: 0.5,
-        nutrientes_requeridos: 1,
-        nutrientes_generados: 0.5,
-        oxigeno_generado: 0,
-        comida_generada: 7,
-        duracion: 3,
-        agua_producida: 15,
-        nivel_requerido: 1,
-        pathSvg: '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>'
-    },
-
-    {
-        id: 3,
-        nombre: "Papa",
-        tamanio: 2,
-        agua_requerida: 3,
-        oxigeno_requerido: 1.5,
-        nutrientes_requeridos: 3,
-        nutrientes_generados: 0,
-        oxigeno_generado: 0,
-        comida_generada: 12,
-        duracion: 8,
-        agua_producida: 15,
-        nivel_requerido: 2,
-        pathSvg: '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20 M35 25 Q50 30 65 25"/>'
-    },
-
-    {
-        id: 4,
-        nombre: "Espirulina",
-        tamanio: 1,
-        agua_requerida: 4,
-        oxigeno_requerido: 0.1,
-        nutrientes_requeridos: 1,
-        oxigeno_generado: 10,
-        nutrientes_generados: 4,
-        comida_generada: 18,
-        duracion: 2,
-        agua_producida: 4,
-        nivel_requerido: 4,
-        pathSvg: '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>'
-    },
-
-]
 
 let PLANTAS = []
 
@@ -166,7 +95,16 @@ app.get("/recursos", (req, res) => {
 app.post("/modulos", (req, res) => {
     console.log(req.body);
     const modulo_resources = req.body
-    let nuevo_modulo = { ...req.body, id: modulos.length + 1, capacidad_max: 2, nivel: 1, cosechas: 0, plantas: [] }
+    let nuevo_modulo = {
+        ...req.body,
+        id: modulos.length + 1,
+        capacidad_max: MODULO.bloques_iniciales,
+        nivel: 1,
+        cosechas: 0,
+        plantas: [],
+        estado: "estable",
+        dias_en_critico: 0
+    }
     modulos.push(nuevo_modulo)
     RECURSOS.cant_agua -= modulo_resources.cant_agua
     RECURSOS.cant_energia -= modulo_resources.cant_energia
@@ -182,7 +120,7 @@ app.get("/modulos", (req, res) => {
 app.put("/modulos/:moduloId", (req, res) => {
     const { moduloId } = req.params
     const body = req.body
-    let modulo = modulos.find(modulo => modulo.id = moduloId)
+    let modulo = modulos.find(modulo => modulo.id == moduloId)
     let especie = ESPECIES.find(planta => planta.nombre == body.nombre)
     modulo.plantas = modulo.plantas.filter(planta => planta.id != body.id)
     actualizarRecursos(especie)
@@ -197,10 +135,9 @@ app.put("/modulos/:moduloId", (req, res) => {
 app.put("/modulos", (req, res) => {
     let modulo = req.body
     if (modulo.cosechas - (10 * modulo.nivel ** modulo.nivel) == 0) {
-        log
         modulo.nivel++
         modulo.capacidad_max++
-        res.status(200).json({ msg: `El modulo ha sido mejorado al nivel ${modulo.nivel} y ahora tiene capacidad para ${modulo.capacidad_max} plantas`, type: "succes" })
+        return res.status(200).json({ msg: `El modulo ha sido mejorado al nivel ${modulo.nivel} y ahora tiene capacidad para ${modulo.capacidad_max} plantas`, type: "succes" })
     }
 
     res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${10 * modulo.nivel ** modulo.nivel} de las ${modulo.cosechas} cosechas actuales`, type: "error" })
@@ -229,6 +166,7 @@ app.put("/modulos/:moduloId/recursos", (req, res) => {
 app.delete("/modulos/:moduloId", (req, res) => {
     const { moduloId } = req.params
     modulos = modulos.filter(modulo => modulo.id != moduloId)
+    res.status(200).json({ ok: true })
 })
 
 app.get("/modulos/:moduloId/:plantaId", (req, res) => {
@@ -259,7 +197,7 @@ let ESTADO_JUEGO = {
     dia_actual: 0,
     estado: "en_curso",
     total_cosechas: 0,
-    tripulantes: 30,
+    tripulantes: TRIPULANTES_INICIALES,
     dias_comida_insuficiente: 0,
     dias_agua_insuficiente: 0,
     dias_oxigeno_insuficiente: 0,
@@ -268,50 +206,11 @@ let ESTADO_JUEGO = {
 }
 
 app.get("/avanzar-dia", (req, res) => {
-    let eventos_del_dia = []
+    // Modulos y plantas -> backend/dia.js
+    let eventos_del_dia = procesarModulos(modulos, RECURSOS)
 
-    modulos.forEach((modulo) => {
-        modulo.plantas.forEach((planta) => {
-            let especie = ESPECIES.find(especie => especie.nombre == planta.nombre)
-            if (["seca", "perdida"].includes(planta.estado)) return
 
-            if (modulo.cant_agua >= especie.agua_requerida) {
-                modulo.cant_agua -= especie.agua_requerida
-            } else {
-                planta.porcentaje_agua -= 20
-            }
-
-            if (modulo.cant_nutrientes >= especie.nutrientes_requeridos) {
-                modulo.cant_nutrientes -= especie.nutrientes_requeridos
-            } else {
-                planta.porcentaje_nutrientes -= 20
-            }
-
-            modulo.cant_oxigeno -= especie.oxigeno_requerido
-
-            if (planta.porcentaje_agua <= 0) {
-                planta.estado = "seca"
-                eventos_del_dia.push({ mensaje: `Una planta de ${planta.nombre} se secó en "${modulo.nombre}"`, tipo: "alerta" })
-                return
-            }
-            if (planta.porcentaje_nutrientes <= 30) {
-                planta.estado = "perdida"
-                eventos_del_dia.push({ mensaje: `Se perdió una planta de ${planta.nombre} por falta de nutrientes`, tipo: "alerta" })
-                return
-            }
-
-            RECURSOS.cant_comida += especie.nutrientes_generados || 0
-
-            planta.dias_transcurridos++
-            if (planta.dias_transcurridos >= planta.duracion) {
-                planta.estado = "lista_para_cosechar"
-                RECURSOS.cant_agua += especie.agua_producida
-                planta.dias_transcurridos = planta.duracion
-                eventos_del_dia.push({ mensaje: `Cosecha lista de ${planta.nombre} en "${modulo.nombre}"`, tipo: "info" })
-            }
-        })
-    })
-
+    // Tripulacion, niveles y eventos
     if (RECURSOS.cant_comida < 60) {
         ESTADO_JUEGO.dias_comida_insuficiente += 1
         if (ESTADO_JUEGO.dias_comida_insuficiente > 7) {
@@ -348,9 +247,9 @@ app.get("/avanzar-dia", (req, res) => {
 
     ESTADO_JUEGO.dia_actual++
 
-    if (ESTADO_JUEGO.tripulantes == 0 || ESTADO_JUEGO.dias_oxigeno_insuficiente == 3) { //SE USAN LOS TRAJES ESPACIALES
+    if (ESTADO_JUEGO.tripulantes <= 0 || ESTADO_JUEGO.dias_oxigeno_insuficiente == 3) { //SE USAN LOS TRAJES ESPACIALES
         ESTADO_JUEGO.estado = "derrota"
-    } else if (ESTADO_JUEGO.dia_actual == 180) {
+    } else if (ESTADO_JUEGO.dia_actual >= DIA_VICTORIA) {
         ESTADO_JUEGO.estado = "victoria"
     }
 
@@ -376,31 +275,16 @@ function generarEventoAleatorio() {
     return EVENTOS_ALEATORIOS[indiceAleatorio];
 }
 
-function actualizar_dias_planta() {
-    modulos.forEach(modulo => {
-        modulo.plantas.forEach((planta) => {
-            if (planta.dias_transcurridos != planta.duracion) {
-                planta.dias_transcurridos += 1
-            }
-        })
-    });
-}
 
 
 app.get("/reiniciar", (req, res) => {
-    RECURSOS = {
-        cant_agua: CANT_AGUA,
-        cant_oxigeno: CANT_OXIGENO,
-        cant_energia: CANT_ENERGIA,
-        cant_nutrientes: CANT_NUTRIENTES,
-        cant_comida: CANT_COMIDA
-    }
+    RECURSOS = { ...RECURSOS_INICIALES }
 
     ESTADO_JUEGO = {
         dia_actual: 0,
         estado: "en_curso",
         total_cosechas: 0,
-        tripulantes: 30,
+        tripulantes: TRIPULANTES_INICIALES,
         dias_comida_insuficiente: 0,
         nivel: 1
     }
@@ -419,11 +303,9 @@ app.get("/reiniciar", (req, res) => {
 })
 
 function actualizarRecursos(especie) {
-    RECURSOS.cant_agua += especie.agua_producida
-    RECURSOS.cant_oxigeno += especie.oxigeno_generado
-    // RECURSOS.cant_energia += 90
-    RECURSOS.cant_nutrientes += especie.nutrientes_generados
-    RECURSOS.cant_comida += especie.comida_generada
+    // Solo el golpe de cosecha; el goteo diario ya lo sumo el tick.
+    RECURSOS.cant_agua += especie.agua_cosecha
+    RECURSOS.cant_comida += especie.comida_cosecha
 }
 
 app.listen(3000, () => console.log("Servidor iniciado"))
