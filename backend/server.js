@@ -350,7 +350,6 @@ app.get("/estado-juego", (req, res) => {
 
 
 
-
 function generarEventoAleatorio() {
     const indiceAleatorio = Math.floor(Math.random() * EVENTOS_ALEATORIOS.length);
     return EVENTOS_ALEATORIOS[indiceAleatorio];
@@ -405,5 +404,7 @@ function actualizarRecursos(especie) {
     RECURSOS.cant_nutrientes += especie.nutrientes_generados
     RECURSOS.cant_comida += especie.comida_generada
 }
+
+
 
 app.listen(3000, () => console.log("Servidor iniciado"))
