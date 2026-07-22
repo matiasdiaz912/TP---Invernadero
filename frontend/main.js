@@ -63,8 +63,10 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
     const catalogGrid = document.getElementById("catalog-grid");
     let btn_close_catalog = document.getElementById("btn-close-catalog")
     btn_close_catalog.addEventListener("click", () => {
-        catalog.remove()
-        activar_botones();
+    const descripcion = document.querySelector(".planta-descripcion");
+    if (descripcion) descripcion.remove();
+    catalog.remove();
+    activar_botones();
     })
     plantas.forEach((planta) => {
         const bloqueado = planta.nivel_requerido > nivelActual;
@@ -131,8 +133,9 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             let btn_close_detalles = document.getElementById("btn-close-detalles");
             let btn_back = document.getElementById("btn-back")
             btn_close_detalles.addEventListener("click", () => {
-                card_descripcion.remove();
-                activar_botones();
+            card_descripcion.remove();
+            catalog.remove();
+            activar_botones();
             });
 
             btn_back.addEventListener("click", () => {
@@ -553,7 +556,53 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             lista_plantas.appendChild(planta_sembrada)
         })
     }
+       let btn_gestionar = document.getElementById("btn-gestionar")
+btn_gestionar.addEventListener("click", () => {
+    modulo_detalles.remove()
+    let gestionar_recursos = document.createElement("div")
+    gestionar_recursos.classList.add("catalog-window")
+    gestionar_recursos.innerHTML = `
+        <div class="catalog-header">
+            <h2>> GESTIONAR RECURSOS</h2>
+            <button id="btn-close-gestionar" class="btn-action">[ CERRAR ]</button>
+        </div>
+        <div class="gestionar-recursos">
+            <label>AGUA A AGREGAR:</label>
+            <input id="input-agua" type="number" min="0" class="btn-action" placeholder="0"/>
+            <label>NUTRIENTES A AGREGAR:</label>
+            <input id="input-nutrientes" type="number" min="0" class="btn-action" placeholder="0"/>
+            <label>ENERGIA A AGREGAR:</label>
+            <input id="input-energia" type="number" min="0" class="btn-action" placeholder="0"/>
+            <button id="btn-confirmar-recursos" class="btn-action">CONFIRMAR</button>
+        </div>
+    `
+    main_view.appendChild(gestionar_recursos)
 
+    document.getElementById("btn-close-gestionar").addEventListener("click", () => {
+        gestionar_recursos.remove()
+        activar_botones()
+    })
+
+    document.getElementById("btn-confirmar-recursos").addEventListener("click", async () => {
+        const agua = parseFloat(document.getElementById("input-agua").value) || 0
+        const nutrientes = parseFloat(document.getElementById("input-nutrientes").value) || 0
+        const energia = parseFloat(document.getElementById("input-energia").value) || 0
+
+        const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/recursos`, {
+            method: "PUT",
+            body: JSON.stringify({ agua, nutrientes, energia }),
+            headers: { "Content-Type": "application/json" }
+        })
+        const data = await response.json()
+        if (response.ok) {
+            generar_logs(`Recursos actualizados en "${modulo.nombre}"`, "info")
+        } else {
+            generar_logs(data.error, "alerta")
+        }
+        gestionar_recursos.remove()
+        activar_botones()
+    })
+})     
     let btn_sembrar = document.getElementById("btn-sembrar")
     btn_sembrar.addEventListener("click", async () => {
         modulo_detalles.remove()
@@ -622,16 +671,28 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 // AYUDA
 
 button_help.addEventListener("click", () => {
-    main_view.innerHTML = `
-        <h1>AYUDA</h1>
+    desactivar_botones()
+    let ayuda_window = document.createElement("div")
+    ayuda_window.classList.add("catalog-window")
+    ayuda_window.innerHTML = `
+        <div class="catalog-header">
+            <h2>> AYUDA</h2>
+            <button id="btn-close-ayuda" class="btn-action">[ CERRAR ]</button>
+        </div>
         <h3>CUANDO TERMINA EL JUEGO</h3>
         <p>El usuario ganara el juego cuando logre llegar al dia 180 con al menos un tripulante vivo</p>
         <h3>COMO GESTIONAR LOS RECURSOS</h3>
-        <p>Los recursos se iran reduciendo a medida que el juego avanza, pero la clave esta en la gestion de recursos en los modulos. \n 
-            si bien se pueden usar todos los recursos para alimentar un modulo, esto conllevaria a una escases de recursos para los tripulantes.
-            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.\n
+        <p>Los recursos se iran reduciendo a medida que el juego avanza, pero la clave esta en la gestion de recursos en los modulos.
+            Si bien se pueden usar todos los recursos para alimentar un modulo, esto conllevaria a una escases de recursos para los tripulantes.
+            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.
         </p>
     `
+    main_view.appendChild(ayuda_window)
+
+    document.getElementById("btn-close-ayuda").addEventListener("click", () => {
+        ayuda_window.remove()
+        activar_botones()
+    })
 })
 
 
