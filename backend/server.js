@@ -205,7 +205,27 @@ app.put("/modulos", (req, res) => {
 
     res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${10 * modulo.nivel ** modulo.nivel} de las ${modulo.cosechas} cosechas actuales`, type: "error" })
 })
+app.put("/modulos/:moduloId/recursos", (req, res) => {
+    const { moduloId } = req.params
+    const { agua, nutrientes, energia } = req.body
 
+    let modulo = modulos.find(m => m.id == parseInt(moduloId))
+    if (!modulo) return res.status(404).json({ error: "Módulo no encontrado" })
+
+    if (RECURSOS.cant_agua < agua) return res.status(400).json({ error: "No hay suficiente agua disponible" })
+    if (RECURSOS.cant_nutrientes < nutrientes) return res.status(400).json({ error: "No hay suficientes nutrientes disponibles" })
+    if (RECURSOS.cant_energia < energia) return res.status(400).json({ error: "No hay suficiente energía disponible" })
+
+    modulo.cant_agua += agua
+    modulo.cant_nutrientes += nutrientes
+    modulo.cant_energia += energia
+
+    RECURSOS.cant_agua -= agua
+    RECURSOS.cant_nutrientes -= nutrientes
+    RECURSOS.cant_energia -= energia
+
+    res.status(200).json(modulo)
+})
 app.delete("/modulos/:moduloId", (req, res) => {
     const { moduloId } = req.params
     modulos = modulos.filter(modulo => modulo.id != moduloId)

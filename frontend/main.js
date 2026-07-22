@@ -556,7 +556,53 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             lista_plantas.appendChild(planta_sembrada)
         })
     }
+       let btn_gestionar = document.getElementById("btn-gestionar")
+btn_gestionar.addEventListener("click", () => {
+    modulo_detalles.remove()
+    let gestionar_recursos = document.createElement("div")
+    gestionar_recursos.classList.add("catalog-window")
+    gestionar_recursos.innerHTML = `
+        <div class="catalog-header">
+            <h2>> GESTIONAR RECURSOS</h2>
+            <button id="btn-close-gestionar" class="btn-action">[ CERRAR ]</button>
+        </div>
+        <div class="gestionar-recursos">
+            <label>AGUA A AGREGAR:</label>
+            <input id="input-agua" type="number" min="0" class="btn-action" placeholder="0"/>
+            <label>NUTRIENTES A AGREGAR:</label>
+            <input id="input-nutrientes" type="number" min="0" class="btn-action" placeholder="0"/>
+            <label>ENERGIA A AGREGAR:</label>
+            <input id="input-energia" type="number" min="0" class="btn-action" placeholder="0"/>
+            <button id="btn-confirmar-recursos" class="btn-action">CONFIRMAR</button>
+        </div>
+    `
+    main_view.appendChild(gestionar_recursos)
 
+    document.getElementById("btn-close-gestionar").addEventListener("click", () => {
+        gestionar_recursos.remove()
+        activar_botones()
+    })
+
+    document.getElementById("btn-confirmar-recursos").addEventListener("click", async () => {
+        const agua = parseFloat(document.getElementById("input-agua").value) || 0
+        const nutrientes = parseFloat(document.getElementById("input-nutrientes").value) || 0
+        const energia = parseFloat(document.getElementById("input-energia").value) || 0
+
+        const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/recursos`, {
+            method: "PUT",
+            body: JSON.stringify({ agua, nutrientes, energia }),
+            headers: { "Content-Type": "application/json" }
+        })
+        const data = await response.json()
+        if (response.ok) {
+            generar_logs(`Recursos actualizados en "${modulo.nombre}"`, "info")
+        } else {
+            generar_logs(data.error, "alerta")
+        }
+        gestionar_recursos.remove()
+        activar_botones()
+    })
+})     
     let btn_sembrar = document.getElementById("btn-sembrar")
     btn_sembrar.addEventListener("click", async () => {
         modulo_detalles.remove()
