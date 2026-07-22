@@ -63,8 +63,10 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
     const catalogGrid = document.getElementById("catalog-grid");
     let btn_close_catalog = document.getElementById("btn-close-catalog")
     btn_close_catalog.addEventListener("click", () => {
-        catalog.remove()
-        activar_botones();
+    const descripcion = document.querySelector(".planta-descripcion");
+    if (descripcion) descripcion.remove();
+    catalog.remove();
+    activar_botones();
     })
     plantas.forEach((planta) => {
         const bloqueado = planta.nivel_requerido > nivelActual;
@@ -131,8 +133,9 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             let btn_close_detalles = document.getElementById("btn-close-detalles");
             let btn_back = document.getElementById("btn-back")
             btn_close_detalles.addEventListener("click", () => {
-                card_descripcion.remove();
-                activar_botones();
+            card_descripcion.remove();
+            catalog.remove();
+            activar_botones();
             });
 
             btn_back.addEventListener("click", () => {
