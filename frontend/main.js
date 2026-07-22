@@ -671,16 +671,28 @@ btn_gestionar.addEventListener("click", () => {
 // AYUDA
 
 button_help.addEventListener("click", () => {
-    main_view.innerHTML = `
-        <h1>AYUDA</h1>
+    desactivar_botones()
+    let ayuda_window = document.createElement("div")
+    ayuda_window.classList.add("catalog-window")
+    ayuda_window.innerHTML = `
+        <div class="catalog-header">
+            <h2>> AYUDA</h2>
+            <button id="btn-close-ayuda" class="btn-action">[ CERRAR ]</button>
+        </div>
         <h3>CUANDO TERMINA EL JUEGO</h3>
         <p>El usuario ganara el juego cuando logre llegar al dia 180 con al menos un tripulante vivo</p>
         <h3>COMO GESTIONAR LOS RECURSOS</h3>
-        <p>Los recursos se iran reduciendo a medida que el juego avanza, pero la clave esta en la gestion de recursos en los modulos. \n 
-            si bien se pueden usar todos los recursos para alimentar un modulo, esto conllevaria a una escases de recursos para los tripulantes.
-            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.\n
+        <p>Los recursos se iran reduciendo a medida que el juego avanza, pero la clave esta en la gestion de recursos en los modulos.
+            Si bien se pueden usar todos los recursos para alimentar un modulo, esto conllevaria a una escases de recursos para los tripulantes.
+            Para lograr que la cantidad de tripulantes se mantenga estable es recomendable visualizar la seccion de estado de los recursos.
         </p>
     `
+    main_view.appendChild(ayuda_window)
+
+    document.getElementById("btn-close-ayuda").addEventListener("click", () => {
+        ayuda_window.remove()
+        activar_botones()
+    })
 })
 
 
