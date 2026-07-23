@@ -124,6 +124,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 <button id="sembrar-button" class="btn-action" ${!planta.adquirida ? 'disabled' : ''}>SEMBRAR</button>
                 ${desbloqueable ? `<button id="adquirir-button" class="btn-action">ADQUIRIR</button>` : ''}
                 ${planta.adquirida ? `<button id="eliminar-especie-button" class="btn-action">ELIMINAR DEL CATÁLOGO</button>` : ''}
+                ${planta.adquirida ? `<button id="fertilizar-button" class="btn-action">FERTILIZAR</button>` : ''}
             `;
 
             
@@ -171,6 +172,66 @@ if (btn_eliminar_especie) {
         card_descripcion.remove()
         catalog.remove()
         activar_botones()
+    })
+}
+let btn_fertilizar = document.getElementById("fertilizar-button")
+if (btn_fertilizar) {
+    btn_fertilizar.addEventListener("click", async () => {
+        const estado = await fetch("http://localhost:3000/estado-juego").then(r => r.json())
+        
+        card_descripcion.remove()
+        catalog.remove()
+
+        let fertilizar_window = document.createElement("div")
+        fertilizar_window.classList.add("catalog-window")
+        fertilizar_window.innerHTML = `
+            <div class="catalog-header">
+                <h2>> FERTILIZAR - ${planta.nombre}</h2>
+                <button id="btn-close-fertilizar" class="btn-action">[ CERRAR ]</button>
+            </div>
+            <p>Fertilizaciones disponibles: ${estado.fertilizaciones_disponibles}</p>
+            <div id="opciones-fertilizar">
+                <button class="btn-action btn-fertilizar-prop" data-prop="comida_por_dia">
+                    COMIDA POR DÍA: ${planta.comida_por_dia} → ${planta.comida_por_dia + 1}
+                </button>
+                <button class="btn-action btn-fertilizar-prop" data-prop="agua_cosecha">
+                    AGUA EN COSECHA: ${planta.agua_cosecha} → ${planta.agua_cosecha + 1}
+                </button>
+                <button class="btn-action btn-fertilizar-prop" data-prop="comida_cosecha">
+                    COMIDA EN COSECHA: ${planta.comida_cosecha} → ${planta.comida_cosecha + 1}
+                </button>
+                <button class="btn-action btn-fertilizar-prop" data-prop="oxigeno_por_dia">
+                    OXÍGENO POR DÍA: ${planta.oxigeno_por_dia} → ${planta.oxigeno_por_dia + 1}
+                </button>
+            </div>
+        `
+        main_view.appendChild(fertilizar_window)
+
+        document.getElementById("btn-close-fertilizar").addEventListener("click", () => {
+            fertilizar_window.remove()
+            activar_botones()
+        })
+
+        document.querySelectorAll(".btn-fertilizar-prop").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const propiedad = btn.dataset.prop
+                const response = await fetch(`http://localhost:3000/especies/${planta.id}/fertilizar`, {
+                    method: "POST",
+                    body: JSON.stringify({ propiedad }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                const data = await response.json()
+                if (response.ok) {
+                    generar_logs(data.msg, "info")
+                    fertilizar_window.remove()
+                    activar_botones()
+                } else {
+                    generar_logs(data.error, "alerta")
+                    fertilizar_window.remove()
+                    activar_botones()
+                }
+            })
+        })
     })
 }
             if (modulo == null || bloqueado) {

@@ -206,7 +206,8 @@ let ESTADO_JUEGO = {
     dias_agua_insuficiente: 0,
     dias_oxigeno_insuficiente: 0,
     dias_usados_trajes: 0,
-    nivel: 1
+    nivel: 1,
+    fertilizaciones_disponibles: 0
 }
 
 app.get("/avanzar-dia", (req, res) => {
@@ -250,6 +251,9 @@ app.get("/avanzar-dia", (req, res) => {
     if (RECURSOS.cant_agua < 0) RECURSOS.cant_agua = 0
 
     ESTADO_JUEGO.dia_actual++
+    if (ESTADO_JUEGO.dia_actual % 10 === 0) {
+    ESTADO_JUEGO.fertilizaciones_disponibles++
+    }
 
     if (ESTADO_JUEGO.tripulantes <= 0 || ESTADO_JUEGO.dias_oxigeno_insuficiente == 3) { //SE USAN LOS TRAJES ESPACIALES
         ESTADO_JUEGO.estado = "derrota"
@@ -334,5 +338,30 @@ app.put("/especies/:id/boost", (req, res) => {
     }
     especie[propiedad] += valor
     res.status(200).json(especie)
+})
+app.post("/especies/:id/fertilizar", (req, res) => {
+    if (ESTADO_JUEGO.fertilizaciones_disponibles <= 0) {
+        return res.status(400).json({ error: "No tenés fertilizaciones disponibles" })
+    }
+
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    if (!especie.adquirida) return res.status(400).json({ error: "No podés fertilizar una especie no adquirida" })
+
+    const { propiedad } = req.body
+    const propiedades_validas = ['comida_por_dia', 'agua_cosecha', 'comida_cosecha', 'oxigeno_por_dia']
+    
+    if (!propiedades_validas.includes(propiedad)) {
+        return res.status(400).json({ error: "Propiedad no válida para fertilizar" })
+    }
+
+    especie[propiedad] += 1
+    ESTADO_JUEGO.fertilizaciones_disponibles--
+
+    res.status(200).json({ 
+        msg: `${especie.nombre} fertilizada. ${propiedad} aumentó a ${especie[propiedad]}`,
+        fertilizaciones_disponibles: ESTADO_JUEGO.fertilizaciones_disponibles,
+        especie
+    })
 })
 app.listen(3000, () => console.log("Servidor iniciado"))
