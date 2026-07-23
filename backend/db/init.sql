@@ -60,11 +60,26 @@ CREATE TABLE registros_dia (
     comida_fin            INT NOT NULL,
     agua_consumida        DECIMAL(8,2),
     nutrientes_consumidos DECIMAL(8,2),
-    evento_random         TEXT
+    evento_random         TEXT,
+    base_id               INT REFERENCES base_espacial(id)
+);
+
+CREATE TABLE tripulantes (
+    id               SERIAL PRIMARY KEY,
+    cantidad         INT DEFAULT 10,
+    estado           VARCHAR(20) DEFAULT 'sano'
+                     CHECK (estado IN ('sano', 'desnutrido', 'critico')),
+    dias_sin_comer   INT DEFAULT 0,
+    moral            INT DEFAULT 100,
+    raciones_reserva INT DEFAULT 0,
+    base_id          INT REFERENCES base_espacial(id)
 );
 
 INSERT INTO base_espacial (dia_actual, nivel, agua, nutrientes, energia, oxigeno, comida, total_cosechas, estado)
 VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso');
+
+INSERT INTO tripulantes (cantidad, estado, dias_sin_comer, moral, raciones_reserva, base_id)
+VALUES (10, 'sano', 0, 100, 0, 1);
 
 INSERT INTO modulos (nivel, estado, bloques_totales, bloques_ocupados, agua, nutrientes, energia)
 VALUES (1, 'estable', 2, 0, 0, 0, 0);

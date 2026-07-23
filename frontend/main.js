@@ -69,7 +69,8 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
     activar_botones();
     })
     plantas.forEach((planta) => {
-        const bloqueado = planta.nivel_requerido > nivelActual;
+        const bloqueado = !planta.adquirida;
+        const desbloqueable = planta.nivel_requerido <= nivelActual && !planta.adquirida;
         const statusClass = bloqueado ? "locked" : "";
         const colorSvg = bloqueado
             ? 'stroke="#f97316" filter="none" opacity="0.4"'
@@ -120,8 +121,10 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                         <h4>OXIGENO: ${planta.oxigeno_requerido}</h4>
                     </div>
                 </div>
-
-                <button id="sembrar-button" class="btn-action">SEMBRAR</button>
+                <button id="sembrar-button" class="btn-action" ${!planta.adquirida ? 'disabled' : ''}>SEMBRAR</button>
+                ${desbloqueable ? `<button id="adquirir-button" class="btn-action">ADQUIRIR</button>` : ''}
+                ${planta.adquirida ? `<button id="eliminar-especie-button" class="btn-action">ELIMINAR DEL CATÁLOGO</button>` : ''}
+                ${planta.adquirida ? `<button id="fertilizar-button" class="btn-action">FERTILIZAR</button>` : ''}
             `;
 
             
@@ -144,6 +147,93 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             })
 
             let btn_sembrar = document.getElementById("sembrar-button")
+            let btn_adquirir = document.getElementById("adquirir-button")
+if (btn_adquirir) {
+    btn_adquirir.addEventListener("click", async () => {
+        await fetch(`http://localhost:3000/especies/${planta.id}/adquirir`, {
+            method: "POST"
+        })
+        planta.adquirida = true
+        generar_logs(`${planta.nombre} adquirida al catálogo`, "info")
+        card_descripcion.remove()
+        catalog.remove()
+        activar_botones()
+    })
+}
+
+let btn_eliminar_especie = document.getElementById("eliminar-especie-button")
+if (btn_eliminar_especie) {
+    btn_eliminar_especie.addEventListener("click", async () => {
+        await fetch(`http://localhost:3000/especies/${planta.id}`, {
+            method: "DELETE"
+        })
+        planta.adquirida = false
+        generar_logs(`${planta.nombre} eliminada del catálogo`, "alerta")
+        card_descripcion.remove()
+        catalog.remove()
+        activar_botones()
+    })
+}
+let btn_fertilizar = document.getElementById("fertilizar-button")
+if (btn_fertilizar) {
+    btn_fertilizar.addEventListener("click", async () => {
+        const estado = await fetch("http://localhost:3000/estado-juego").then(r => r.json())
+        
+        card_descripcion.remove()
+        catalog.remove()
+
+        let fertilizar_window = document.createElement("div")
+        fertilizar_window.classList.add("catalog-window")
+        fertilizar_window.innerHTML = `
+            <div class="catalog-header">
+                <h2>> FERTILIZAR - ${planta.nombre}</h2>
+                <button id="btn-close-fertilizar" class="btn-action">[ CERRAR ]</button>
+            </div>
+            <p>Fertilizaciones disponibles: ${estado.fertilizaciones_disponibles}</p>
+            <div id="opciones-fertilizar">
+                <button class="btn-action btn-fertilizar-prop" data-prop="comida_por_dia">
+                    COMIDA POR DÍA: ${planta.comida_por_dia} → ${planta.comida_por_dia + 1}
+                </button>
+                <button class="btn-action btn-fertilizar-prop" data-prop="agua_cosecha">
+                    AGUA EN COSECHA: ${planta.agua_cosecha} → ${planta.agua_cosecha + 1}
+                </button>
+                <button class="btn-action btn-fertilizar-prop" data-prop="comida_cosecha">
+                    COMIDA EN COSECHA: ${planta.comida_cosecha} → ${planta.comida_cosecha + 1}
+                </button>
+                <button class="btn-action btn-fertilizar-prop" data-prop="oxigeno_por_dia">
+                    OXÍGENO POR DÍA: ${planta.oxigeno_por_dia} → ${planta.oxigeno_por_dia + 1}
+                </button>
+            </div>
+        `
+        main_view.appendChild(fertilizar_window)
+
+        document.getElementById("btn-close-fertilizar").addEventListener("click", () => {
+            fertilizar_window.remove()
+            activar_botones()
+        })
+
+        document.querySelectorAll(".btn-fertilizar-prop").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const propiedad = btn.dataset.prop
+                const response = await fetch(`http://localhost:3000/especies/${planta.id}/fertilizar`, {
+                    method: "POST",
+                    body: JSON.stringify({ propiedad }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                const data = await response.json()
+                if (response.ok) {
+                    generar_logs(data.msg, "info")
+                    fertilizar_window.remove()
+                    activar_botones()
+                } else {
+                    generar_logs(data.error, "alerta")
+                    fertilizar_window.remove()
+                    activar_botones()
+                }
+            })
+        })
+    })
+}
             if (modulo == null || bloqueado) {
                 btn_sembrar.disabled = true
             }
@@ -172,7 +262,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
 }
 
 catalog_button.addEventListener("click", async () => {
-    fetch("http://localhost:3000/plantas")
+    fetch("http://localhost:3000/plantas/todas")
         .then((res) => res.json())
         .then(async (data) => {
             const response = await fetch("http://localhost:3000/estado-juego")
