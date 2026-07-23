@@ -420,7 +420,20 @@ app.patch("/eventos/:id", async (req, res) => {
     RECURSOS.cant_nutrientes -= costo_nutrientes
 
     const { efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
-
+    // Validar que no supere el 50% de reducción
+    const max_reduccion = 0.5
+    if (efecto_agua !== null && Math.abs(efecto_agua) < Math.abs(evento.efecto_agua) * max_reduccion) {
+        return res.status(400).json({ error: `No podés reducir el efecto de agua más del 50%` })
+    }
+    if (efecto_oxigeno !== null && Math.abs(efecto_oxigeno) < Math.abs(evento.efecto_oxigeno) * max_reduccion) {
+        return res.status(400).json({ error: `No podés reducir el efecto de oxígeno más del 50%` })
+    }
+    if (efecto_energia !== null && Math.abs(efecto_energia) < Math.abs(evento.efecto_energia) * max_reduccion) {
+        return res.status(400).json({ error: `No podés reducir el efecto de energía más del 50%` })
+    }
+    if (efecto_nutrientes !== null && Math.abs(efecto_nutrientes) < Math.abs(evento.efecto_nutrientes) * max_reduccion) {
+        return res.status(400).json({ error: `No podés reducir el efecto de nutrientes más del 50%` })
+    }
     await pool.query(
         "UPDATE eventos SET efecto_agua = $1, efecto_oxigeno = $2, efecto_energia = $3, efecto_nutrientes = $4 WHERE id = $5",
         [
