@@ -69,7 +69,8 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
     activar_botones();
     })
     plantas.forEach((planta) => {
-        const bloqueado = planta.nivel_requerido > nivelActual;
+        const bloqueado = !planta.adquirida;
+        const desbloqueable = planta.nivel_requerido <= nivelActual && !planta.adquirida;
         const statusClass = bloqueado ? "locked" : "";
         const colorSvg = bloqueado
             ? 'stroke="#f97316" filter="none" opacity="0.4"'
@@ -120,8 +121,9 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                         <h4>OXIGENO: ${planta.oxigeno_requerido}</h4>
                     </div>
                 </div>
-
-                <button id="sembrar-button" class="btn-action">SEMBRAR</button>
+                <button id="sembrar-button" class="btn-action" ${!planta.adquirida ? 'disabled' : ''}>SEMBRAR</button>
+                ${desbloqueable ? `<button id="adquirir-button" class="btn-action">ADQUIRIR</button>` : ''}
+                ${planta.adquirida ? `<button id="eliminar-especie-button" class="btn-action">ELIMINAR DEL CATÁLOGO</button>` : ''}
             `;
 
             
@@ -144,6 +146,33 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             })
 
             let btn_sembrar = document.getElementById("sembrar-button")
+            let btn_adquirir = document.getElementById("adquirir-button")
+if (btn_adquirir) {
+    btn_adquirir.addEventListener("click", async () => {
+        await fetch(`http://localhost:3000/especies/${planta.id}/adquirir`, {
+            method: "POST"
+        })
+        planta.adquirida = true
+        generar_logs(`${planta.nombre} adquirida al catálogo`, "info")
+        card_descripcion.remove()
+        catalog.remove()
+        activar_botones()
+    })
+}
+
+let btn_eliminar_especie = document.getElementById("eliminar-especie-button")
+if (btn_eliminar_especie) {
+    btn_eliminar_especie.addEventListener("click", async () => {
+        await fetch(`http://localhost:3000/especies/${planta.id}`, {
+            method: "DELETE"
+        })
+        planta.adquirida = false
+        generar_logs(`${planta.nombre} eliminada del catálogo`, "alerta")
+        card_descripcion.remove()
+        catalog.remove()
+        activar_botones()
+    })
+}
             if (modulo == null || bloqueado) {
                 btn_sembrar.disabled = true
             }
@@ -172,7 +201,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
 }
 
 catalog_button.addEventListener("click", async () => {
-    fetch("http://localhost:3000/plantas")
+    fetch("http://localhost:3000/plantas/todas")
         .then((res) => res.json())
         .then(async (data) => {
             const response = await fetch("http://localhost:3000/estado-juego")

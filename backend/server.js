@@ -69,6 +69,10 @@ app.get("/", (req, res) => {
 })
 
 app.get("/plantas", (req, res) => {
+    res.json(ESPECIES.filter(e => e.adquirida))
+})
+
+app.get("/plantas/todas", (req, res) => {
     res.json(ESPECIES)
 })
 
@@ -307,5 +311,28 @@ function actualizarRecursos(especie) {
     RECURSOS.cant_agua += especie.agua_cosecha
     RECURSOS.cant_comida += especie.comida_cosecha
 }
+app.post("/especies/:id/adquirir", (req, res) => {
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    especie.adquirida = true
+    res.status(200).json(especie)
+})
 
+app.delete("/especies/:id", (req, res) => {
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    especie.adquirida = false
+    res.status(200).json({ msg: `${especie.nombre} eliminada del catálogo` })
+})
+
+app.put("/especies/:id/boost", (req, res) => {
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    const { propiedad, valor } = req.body
+    if (!['nutrientes_generados', 'agua_producida', 'comida_generada'].includes(propiedad)) {
+        return res.status(400).json({ error: "Propiedad no válida para boost" })
+    }
+    especie[propiedad] += valor
+    res.status(200).json(especie)
+})
 app.listen(3000, () => console.log("Servidor iniciado"))
