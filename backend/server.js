@@ -70,8 +70,6 @@ const pool = new Pool({
 pool.connect()
   .then(async () => {
         console.log('✅ Conectado a la base de datos PostgreSQL exitosamente')
-        const response = await pool.query("SELECT * FROM base_espacial")
-        RECURSOS = response.rows
     })
   .catch(err => console.error('❌ Error al conectar a la base de datos:', err.stack));
 

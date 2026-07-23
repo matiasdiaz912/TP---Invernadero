@@ -13,11 +13,12 @@ CREATE TABLE base_espacial (
     dias_comida_insuficiente INT DEFAULT 0,
     dias_agua_insuficiente   INT DEFAULT 0,
     dias_oxigeno_insuficiente INT DEFAULT 0,
-    dias_usados_trajes INT DEFAULT 0
+    dias_usados_trajes INT DEFAULT 0,
+    tripulantes INT DEFAULT 30
 );
 
-INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado)
-VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso');
+INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes)
+VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30);
 
 
 CREATE TABLE especies (
