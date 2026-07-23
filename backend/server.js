@@ -3,7 +3,7 @@ import { Pool } from 'pg'
 import cors from 'cors'
 import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA } from './constantes.js';
 import { procesarModulos } from './dia.js';
-import { cargarParaElDia, guardarModulos } from '../db/repositorio.js';
+import { cargarParaElDia, guardarModulos } from './repositorio.js';
 
 const EVENTOS_ALEATORIOS = [
     {
