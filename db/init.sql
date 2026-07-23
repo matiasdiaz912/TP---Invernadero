@@ -14,11 +14,14 @@ CREATE TABLE base_espacial (
     dias_agua_insuficiente   INT DEFAULT 0,
     dias_oxigeno_insuficiente INT DEFAULT 0,
     dias_usados_trajes INT DEFAULT 0,
-    tripulantes INT DEFAULT 30
+    tripulantes INT DEFAULT 30,
+    evento_bloqueado_id     VARCHAR(50) DEFAULT NULL,
+    dias_restantes_bloqueo  INT DEFAULT 0,
+    eventos_creados         INT DEFAULT 0
 );
 
-INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes)
-VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30);
+INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes,evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados)
+VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30, NULL, 0, 0);
 
 
 CREATE TABLE especies (
@@ -88,14 +91,15 @@ CREATE TABLE eventos (
     efecto_energia      INT DEFAULT 0,
     efecto_oxigeno      INT DEFAULT 0,
     efecto_agua         INT DEFAULT 0,
-    efecto_nutrientes   INT DEFAULT 0
+    efecto_nutrientes   INT DEFAULT 0,
+    modificado          BOOLEAN DEFAULT FALSE
 );
 
-INSERT INTO eventos (id, nombre, descripcion, tipo, efecto_energia, efecto_oxigeno, efecto_agua, efecto_nutrientes)
+INSERT INTO eventos (id, nombre, descripcion, tipo, efecto_energia, efecto_oxigeno, efecto_agua, efecto_nutrientes, modificado)
 VALUES
-('tormenta_arena',  'Tormenta de Arena Marciana',    'El polvo denso bloquea los paneles solares y satura los filtros.',              'negativo', -15, -5,   0,  0),
-('fuga_tanques',    'Microrrotura en Tanques',        'La fatiga del material provocó una leve fuga de líquidos antes de ser sellada.', 'negativo',   0,  0,  -8,  0),
-('plaga_hongos',    'Contaminación Fúngica',          'Un hongo resistente está consumiendo los sustratos de los módulos.',             'negativo',   0,  0,   0, -5),
-('vientos_optimos', 'Corrientes de Viento Óptimas',   'Las turbinas eólicas auxiliares operaron a máxima capacidad esta noche.',        'positivo',  10,  0,   0,  0),
-('hielo_subterraneo','Veta de Hielo Encontrada',      'El rover automatizado extrajo un bloque de permafrost marciano.',                'positivo',  -2,  0,  12,  0),
-('falla_electrica', 'Cortocircuito en Soporte Vital', 'Los sistemas de purificación se detuvieron temporalmente.',                     'negativo',  -5, -10,  0,  0);
+('tormenta_arena',  'Tormenta de Arena Marciana',    'El polvo denso bloquea los paneles solares y satura los filtros.',              'negativo', -15, -5,   0,  0, FALSE),
+('fuga_tanques',    'Microrrotura en Tanques',        'La fatiga del material provocó una leve fuga de líquidos antes de ser sellada.', 'negativo',   0,  0,  -8,  0, FALSE),
+('plaga_hongos',    'Contaminación Fúngica',          'Un hongo resistente está consumiendo los sustratos de los módulos.',             'negativo',   0,  0,   0, -5, FALSE),
+('vientos_optimos', 'Corrientes de Viento Óptimas',   'Las turbinas eólicas auxiliares operaron a máxima capacidad esta noche.',        'positivo',  10,  0,   0,  0, FALSE),
+('hielo_subterraneo','Veta de Hielo Encontrada',      'El rover automatizado extrajo un bloque de permafrost marciano.',                'positivo',  -2,  0,  12,  0, FALSE),
+('falla_electrica', 'Cortocircuito en Soporte Vital', 'Los sistemas de purificación se detuvieron temporalmente.',                     'negativo',  -5, -10,  0,  0, FALSE);

@@ -13,6 +13,7 @@ const cant_tripulantes = document.getElementById("cant_tripulantes")
 const contador_nivel = document.getElementById("contador_nivel")
 const button_resources = document.getElementById("button-resources")
 const button_help = document.getElementById("button-help")
+const button_eventos = document.getElementById("button-eventos")
 
 const nivelActual = 3;
 let contador = 0
@@ -25,6 +26,7 @@ function activar_botones() {
     boton_avanzar_dia.disabled = false
     button_resources.disabled = false
     button_help.disabled = false
+    button_eventos.disabled = false
 }
 
 function desactivar_botones() {
@@ -34,6 +36,7 @@ function desactivar_botones() {
     boton_avanzar_dia.disabled = true
     button_resources.disabled = true
     button_help.disabled = true
+    button_eventos.disabled = true
 }
 
 const reiniciarJuego = async () => {
@@ -710,7 +713,217 @@ btn_renombrar_modulo.addEventListener("click", () => {
 }
 
 
+button_eventos.addEventListener("click", async () => {
+    desactivar_botones()
+    const [eventosRes, estadoRes] = await Promise.all([
+        fetch("http://localhost:3000/eventos"),
+        fetch("http://localhost:3000/estado-juego")
+    ])
+    const eventos = await eventosRes.json()
+    const estado = await estadoRes.json()
 
+    let eventos_window = document.createElement("div")
+    eventos_window.classList.add("catalog-window")
+    eventos_window.style.overflowY = "auto"
+    eventos_window.style.maxHeight = "80vh"
+    eventos_window.innerHTML = `
+        <div class="catalog-header">
+            <h2>> CENTRO DE EVENTOS</h2>
+            <button id="btn-close-eventos" class="btn-action">[ CERRAR ]</button>
+        </div>
+        <p>Eventos creados: ${estado.eventos_creados}/3 | Evento bloqueado: ${estado.evento_bloqueado_id ? estado.evento_bloqueado_id + ' (' + estado.dias_restantes_bloqueo + ' días)' : 'Ninguno'}</p>
+        <button id="btn-crear-evento" class="btn-action">+ SINTETIZAR EVENTO</button>
+        <div id="lista-eventos"></div>
+    `
+    main_view.appendChild(eventos_window)
+
+    const lista = document.getElementById("lista-eventos")
+    eventos.forEach(evento => {
+        let card = document.createElement("div")
+        card.classList.add("btn-action", "module-card")
+        const bloqueado = estado.evento_bloqueado_id === evento.id
+        card.innerHTML = `
+            <p>${evento.nombre} ${bloqueado ? '🔒 BLOQUEADO' : ''}</p>
+            <p>Tipo: ${evento.tipo}</p>
+            <p>Efectos: Agua ${evento.efecto_agua} | Oxígeno ${evento.efecto_oxigeno} | Energía ${evento.efecto_energia} | Nutrientes ${evento.efecto_nutrientes}</p>
+            <div style="display:flex; gap:8px; margin-top:8px">
+                ${evento.tipo === 'negativo' && !estado.evento_bloqueado_id ? `<button class="btn-action btn-bloquear" data-id="${evento.id}">BLOQUEAR</button>` : ''}
+                ${!evento.modificado ? `<button class="btn-action btn-modificar" data-id="${evento.id}">MODIFICAR</button>` : ''}
+            </div>
+        `
+        lista.appendChild(card)
+    })
+
+    document.getElementById("btn-close-eventos").addEventListener("click", () => {
+        eventos_window.remove()
+        activar_botones()
+    })
+
+    document.getElementById("btn-crear-evento").addEventListener("click", () => {
+        eventos_window.remove()
+        let crear_window = document.createElement("div")
+        crear_window.classList.add("catalog-window")
+        crear_window.innerHTML = `
+            <div class="catalog-header">
+                <h2>> SINTETIZAR EVENTO</h2>
+                <button id="btn-close-crear-evento" class="btn-action">[ CERRAR ]</button>
+            </div>
+            <p>Costo: la mitad de los efectos que definas</p>
+            <div class="gestionar-recursos">
+                <label>ID (sin espacios):</label>
+                <input id="input-evento-id" type="text" class="btn-action" placeholder="ej: lluvia_marciana"/>
+                <label>NOMBRE:</label>
+                <input id="input-evento-nombre" type="text" class="btn-action" placeholder="Nombre del evento"/>
+                <label>DESCRIPCIÓN:</label>
+                <input id="input-evento-desc" type="text" class="btn-action" placeholder="Descripción"/>
+                <label>EFECTO AGUA:</label>
+                <input id="input-evento-agua" type="number" class="btn-action" placeholder="0"/>
+                <label>EFECTO OXÍGENO:</label>
+                <input id="input-evento-oxigeno" type="number" class="btn-action" placeholder="0"/>
+                <label>EFECTO ENERGÍA:</label>
+                <input id="input-evento-energia" type="number" class="btn-action" placeholder="0"/>
+                <label>EFECTO NUTRIENTES:</label>
+                <input id="input-evento-nutrientes" type="number" class="btn-action" placeholder="0"/>
+                <button id="btn-confirmar-evento" class="btn-action">SINTETIZAR</button>
+            </div>
+        `
+        main_view.appendChild(crear_window)
+
+        document.getElementById("btn-close-crear-evento").addEventListener("click", () => {
+            crear_window.remove()
+            activar_botones()
+        })
+
+        document.getElementById("btn-confirmar-evento").addEventListener("click", async () => {
+            const body = {
+                id: document.getElementById("input-evento-id").value,
+                nombre: document.getElementById("input-evento-nombre").value,
+                descripcion: document.getElementById("input-evento-desc").value,
+                efecto_agua: parseFloat(document.getElementById("input-evento-agua").value) || 0,
+                efecto_oxigeno: parseFloat(document.getElementById("input-evento-oxigeno").value) || 0,
+                efecto_energia: parseFloat(document.getElementById("input-evento-energia").value) || 0,
+                efecto_nutrientes: parseFloat(document.getElementById("input-evento-nutrientes").value) || 0,
+            }
+            const response = await fetch("http://localhost:3000/eventos", {
+                method: "POST",
+                body: JSON.stringify(body),
+                headers: { "Content-Type": "application/json" }
+            })
+            const data = await response.json()
+            if (response.ok) {
+                generar_logs(`Evento "${data.nombre}" sintetizado`, "info")
+            } else {
+                generar_logs(data.error, "alerta")
+            }
+            crear_window.remove()
+            activar_botones()
+        })
+    })
+
+    document.querySelectorAll(".btn-bloquear").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const evento = eventos.find(e => e.id === btn.dataset.id)
+        const costo = Math.abs(evento.efecto_energia + evento.efecto_oxigeno + evento.efecto_agua + evento.efecto_nutrientes) * 0.3
+
+        eventos_window.remove()
+        let confirm_window = document.createElement("div")
+        confirm_window.classList.add("catalog-window")
+        confirm_window.innerHTML = `
+            <div class="catalog-header">
+                <h2>> BLOQUEAR EVENTO</h2>
+                <button id="btn-close-confirm-bloquear" class="btn-action">[ CERRAR ]</button>
+            </div>
+            <p>Evento: ${evento.nombre}</p>
+            <p>Costo: ${costo.toFixed(1)} de energía</p>
+            <p>Duración del bloqueo: 15 días</p>
+            <button id="btn-confirmar-bloquear" class="btn-action">CONFIRMAR BLOQUEO</button>
+        `
+        main_view.appendChild(confirm_window)
+
+        document.getElementById("btn-close-confirm-bloquear").addEventListener("click", () => {
+            confirm_window.remove()
+            activar_botones()
+        })
+
+        document.getElementById("btn-confirmar-bloquear").addEventListener("click", async () => {
+            const response = await fetch(`http://localhost:3000/eventos/${btn.dataset.id}/bloquear`, {
+                method: "DELETE"
+            })
+            const data = await response.json()
+            if (response.ok) {
+                generar_logs(data.msg, "info")
+            } else {
+                generar_logs(data.error, "alerta")
+            }
+            confirm_window.remove()
+            activar_botones()
+        })
+    })
+})
+
+    document.querySelectorAll(".btn-modificar").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            eventos_window.remove()
+            let mod_window = document.createElement("div")
+            mod_window.classList.add("catalog-window")
+            const evento = eventos.find(e => e.id === btn.dataset.id)
+            mod_window.innerHTML = `
+                <div class="catalog-header">
+                    <h2>> MODIFICAR - ${evento.nombre}</h2>
+                    <button id="btn-close-mod" class="btn-action">[ CERRAR ]</button>
+                </div>
+                <p>Costo: 20% de cada recurso que afecta este evento</p>
+                <div class="gestionar-recursos">
+                        ${evento.efecto_agua !== 0 ? `
+                            <label>EFECTO AGUA (actual: ${evento.efecto_agua}):</label>
+                            <input id="mod-agua" type="number" class="btn-action" value="${evento.efecto_agua}"/>
+                        ` : ''}
+                        ${evento.efecto_oxigeno !== 0 ? `
+                            <label>EFECTO OXÍGENO (actual: ${evento.efecto_oxigeno}):</label>
+                            <input id="mod-oxigeno" type="number" class="btn-action" value="${evento.efecto_oxigeno}"/>
+                        ` : ''}
+                        ${evento.efecto_energia !== 0 ? `
+                            <label>EFECTO ENERGÍA (actual: ${evento.efecto_energia}):</label>
+                            <input id="mod-energia" type="number" class="btn-action" value="${evento.efecto_energia}"/>
+                        ` : ''}
+                        ${evento.efecto_nutrientes !== 0 ? `
+                            <label>EFECTO NUTRIENTES (actual: ${evento.efecto_nutrientes}):</label>
+                            <input id="mod-nutrientes" type="number" class="btn-action" value="${evento.efecto_nutrientes}"/>
+                        ` : ''}
+                    <button id="btn-confirmar-mod" class="btn-action">CONFIRMAR</button>
+                </div>
+            `
+            main_view.appendChild(mod_window)
+
+            document.getElementById("btn-close-mod").addEventListener("click", () => {
+                mod_window.remove()
+                activar_botones()
+            })
+
+            document.getElementById("btn-confirmar-mod").addEventListener("click", async () => {
+                const body = {
+                    efecto_agua: document.getElementById("mod-agua") ? parseFloat(document.getElementById("mod-agua").value) || 0 : null,
+                    efecto_oxigeno: document.getElementById("mod-oxigeno") ? parseFloat(document.getElementById("mod-oxigeno").value) || 0 : null,
+                    efecto_energia: document.getElementById("mod-energia") ? parseFloat(document.getElementById("mod-energia").value) || 0 : null,
+                    efecto_nutrientes: document.getElementById("mod-nutrientes") ? parseFloat(document.getElementById("mod-nutrientes").value) || 0 : null,
+                }
+                const response = await fetch(`http://localhost:3000/eventos/${evento.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify(body),
+                    headers: { "Content-Type": "application/json" }
+                })
+                const data = await response.json()
+                if (response.ok) {
+                    generar_logs(`Evento "${data.nombre}" modificado`, "info")
+                } else {
+                    generar_logs(data.error, "alerta")
+                }
+                mod_window.remove()
+                activar_botones()
+            })
+        })
+    })
+})
 // AYUDA
 
 button_help.addEventListener("click", () => {
