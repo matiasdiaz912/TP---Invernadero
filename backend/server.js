@@ -188,7 +188,14 @@ app.put("/modulos/:moduloId/recursos", (req, res) => {
 
     res.status(200).json(modulo)
 })
-
+app.patch("/modulos/:moduloId/nombre", async (req, res) => {
+    const { moduloId } = req.params
+    const { nombre } = req.body
+    if (!nombre) return res.status(400).json({ error: "El nombre no puede estar vacío" })
+    await pool.query("UPDATE modulos SET nombre = $1 WHERE id = $2", [nombre, moduloId])
+    const modulo = await pool.query("SELECT * FROM modulos WHERE id = $1", [moduloId])
+    res.status(200).json(modulo.rows[0])
+})
 app.delete("/modulos/:moduloId", async (req, res) => {
     const { moduloId } = req.params
     await pool.query("DELETE FROM modulos WHERE id = $1", [moduloId])

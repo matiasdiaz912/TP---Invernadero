@@ -524,6 +524,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             <button id="btn-gestionar" class="btn-action">GESTIONAR RECURSOS</button>
             <button id="btn-mejorar-modulo" class="btn-action">MEJORAR MODULO</button>
             <button id="btn-eliminar-modulo" class="btn-action">ELIMINAR MODULO</button>
+            <button id="btn-renombrar-modulo" class="btn-action">RENOMBRAR MODULO</button>
         </div>
     `
 
@@ -624,6 +625,46 @@ btn_gestionar.addEventListener("click", () => {
             method: "DELETE"
         })
     })
+    let btn_renombrar_modulo = document.getElementById("btn-renombrar-modulo")
+btn_renombrar_modulo.addEventListener("click", () => {
+    modulo_detalles.remove()
+    let renombrar_window = document.createElement("div")
+    renombrar_window.classList.add("catalog-window")
+    renombrar_window.innerHTML = `
+        <div class="catalog-header">
+            <h2>> RENOMBRAR MÓDULO</h2>
+            <button id="btn-close-renombrar" class="btn-action">[ CERRAR ]</button>
+        </div>
+        <div class="gestionar-recursos">
+            <label>NOMBRE ACTUAL: ${modulo.nombre}</label>
+            <input id="input-nombre-modulo" type="text" class="btn-action" placeholder="Nuevo nombre"/>
+            <button id="btn-confirmar-nombre" class="btn-action">CONFIRMAR</button>
+        </div>
+    `
+    main_view.appendChild(renombrar_window)
+
+    document.getElementById("btn-close-renombrar").addEventListener("click", () => {
+        renombrar_window.remove()
+        activar_botones()
+    })
+
+    document.getElementById("btn-confirmar-nombre").addEventListener("click", async () => {
+        const nombre = document.getElementById("input-nombre-modulo").value
+        const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/nombre`, {
+            method: "PATCH",
+            body: JSON.stringify({ nombre }),
+            headers: { "Content-Type": "application/json" }
+        })
+        const data = await response.json()
+        if (response.ok) {
+            generar_logs(`Módulo renombrado a "${data.nombre}"`, "info")
+        } else {
+            generar_logs(data.error, "alerta")
+        }
+        renombrar_window.remove()
+        activar_botones()
+    })
+})
 
     let btn_mejorar_modulo = document.getElementById("btn-mejorar-modulo")
     btn_mejorar_modulo.addEventListener("click", async () => {
