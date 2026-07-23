@@ -26,12 +26,20 @@ export const SALUD = {
     energia_muere: 40,
 }
 
+export const PLANTA = {
+    // Una planta ya lista sigue tomando recursos y se puede secar si no la cosechan.
+    // En false, queda congelada esperando la cosecha.
+    lista_para_cosechar_consume: true,
+}
+
 export const MODULO = {
     // Sobreriego por capacidad (agua_max_por_bloque * bloques). El reglamento
     // decia "el doble de lo que piden por dia", pero con eso guardar reserva
     // era imposible: 5 lts ya ahogaban a un tomate.
     agua_max_por_bloque: 15,
     dias_criticos_para_desechar: 3,
+    // Al desecharse pierde todo, y al dia siguiente vuelve a estar disponible vacio.
+    desechado_se_reusa: true,
     bloques_iniciales: 2,
 }
 
