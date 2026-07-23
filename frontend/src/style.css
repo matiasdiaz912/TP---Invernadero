@@ -734,3 +734,67 @@ footer {
   border-color: rgba(249, 115, 22, 0.3);
 }
 
+.seccion-ayuda{
+  padding: 10px;
+}
+
+.gestionar-recursos{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-redirect{
+  text-decoration: none;
+  text-align: center;
+}
+
+.catalog-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  & .catalog-header{
+    width: 100%;
+  }
+}
+
+.catalog-page{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+
+  & .catalog-window{
+    width: 80%;
+    max-width: 1500px;
+  }
+
+  & .catalog-grid{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+}
+
+.stats-page{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+
+  & .stats-panel{
+    width: 80%;
+    max-width: 1500px;
+    height: 40%;
+    display: flex;
+
+    & .glass-panel{
+      width: 100%;
+    }
+  }
+}

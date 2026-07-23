@@ -1,8 +1,8 @@
 export const RECURSOS_INICIALES = {
-    cant_agua: 20,
-    cant_oxigeno: 20,
-    cant_energia: 10,
-    cant_nutrientes: 20,
+    cant_agua: 100,
+    cant_oxigeno: 80,
+    cant_energia: 70,
+    cant_nutrientes: 100,
     cant_comida: 100,
 }
 
@@ -38,7 +38,7 @@ export const MODULO = {
 export const COSECHAS_POR_NIVEL = [0, 0, 10, 30, 70, 140, 250]
 export const ENTREGA_POR_NIVEL = { agua: 20, energia: 10, nutrientes: 15, bloques: 1 }
 
-export const TRIPULANTES_INICIALES = 10
+export const TRIPULANTES_INICIALES = 30
 export const CONSUMO_TRIPULANTE = { comida: 0.5, agua: 0.2, oxigeno: 0.2 }
 export const DIAS_SIN_COMER = { desnutrido: 3, critico: 5, muerte: 7 }
 
