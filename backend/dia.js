@@ -1,4 +1,4 @@
-import { ESPECIES, SALUD, MODULO } from './constantes.js'
+import { ESPECIES, SALUD, MODULO, PLANTA } from './constantes.js'
 
 const VIVA = ["creciendo", "lista_para_cosechar"]
 
@@ -6,8 +6,8 @@ function estaViva(planta) {
     return VIVA.includes(planta.estado)
 }
 
-function especieDe(planta) {
-    return ESPECIES.find(e => e.nombre == planta.nombre)
+function especieDe(planta, especies) {
+    return especies.find(e => e.nombre == planta.nombre)
 }
 
 function ajustarBarra(valor, recibio) {
@@ -25,12 +25,12 @@ function tomarDelModulo(modulo, campo, cantidad) {
     return false
 }
 
-function calcularEstadoModulo(modulo) {
+function calcularEstadoModulo(modulo, especies) {
     const vivas = modulo.plantas.filter(estaViva)
 
     let pide_energia = 0
     for (const planta of vivas) {
-        const especie = especieDe(planta)
+        const especie = especieDe(planta, especies)
         if (especie) pide_energia += especie.energia_requerida
     }
 
@@ -42,9 +42,11 @@ function calcularEstadoModulo(modulo) {
     return { critico, sobreriego }
 }
 
-function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
-    const especie = especieDe(planta)
+function procesarPlanta(planta, modulo, RECURSOS, flags, eventos, especies) {
+    const especie = especieDe(planta, especies)
     if (!especie) return
+
+    if (planta.estado == "lista_para_cosechar" && !PLANTA.lista_para_cosechar_consume) return
 
     let recibio_agua = tomarDelModulo(modulo, 'cant_agua', especie.agua_requerida)
     const recibio_nutrientes = tomarDelModulo(modulo, 'cant_nutrientes', especie.nutrientes_requeridos)
@@ -53,7 +55,7 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
     // Inundado: aunque el agua alcance, la planta se ahoga igual
     if (flags.sobreriego) recibio_agua = false
 
-    modulo.cant_oxigeno = Math.max(0, (modulo.cant_oxigeno || 0) - especie.oxigeno_requerido)
+    const recibio_oxigeno = tomarDelModulo(modulo, 'cant_oxigeno', especie.oxigeno_requerido)
 
     planta.porcentaje_agua = ajustarBarra(planta.porcentaje_agua, recibio_agua)
     planta.porcentaje_nutrientes = ajustarBarra(planta.porcentaje_nutrientes, recibio_nutrientes)
@@ -82,6 +84,7 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
         planta.porcentaje_agua <= SALUD.agua_normal ||
         planta.porcentaje_nutrientes <= SALUD.nutrientes_normal ||
         planta.porcentaje_energia <= SALUD.energia_normal ||
+        !recibio_oxigeno ||
         flags.critico
 
     if (demora) {
@@ -100,19 +103,27 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
     }
 }
 
-export function procesarModulos(modulos, RECURSOS) {
+// `especies` es opcional: si no se pasa, usa el catalogo de constantes.js.
+// Con la base de datos se le pasa el catalogo leido de la tabla especies.
+export function procesarModulos(modulos, RECURSOS, especies = ESPECIES) {
     const eventos = []
 
     for (const modulo of modulos) {
-        if (modulo.estado == "desechado") continue
+        if (modulo.estado == "desechado") {
+            if (!MODULO.desechado_se_reusa) continue
+            modulo.estado = "estable"
+            modulo.dias_en_critico = 0
+            eventos.push({ mensaje: `"${modulo.nombre}" fue reacondicionado y vuelve a estar disponible, vacío`, tipo: "info" })
+            continue
+        }
 
         if (modulo.dias_en_critico == undefined) modulo.dias_en_critico = 0
         if (modulo.cant_oxigeno == undefined) modulo.cant_oxigeno = 0
 
-        const flags = calcularEstadoModulo(modulo)
+        const flags = calcularEstadoModulo(modulo, especies)
 
         for (const planta of modulo.plantas) {
-            if (estaViva(planta)) procesarPlanta(planta, modulo, RECURSOS, flags, eventos)
+            if (estaViva(planta)) procesarPlanta(planta, modulo, RECURSOS, flags, eventos, especies)
         }
 
         if (flags.critico) {

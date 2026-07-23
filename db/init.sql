@@ -21,6 +21,10 @@ INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_e
 VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30);
 
 
+-- Los nombres de estas columnas tienen que coincidir con los que lee dia.js:
+--   *_requerida/o                    -> lo que la planta consume del modulo por dia
+--   comida_por_dia / oxigeno_por_dia -> lo que le suma a la base cada dia
+--   agua_cosecha / comida_cosecha    -> el golpe unico al cosechar
 CREATE TABLE especies (
     id                    SERIAL PRIMARY KEY,
     nombre                VARCHAR(100) NOT NULL,
@@ -31,21 +35,23 @@ CREATE TABLE especies (
     oxigeno_requerido     DECIMAL(5,2) NOT NULL,
     nutrientes_requeridos DECIMAL(5,2) NOT NULL,
     energia_requerida     DECIMAL(5,2) NOT NULL,
-    nutrientes_generados  DECIMAL(5,2) NOT NULL,
-    agua_generada         DECIMAL(5,2) NOT NULL,
-    comida_generada       DECIMAL(5,2) NOT NULL,
+    comida_por_dia        DECIMAL(5,2) NOT NULL DEFAULT 0,
+    oxigeno_por_dia       DECIMAL(5,2) NOT NULL DEFAULT 0,
+    agua_cosecha          DECIMAL(5,2) NOT NULL DEFAULT 0,
+    comida_cosecha        DECIMAL(5,2) NOT NULL DEFAULT 0,
     estado                VARCHAR(20) DEFAULT 'inicial',
     pathSvg               TEXT,
     descripcion           TEXT
 );
 
-INSERT INTO especies (nombre, tamanio, nivel_requerido, duracion, agua_requerida, oxigeno_requerido, nutrientes_requeridos, energia_requerida, nutrientes_generados, agua_generada, comida_generada, estado, pathSvg, descripcion)
+INSERT INTO especies (nombre, tamanio, nivel_requerido, duracion, agua_requerida, oxigeno_requerido, nutrientes_requeridos, energia_requerida, comida_por_dia, oxigeno_por_dia, agua_cosecha, comida_cosecha, estado, pathSvg, descripcion)
 VALUES
-('Rábano',     1, 1, 3, 0.5, 0.5, 1, 1, 1.5,  1, 1, 'inicial', '<circle cx="50" cy="60" r="16"/><path d="M50 44 V16 M40 22 Q50 27 60 22"/><path d="M50 76 V88"/>', 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
-('Lechuga',    1, 1, 4, 0.5, 0.5, 1, 1, 2,    1, 1, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Una opción de bajo costo y rápido crecimiento. Ideal para mantener la dieta balanceada.'),
-('Tomate',     2, 2, 5, 1,   1,   2, 2, 3.5, 2, 2, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Requiere más recursos que el rábano o la lechuga pero ofrece una mayor recompensa.'),
-('Papa',       3, 3, 6, 1.5, 1.5, 3, 3, 5.5, 3, 3, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Una opción más costosa pero con un rendimiento mucho mayor en comparación con las anteriores.'),
-('Zanahoria',   4,4 ,7 ,2 ,2 ,4 ,4 ,7.5 ,4 ,4 ,'inicial','<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>','Una opción de alto costo y alto rendimiento. Perfecta para cuando los suministros son abundantes.');
+('Rábano',     1, 1, 3,  0.5, 0.5, 1, 0.4, 1,   1.5, 1.5, 2,  'inicial', '<circle cx="50" cy="60" r="16"/><path d="M50 44 V16 M40 22 Q50 27 60 22"/><path d="M50 76 V88"/>', 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
+('Lechuga',    1, 1, 3,  2,   0.5, 1, 0.4, 0.5, 2,   3,   2,  'inicial', '<path d="M50 80 Q30 60 40 30 Q50 10 60 30 Q70 60 50 80 Z"/><path d="M50 80 V30"/>', 'Crece rápido y produce oxígeno. Ideal para los primeros días de la colonia.'),
+('Tomate',     1, 1, 5,  2,   1,   2, 0.8, 1,   2,   8,   5,  'inicial', '<circle cx="50" cy="40" r="15"/><path d="M50 25 V15 M40 15 Q50 20 60 15"/>', 'Planta resistente y versátil. Buena fuente de alimento con ciclo de cosecha medio.'),
+('Papa',       2, 3, 8,  3,   1.5, 3, 1.2, 0,   5,   15,  24, 'inicial', '<ellipse cx="50" cy="60" rx="25" ry="18"/><circle cx="40" cy="55" r="2"/><circle cx="60" cy="65" r="1.5"/><path d="M50 42 V20 M35 25 Q50 30 65 25"/>', 'Requiere espacio y paciencia, pero su cosecha es la más abundante.'),
+('Espirulina', 1, 4, 2,  4,   0.1, 1, 1.0, 4,   10,  4,   4,  'inicial', '<rect x="25" y="20" width="50" height="60" rx="5"/><path d="M25 40 Q50 50 75 40 M25 60 Q50 70 75 60" stroke-dasharray="2 2"/>', 'Microalga de alta eficiencia. Produce mucho oxígeno y alimento en poco tiempo.'),
+('Soja',       3, 5, 12, 3,   2.5, 4, 1.6, 1,   8,   25,  30, 'inicial', '<ellipse cx="50" cy="55" rx="22" ry="12"/><circle cx="40" cy="55" r="4"/><circle cx="52" cy="55" r="4"/><circle cx="64" cy="55" r="4"/><path d="M50 43 V20 M38 28 Q50 33 62 28"/>', 'La planta más exigente pero la más productiva. Solo para bases avanzadas.');
 
 
 CREATE TABLE modulos (
@@ -60,14 +66,16 @@ CREATE TABLE modulos (
     cant_energia     DECIMAL(8,2) DEFAULT 0,
     cant_oxigeno     DECIMAL(8,2) DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'estable'
-                     CHECK (estado IN ('estable', 'critico', 'sobreriego', 'desechado'))
+                     CHECK (estado IN ('estable', 'critico', 'sobreriego', 'desechado')),
+    -- a los 3 dias seguidos en critico el modulo se desecha
+    dias_en_critico  INT DEFAULT 0
 );
 
 
 CREATE TABLE plantas (
     id                    SERIAL PRIMARY KEY,
     nombre                VARCHAR(100) NOT NULL,
-    modulo_id             INT NOT NULL REFERENCES modulos(id),
+    modulo_id             INT NOT NULL REFERENCES modulos(id) ON DELETE CASCADE,
     especie_id            INT NOT NULL REFERENCES especies(id),
     dias_transcurridos    INT NOT NULL,
     duracion              INT NOT NULL,
