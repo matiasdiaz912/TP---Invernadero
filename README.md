@@ -6,18 +6,83 @@ Una colonia de seres humanos estaban trabajando en investigación en el planeta 
 
 ## Objetivo
 
-El objetivo del juego es administrar los recursos que se tienen en una base espacial en Marte y poder generar una ambiente sustentable a partir de plantas. El usuario empieza con un espacio asignado y una cantidad de recursos finitos y deberá utilizarlos estrategicamente para lograr el objetivo del juego. La estabilidad.
+Sobrevivir 180 días administrando los recursos de la base espacial. El jugador empieza con recursos limitados y debe gestionarlos estratégicamente para mantener vivos a los 30 tripulantes.
 
-## Detalles del juego
+Si la comida se agota o el oxígeno falla, la misión termina en derrota.
 
-El usuario al iniciar tendrá 20 litros de agua, 20% del oxígeno de la base espacial, 20 ítems de nutrientes (cada item engloba todos los nutrientes que una planta necesita). Por último también recibe un 10% de la energía de la base. (No importan los porcentajes, ya que lo importante es como el usuario lo distribuye en los modulos) y un módulo con 2 bloques disponibles.
+## Cómo se juega
 
-El usuario sube de nivel cada vez que supera exponencialmente las cosechas base (10) empezando por 10 (nivel 2). Es decir, cuando se alcanzan 10 cosechas se sube al nivel 2, luego a las 100 cosechas se sube a nivel 3.
+### Recursos
+La base cuenta con 5 recursos principales:
+- **Agua** — necesaria para las plantas y los tripulantes
+- **Oxígeno** — vital para la supervivencia de la tripulación
+- **Energía** — alimenta los módulos de cultivo
+- **Nutrientes** — necesarios para el crecimiento de las plantas
+- **Comida** — se consume diariamente. Si llega a 0, los tripulantes empiezan a morir
 
-### Derrota
+### Módulos de cultivo
+Los módulos son los invernaderos donde crecen las plantas. Para crearlos gastás recursos de la base. Cada módulo tiene nivel, capacidad de bloques y estado. Si no los mantenés, entran en estado crítico y las plantas mueren.
 
-El usuario pierde cuando la cantidad total de comida en la base espacial se agota. Está se calcula con un cantidad finita de ítems de tipo comestibles que son producidos por las plantas. La cantidad inicial de ítems comestibles son 100. Por día esos ítems se reducen un 5% (5 por dia)
+### Plantas
+Cada planta consume recursos diariamente y produce comida y oxígeno. Cuando llega su tiempo de cosecha, podés cosecharla para obtener agua y comida extra. Hay 5 especies disponibles, cada una con distintos requerimientos y recompensas, que se desbloquean según tu nivel.
 
-## Victoria
+### Avanzar el día
+Cada vez que avanzás un día ocurre lo siguiente:
+- Las plantas consumen recursos de sus módulos
+- Los tripulantes consumen comida, agua y oxígeno
+- Puede ocurrir un evento aleatorio (tormenta de arena, fuga de tanques, etc.)
+- Si las plantas tienen suficientes recursos, crecen y eventualmente están listas para cosechar
 
-Si el usuario logra llegar al día 180 (6 meses), habrá logrado mantener a la colonia de humanos viva hasta la nueva entrega de suministros enviada desde la Tierra.
+### Eventos aleatorios
+Marte es hostil. Cada día hay una probabilidad de que ocurra un evento que afecte los recursos de la base. Algunos son negativos (tormentas, fugas, plagas) y otros positivos (vientos óptimos, hielo subterráneo). Podés bloquear eventos negativos, modificar sus efectos o incluso crear tus propios eventos gastando recursos.
+
+### Sistema de niveles
+Cada 10 cosechas subís de nivel. Al subir de nivel recibís recursos adicionales y se desbloquean nuevas especies de plantas.
+
+### Condiciones
+- **Victoria:** llegar al día 180 con al menos un tripulante vivo
+- **Derrota:** que todos los tripulantes mueran por falta de comida u oxígeno
+
+
+## Cómo levantar el proyecto
+
+### Requisitos
+- Docker instalado
+
+### Pasos
+
+**1. Clonar el repositorio**
+```bash
+git clone git@github.com:matiasdiaz912/TP---Invernadero.git
+cd TP---Invernadero
+```
+
+**2. Levantar con Docker Compose**
+```bash
+docker compose up --build
+```
+
+Esto levanta automáticamente la base de datos, el backend y el frontend.
+
+**3. Abrir el juego**
+
+Ingresar a `http://localhost:8080` en el navegador.
+
+**4. Detener el proyecto**
+```bash
+docker compose down
+```
+
+**5. Reiniciar desde cero**
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+## Tecnologías
+
+- **Frontend:** HTML5, CSS3 y JavaScript Vanilla con fetch (CSR)
+- **Backend:** Node.js con Express
+- **Base de datos:** PostgreSQL
+- **DevOps:** Docker y Docker Compose
+
