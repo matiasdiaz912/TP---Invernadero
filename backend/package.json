@@ -1,0 +1,28 @@
+{
+  "name": "tp---intro",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/matiasdiaz912/TP---Invernadero#readme",
+  "bugs": {
+    "url": "https://github.com/matiasdiaz912/TP---Invernadero/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matiasdiaz912/TP---Invernadero.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon --ignore node_modules/ server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "node-postgres": "^0.6.2",
+    "nodemon": "^3.1.14",
+    "pg": "^8.22.0"
+  }
+}
