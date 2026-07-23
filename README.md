@@ -21,3 +21,20 @@ El usuario pierde cuando la cantidad total de comida en la base espacial se agot
 ## Victoria
 
 Si el usuario logra llegar al día 180 (6 meses), habrá logrado mantener a la colonia de humanos viva hasta la nueva entrega de suministros enviada desde la Tierra.
+
+## Capturas de pantalla
+
+### Panel principal
+![Panel principal](docs/capturas/panel-principal.png)
+
+### Crear módulo
+![Crear módulo](docs/capturas/crear-modulo.png)
+
+### Catálogo de semillas
+![Catálogo de semillas](docs/capturas/catalogo-semilla.png)
+
+### Estado de recursos
+![Estado de recursos](docs/capturas/estado-recursos.png)
+
+### Centro de eventos
+![Centro de eventos](docs/capturas/centro-eventos.png)
