@@ -1,0 +1,32 @@
+.stats-page{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stats-panel{
+    width: 80%;
+    max-width: 1500px;
+    height: 50%;
+    display: flex;
+}
+
+.catalog-header-recursos{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 300px;
+    background: rgba(45, 212, 191, 0.05);
+    border-bottom: 2px solid var(--neon-cyan);
+
+    & a{
+        text-decoration: none;
+    }
+}
+
+.ring-wrapper{
+    width: 300px;
+    height: 200px;
+}

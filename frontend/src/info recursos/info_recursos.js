@@ -38,10 +38,11 @@ function setBarProgress(elementId, current, max, trendText) {
 async function fetchAndUpdateResources() {
     const response = await fetch("http://localhost:3000/recursos")
     const recursos = await response.json()
+    return recursos
 }
 
 setTimeout(async () => {
-    await fetchAndUpdateResources();
+    let recursos = await fetchAndUpdateResources();
     setRingProgress('ring-energy', recursos.cant_energia, `${recursos.cant_energia}%`);
     setRingProgress('ring-oxygen', recursos.cant_oxigeno, `${recursos.cant_oxigeno}%`);
 

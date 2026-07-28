@@ -591,8 +591,9 @@ footer {
 /* --- SECCIÓN 1: ANILLOS VITALES (Soporte de Vida) --- */
 .vital-rings-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   align-items: center;
+  width: 100%;
 }
 
 .ring-wrapper {
@@ -648,7 +649,7 @@ footer {
   text-shadow: 0 0 5px currentColor;
 }
 .ring-label {
-  font-size: 0.6rem;
+  font-size: 1rem;
   color: #94a3b8;
   margin-top: 2px;
 }
@@ -658,6 +659,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  width: 100%;
 }
 
 .stat-row {
@@ -669,11 +671,11 @@ footer {
 .stat-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
 }
 
 .stat-trend {
-  font-size: 0.7rem;
+  font-size: 1.5rem;
   color: #94a3b8;
 }
 .trend-up {
@@ -748,53 +750,4 @@ footer {
 .btn-redirect{
   text-decoration: none;
   text-align: center;
-}
-
-.catalog-content{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-
-  & .catalog-header{
-    width: 100%;
-  }
-}
-
-.catalog-page{
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 20px;
-
-  & .catalog-window{
-    width: 80%;
-    max-width: 1500px;
-  }
-
-  & .catalog-grid{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-}
-
-.stats-page{
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 20px;
-
-  & .stats-panel{
-    width: 80%;
-    max-width: 1500px;
-    height: 40%;
-    display: flex;
-
-    & .glass-panel{
-      width: 100%;
-    }
-  }
 }
