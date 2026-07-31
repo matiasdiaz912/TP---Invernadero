@@ -87,7 +87,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                         
                         <div class="plant-image-container">
                             <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                                ${planta.pathsvg}
+                                ${planta.pathSvg}
                             </svg>
                         </div>
                         
@@ -115,7 +115,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 <div class="plant-card-descripcion">
                     <div class="plant-image-container">
                         <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                            ${planta.pathsvg}
+                            ${planta.pathSvg}
                         </svg>
                     </div>
                     <div class="descripcion_planta">

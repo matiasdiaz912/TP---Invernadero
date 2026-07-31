@@ -18,7 +18,7 @@ CREATE TABLE base_espacial (
     evento_bloqueado_id     VARCHAR(50) DEFAULT NULL,
     dias_restantes_bloqueo  INT DEFAULT 0,
     eventos_creados         INT DEFAULT 0,
-    fertilizaciones_disponibles INT DEFAULT 0
+    fertilizaciones_disponibles INT DEFAULT 1
 );
 
 INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes,evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados, fertilizaciones_disponibles)
