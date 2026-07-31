@@ -1,4 +1,4 @@
-import { ESPECIES, SALUD, MODULO } from './constantes.js'
+import { ESPECIES, SALUD, MODULO, PLANTA } from './constantes.js'
 
 const VIVA = ["creciendo", "lista_para_cosechar"]
 
@@ -46,6 +46,8 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
     const especie = especieDe(planta)
     if (!especie) return
 
+    if (planta.estado == "lista_para_cosechar" && !PLANTA.lista_para_cosechar_consume) return
+
     let recibio_agua = tomarDelModulo(modulo, 'cant_agua', especie.agua_requerida)
     const recibio_nutrientes = tomarDelModulo(modulo, 'cant_nutrientes', especie.nutrientes_requeridos)
     const recibio_energia = tomarDelModulo(modulo, 'cant_energia', especie.energia_requerida)
@@ -53,7 +55,7 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
     // Inundado: aunque el agua alcance, la planta se ahoga igual
     if (flags.sobreriego) recibio_agua = false
 
-    modulo.cant_oxigeno = Math.max(0, (modulo.cant_oxigeno || 0) - especie.oxigeno_requerido)
+    const recibio_oxigeno = tomarDelModulo(modulo, 'cant_oxigeno', especie.oxigeno_requerido)
 
     planta.porcentaje_agua = ajustarBarra(planta.porcentaje_agua, recibio_agua)
     planta.porcentaje_nutrientes = ajustarBarra(planta.porcentaje_nutrientes, recibio_nutrientes)
@@ -82,6 +84,7 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
         planta.porcentaje_agua <= SALUD.agua_normal ||
         planta.porcentaje_nutrientes <= SALUD.nutrientes_normal ||
         planta.porcentaje_energia <= SALUD.energia_normal ||
+        !recibio_oxigeno ||
         flags.critico
 
     if (demora) {
@@ -104,7 +107,13 @@ export function procesarModulos(modulos, RECURSOS) {
     const eventos = []
 
     for (const modulo of modulos) {
-        if (modulo.estado == "desechado") continue
+        if (modulo.estado == "desechado") {
+            if (!MODULO.desechado_se_reusa) continue
+            modulo.estado = "estable"
+            modulo.dias_en_critico = 0
+            eventos.push({ mensaje: `"${modulo.nombre}" fue reacondicionado y vuelve a estar disponible, vacío`, tipo: "info" })
+            continue
+        }
 
         if (modulo.dias_en_critico == undefined) modulo.dias_en_critico = 0
         if (modulo.cant_oxigeno == undefined) modulo.cant_oxigeno = 0

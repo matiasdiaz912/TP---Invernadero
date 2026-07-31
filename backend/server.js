@@ -353,18 +353,15 @@ app.get("/reiniciar", (req, res) => {
 })
 
 function actualizarRecursos(especie) {
-    // Solo el golpe de cosecha; el goteo diario ya lo sumo el tick.
     RECURSOS.cant_agua += especie.agua_cosecha
     RECURSOS.cant_comida += especie.comida_cosecha
 }
 
-// READ - ver todos los eventos
 app.get("/eventos", async (req, res) => {
     const result = await pool.query("SELECT * FROM eventos")
     res.json(result.rows)
 })
 
-// CREATE - sintetizar evento positivo
 app.post("/eventos", async (req, res) => {
     const { id, nombre, descripcion, efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
     
@@ -397,7 +394,7 @@ app.post("/eventos", async (req, res) => {
     const nuevo_evento_db = await pool.query("SELECT * FROM eventos WHERE id = $1", [id])
     res.status(201).json(nuevo_evento_db.rows[0])
 })
-// UPDATE - modificar efectos de un evento
+
 app.patch("/eventos/:id", async (req, res) => {
     const eventoDb = await pool.query("SELECT * FROM eventos WHERE id = $1", [req.params.id])
     if (eventoDb.rows.length === 0) return res.status(404).json({ error: "Evento no encontrado" })
@@ -420,7 +417,6 @@ app.patch("/eventos/:id", async (req, res) => {
     RECURSOS.cant_nutrientes -= costo_nutrientes
 
     const { efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
-    // Validar que no supere el 50% de reducción
     const max_reduccion = 0.5
     if (efecto_agua !== null && Math.abs(efecto_agua) < Math.abs(evento.efecto_agua) * max_reduccion) {
         return res.status(400).json({ error: `No podés reducir el efecto de agua más del 50%` })
@@ -450,7 +446,6 @@ app.patch("/eventos/:id", async (req, res) => {
     res.status(200).json(actualizado.rows[0])
 })
 
-// DELETE - bloquear evento por 15 dias
 app.delete("/eventos/:id/bloquear", async (req, res) => {
     const estado = await pool.query("SELECT * FROM base_espacial")
     if (estado.rows[0].evento_bloqueado_id) {
@@ -471,6 +466,44 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
 })
 
+app.post("/especies/:id/adquirir", (req, res) => {
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    especie.adquirida = true
+    res.status(200).json(especie)
+})
+
+// Eliminar especie del catálogo
+app.delete("/especies/:id", (req, res) => {
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    especie.adquirida = false
+    res.status(200).json({ msg: `${especie.nombre} eliminada del catálogo` })
+})
+
+app.post("/especies/:id/fertilizar", (req, res) => {
+    if (ESTADO_JUEGO.fertilizaciones_disponibles <= 0) {
+        return res.status(400).json({ error: "No tenés fertilizaciones disponibles" })
+    }
+    const especie = ESPECIES.find(e => e.id == req.params.id)
+    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    if (!especie.adquirida) return res.status(400).json({ error: "No podés fertilizar una especie no adquirida" })
+
+    const { propiedad } = req.body
+    const propiedades_validas = ['comida_por_dia', 'agua_cosecha', 'comida_cosecha', 'oxigeno_por_dia']
+    if (!propiedades_validas.includes(propiedad)) {
+        return res.status(400).json({ error: "Propiedad no válida para fertilizar" })
+    }
+
+    especie[propiedad] += 1
+    ESTADO_JUEGO.fertilizaciones_disponibles--
+
+    res.status(200).json({ 
+        msg: `${especie.nombre} fertilizada. ${propiedad} aumentó a ${especie[propiedad]}`,
+        fertilizaciones_disponibles: ESTADO_JUEGO.fertilizaciones_disponibles,
+        especie
+    })
+})
 
 app.listen(3000, () => {
     console.log("Servidor iniciado")
