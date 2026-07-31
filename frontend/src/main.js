@@ -839,7 +839,7 @@ button_eventos.addEventListener("click", async () => {
             <p>Efectos: Agua ${evento.efecto_agua} | Oxígeno ${evento.efecto_oxigeno} | Energía ${evento.efecto_energia} | Nutrientes ${evento.efecto_nutrientes}</p>
             <div style="display:flex; gap:8px; margin-top:8px">
                 ${evento.tipo === 'negativo' && !estado.evento_bloqueado_id ? `<button class="btn-action btn-bloquear" data-id="${evento.id}">BLOQUEAR</button>` : ''}
-                ${!evento.modificado ? `<button class="btn-action btn-modificar" data-id="${evento.id}">MODIFICAR</button>` : ''}
+                ${!evento.modificado && estado.evento_bloqueado_id !== evento.id ? `<button class="btn-action btn-modificar" data-id="${evento.id}">MODIFICAR</button>` : ''}
             </div>
         `
         lista.appendChild(card)

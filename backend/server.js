@@ -413,7 +413,11 @@ app.patch("/eventos/:id", async (req, res) => {
     if (eventoDb.rows.length === 0) return res.status(404).json({ error: "Evento no encontrado" })
     const evento = eventoDb.rows[0]
     if (evento.modificado) return res.status(400).json({ error: "Este evento ya fue modificado una vez" })
-
+    const estadoBD = await pool.query("SELECT evento_bloqueado_id FROM base_espacial")
+    if (estadoBD.rows[0].evento_bloqueado_id === req.params.id) {
+        return res.status(400).json({ error: "No podés modificar un evento bloqueado" })
+    }    
+    
     const costo_agua = Math.abs(evento.efecto_agua) * 0.2
     const costo_oxigeno = Math.abs(evento.efecto_oxigeno) * 0.2
     const costo_energia = Math.abs(evento.efecto_energia) * 0.2
@@ -458,6 +462,7 @@ app.patch("/eventos/:id", async (req, res) => {
     const actualizado = await pool.query("SELECT * FROM eventos WHERE id = $1", [req.params.id])
     res.status(200).json(actualizado.rows[0])
 })
+
 
 app.delete("/eventos/:id/bloquear", async (req, res) => {
     const estado = await pool.query("SELECT * FROM base_espacial")
