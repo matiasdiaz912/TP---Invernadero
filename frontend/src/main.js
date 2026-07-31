@@ -100,6 +100,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 `;
         catalogGrid.appendChild(card_planta);
         card_planta.addEventListener("click", () => {
+            if (bloqueado) return
             catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion")
