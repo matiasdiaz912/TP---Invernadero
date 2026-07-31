@@ -84,6 +84,14 @@ app.get("/especies", async (req, res) => {
     res.json(response.rows)
 })
 
+app.get("/plantas/todas", (req, res) => {
+    res.json(ESPECIES)
+})
+
+app.get("/plantas", (req, res) => {
+    res.json(ESPECIES.filter(e => e.adquirida))
+})
+
 app.get("/evento", async (req, res) => {
     let evento = await generarEventoAleatorio()
     RECURSOS.cant_agua += evento.efectos.agua
@@ -481,8 +489,9 @@ app.delete("/especies/:id", (req, res) => {
     res.status(200).json({ msg: `${especie.nombre} eliminada del catálogo` })
 })
 
-app.post("/especies/:id/fertilizar", (req, res) => {
-    if (ESTADO_JUEGO.fertilizaciones_disponibles <= 0) {
+app.post("/especies/:id/fertilizar", async (req, res) => {
+    const estado = await pool.query("SELECT * FROM base_espacial")
+    if (estado.rows[0].fertilizaciones_disponibles <= 0) {
         return res.status(400).json({ error: "No tenés fertilizaciones disponibles" })
     }
     const especie = ESPECIES.find(e => e.id == req.params.id)
@@ -496,11 +505,11 @@ app.post("/especies/:id/fertilizar", (req, res) => {
     }
 
     especie[propiedad] += 1
-    ESTADO_JUEGO.fertilizaciones_disponibles--
+    await pool.query("UPDATE base_espacial SET fertilizaciones_disponibles = fertilizaciones_disponibles - 1")
 
     res.status(200).json({ 
         msg: `${especie.nombre} fertilizada. ${propiedad} aumentó a ${especie[propiedad]}`,
-        fertilizaciones_disponibles: ESTADO_JUEGO.fertilizaciones_disponibles,
+        fertilizaciones_disponibles: estado.rows[0].fertilizaciones_disponibles - 1,
         especie
     })
 })
