@@ -297,6 +297,11 @@ app.get("/avanzar-dia", async (req, res) => {
     )
     await pool.query(`
     UPDATE base_espacial 
+    SET fertilizaciones_disponibles = fertilizaciones_disponibles + 
+        CASE WHEN (dia_actual % 10) = 0 THEN 1 ELSE 0 END
+    `)
+    await pool.query(`
+    UPDATE base_espacial 
     SET dias_restantes_bloqueo = GREATEST(dias_restantes_bloqueo - 1, 0),
         evento_bloqueado_id = CASE 
             WHEN dias_restantes_bloqueo <= 1 THEN NULL 
