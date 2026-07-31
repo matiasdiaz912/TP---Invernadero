@@ -17,11 +17,12 @@ CREATE TABLE base_espacial (
     tripulantes INT DEFAULT 30,
     evento_bloqueado_id     VARCHAR(50) DEFAULT NULL,
     dias_restantes_bloqueo  INT DEFAULT 0,
-    eventos_creados         INT DEFAULT 0
+    eventos_creados         INT DEFAULT 0,
+    fertilizaciones_disponibles INT DEFAULT 0
 );
 
-INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes,evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados)
-VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30, NULL, 0, 0);
+INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes,evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados, fertilizaciones_disponibles)
+VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30, NULL, 0, 0, 0);
 
 
 CREATE TABLE especies (
