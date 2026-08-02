@@ -544,6 +544,8 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     }
     
     let btn_gestionar = document.getElementById("btn-gestionar")
+    console.log(btn_gestionar);
+    
     btn_gestionar.addEventListener("click", () => {
     modulo_detalles.remove()
     let gestionar_recursos = document.createElement("div")
@@ -553,17 +555,25 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             <h2>> GESTIONAR RECURSOS</h2>
             <button id="btn-close-gestionar" class="btn-action">[ CERRAR ]</button>
         </div>
-        <div class="gestionar-recursos">
-            <label>AGUA A AGREGAR:</label>
-            <input id="input-agua" type="number" min="0" class="btn-action" placeholder="0"/>
-            <label>NUTRIENTES A AGREGAR:</label>
-            <input id="input-nutrientes" type="number" min="0" class="btn-action" placeholder="0"/>
-            <label>ENERGIA A AGREGAR:</label>
-            <input id="input-energia" type="number" min="0" class="btn-action" placeholder="0"/>
-            <label>OXIGENO A AGREGAR:</label>
-            <input id="input-oxigeno" type="number" min="0" class="btn-action" placeholder="0"/>
+        <form class="gestionar-recursos">
+            <label>Cantidad de agua suministrada:
+                <input value="${modulo.cant_agua}" id="input_water" type="range" min="0" max="${modulo.cant_agua}"></input>
+                <p>${modulo.cant_agua}</p>
+            </label>
+            <label>Cantidad de oxígeno suministrado:
+                <input value="${modulo.cant_oxigeno}" id="input_oxigen" type="range" min="0" max="${modulo.cant_oxigeno}"></input>
+                <p>${modulo.cant_oxigeno}</p>
+            </label>
+            <label>Cantidad de energía suministrada:
+                <input value="${modulo.cant_energia}" id="input_energy" type="range" min="0" max="${modulo.cant_energia}"></input>
+                <p>${modulo.cant_energia}</p>
+            </label>
+            <label>Cantidad de nutrientes suministrados:
+                <input value="${modulo.cant_nutrientes}" id="input_nutrients" type="range" min="0" max="${modulo.cant_nutrientes}"></input>
+                <p>${modulo.cant_nutrientes}</p>
+            </label>
             <button id="btn-confirmar-recursos" class="btn-action">CONFIRMAR</button>
-        </div>
+        </form>
     `
     main_view.appendChild(gestionar_recursos)
 
@@ -573,13 +583,14 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     })
 
     document.getElementById("btn-confirmar-recursos").addEventListener("click", async () => {
-        const agua = parseFloat(document.getElementById("input-agua").value) || 0
-        const nutrientes = parseFloat(document.getElementById("input-nutrientes").value) || 0
-        const energia = parseFloat(document.getElementById("input-energia").value) || 0
+        const agua = parseFloat(document.getElementById("input_water").value) || 0
+        const nutrientes = parseFloat(document.getElementById("input_nutrientes").value) || 0
+        const energia = parseFloat(document.getElementById("input_energy").value) || 0
+        const oxigeno = parseFloat(document.getElementById("input_oxigen").value) || 0
 
         const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/recursos`, {
             method: "PUT",
-            body: JSON.stringify({ agua, nutrientes, energia }),
+            body: JSON.stringify({ agua, nutrientes, energia, oxigeno }),
             headers: { "Content-Type": "application/json" }
         })
         const data = await response.json()
