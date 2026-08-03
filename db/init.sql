@@ -63,6 +63,7 @@ CREATE TABLE modulos (
     cant_nutrientes  DECIMAL(8,2) DEFAULT 0,
     cant_energia     DECIMAL(8,2) DEFAULT 0,
     cant_oxigeno     DECIMAL(8,2) DEFAULT 0,
+    dias_en_critico  INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'estable'
                      CHECK (estado IN ('estable', 'critico', 'sobreriego', 'desechado'))
 );

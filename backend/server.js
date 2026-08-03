@@ -3,6 +3,7 @@ import { Pool } from 'pg'
 import cors from 'cors'
 import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA } from './constantes.js';
 import { procesarModulos } from './dia.js';
+import { cargarParaElDia, guardarModulos } from './repositorio.js';
 
 const EVENTOS_ALEATORIOS = [
     {
@@ -252,10 +253,13 @@ app.get("/modulos/:moduloId/:plantaId", async (req, res) => {
 
 app.get("/avanzar-dia", async (req, res) => {
     const estado_juego = await pool.query("SELECT * FROM base_espacial")
-    const modulos = await pool.query("SELECT * FROM modulos")
-    
     // Modulos y plantas -> backend/dia.js
-    let eventos_del_dia = procesarModulos(modulos.rows, RECURSOS)
+    const { modulos, especies, RECURSOS: recursos_db } = await cargarParaElDia(pool)
+    Object.assign(RECURSOS, recursos_db)
+
+    let eventos_del_dia = procesarModulos(modulos, RECURSOS, especies)
+
+    await guardarModulos(pool, modulos)
 
     // Tripulacion, niveles y eventos
     if (RECURSOS.cant_comida < 60) {

@@ -6,8 +6,8 @@ function estaViva(planta) {
     return VIVA.includes(planta.estado)
 }
 
-function especieDe(planta) {
-    return ESPECIES.find(e => e.nombre == planta.nombre)
+function especieDe(planta, especies) {
+    return especies.find(e => e.nombre == planta.nombre)
 }
 
 function ajustarBarra(valor, recibio) {
@@ -25,12 +25,12 @@ function tomarDelModulo(modulo, campo, cantidad) {
     return false
 }
 
-function calcularEstadoModulo(modulo) {
+function calcularEstadoModulo(modulo, especies) {
     const vivas = modulo.plantas.filter(estaViva)
 
     let pide_energia = 0
     for (const planta of vivas) {
-        const especie = especieDe(planta)
+        const especie = especieDe(planta, especies)
         if (especie) pide_energia += especie.energia_requerida
     }
 
@@ -42,8 +42,8 @@ function calcularEstadoModulo(modulo) {
     return { critico, sobreriego }
 }
 
-function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
-    const especie = especieDe(planta)
+function procesarPlanta(planta, modulo, RECURSOS, flags, eventos, especies) {
+    const especie = especieDe(planta, especies)
     if (!especie) return
 
     if (planta.estado == "lista_para_cosechar" && !PLANTA.lista_para_cosechar_consume) return
@@ -103,7 +103,9 @@ function procesarPlanta(planta, modulo, RECURSOS, flags, eventos) {
     }
 }
 
-export function procesarModulos(modulos, RECURSOS) {
+// `especies` es opcional: si no se pasa, usa el catalogo de constantes.js.
+// Con la base de datos se le pasa el catalogo leido de la tabla especies.
+export function procesarModulos(modulos, RECURSOS, especies = ESPECIES) {
     const eventos = []
 
     for (const modulo of modulos) {
@@ -118,10 +120,10 @@ export function procesarModulos(modulos, RECURSOS) {
         if (modulo.dias_en_critico == undefined) modulo.dias_en_critico = 0
         if (modulo.cant_oxigeno == undefined) modulo.cant_oxigeno = 0
 
-        const flags = calcularEstadoModulo(modulo)
+        const flags = calcularEstadoModulo(modulo, especies)
 
         for (const planta of modulo.plantas) {
-            if (estaViva(planta)) procesarPlanta(planta, modulo, RECURSOS, flags, eventos)
+            if (estaViva(planta)) procesarPlanta(planta, modulo, RECURSOS, flags, eventos, especies)
         }
 
         if (flags.critico) {
