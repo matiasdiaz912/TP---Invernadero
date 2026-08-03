@@ -591,8 +591,9 @@ footer {
 /* --- SECCIÓN 1: ANILLOS VITALES (Soporte de Vida) --- */
 .vital-rings-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   align-items: center;
+  width: 100%;
 }
 
 .ring-wrapper {
@@ -648,7 +649,7 @@ footer {
   text-shadow: 0 0 5px currentColor;
 }
 .ring-label {
-  font-size: 0.6rem;
+  font-size: 1rem;
   color: #94a3b8;
   margin-top: 2px;
 }
@@ -658,6 +659,7 @@ footer {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  width: 100%;
 }
 
 .stat-row {
@@ -669,11 +671,11 @@ footer {
 .stat-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
 }
 
 .stat-trend {
-  font-size: 0.7rem;
+  font-size: 1.5rem;
   color: #94a3b8;
 }
 .trend-up {
@@ -734,3 +736,18 @@ footer {
   border-color: rgba(249, 115, 22, 0.3);
 }
 
+.seccion-ayuda{
+  padding: 10px;
+}
+
+.gestionar-recursos{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-redirect{
+  text-decoration: none;
+  text-align: center;
+}

@@ -1,0 +1,44 @@
+.catalog-page{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+
+}
+  
+.catalog-header-main{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 300px;
+    background: rgba(45, 212, 191, 0.05);
+    border-bottom: 2px solid var(--neon-cyan);
+}
+
+.catalog-window{
+    width: 90%;
+    max-width: 1500px;
+    padding: 20px;
+}
+
+.plant-grid{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.plant-card{
+    width: 200px;
+    height: 300px;
+    padding: 10px;
+    border: 1px solid var(--neon-cyan);
+    border-radius: 5px;
+    background-color: rgba(45, 212, 191, 0.05);
+}
+
+.btn-action{
+    text-decoration: none;
+}

@@ -21,9 +21,8 @@ CREATE TABLE base_espacial (
     fertilizaciones_disponibles INT DEFAULT 1
 );
 
-INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes,evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados, fertilizaciones_disponibles)
-VALUES (1, 1, 20, 20, 10, 100, 100, 0, 'en_curso', 30, NULL, 0, 0, 1);
-
+INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes, evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados, fertilizaciones_disponibles)
+VALUES (1, 1, 100, 25, 70, 100, 100, 0, 'en_curso', 30, NULL, 0, 0, 1);
 
 CREATE TABLE especies (
     id                    SERIAL PRIMARY KEY,
