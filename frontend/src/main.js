@@ -94,7 +94,6 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 `;
         catalogGrid.appendChild(card_planta);
         card_planta.addEventListener("click", () => {
-            
             catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion")
@@ -120,7 +119,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                     </div>
                 </div>
 
-                <button id="sembrar-button" class="btn-action" ${!planta.adquirida ? 'disabled' : ''}>SEMBRAR</button>
+                <button id="sembrar-button" class="btn-action">SEMBRAR</button>
             `;
 
             
@@ -128,6 +127,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 card_descripcion.classList.add("plant-card-descripcion-desactivada")
             }
             main_view.appendChild(card_descripcion);
+
             let btn_close_detalles = document.getElementById("btn-close-detalles");
             let btn_back = document.getElementById("btn-back")
             btn_close_detalles.addEventListener("click", () => {
@@ -142,66 +142,9 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             })
 
             let btn_sembrar = document.getElementById("sembrar-button")
-
-
-let btn_fertilizar = document.getElementById("fertilizar-button")
-if (btn_fertilizar) {
-    btn_fertilizar.addEventListener("click", async () => {
-        const estado = await fetch("http://localhost:3000/estado-juego").then(r => r.json())
-        card_descripcion.remove()
-        catalog.remove()
-        let fertilizar_window = document.createElement("div")
-        fertilizar_window.classList.add("catalog-window")
-        fertilizar_window.innerHTML = `
-            <div class="catalog-header">
-                <h2>> FERTILIZAR - ${planta.nombre}</h2>
-                <button id="btn-close-fertilizar" class="btn-action">[ CERRAR ]</button>
-            </div>
-            <p>Fertilizaciones disponibles: ${estado.fertilizaciones_disponibles}</p>
-            <div id="opciones-fertilizar">
-                <button class="btn-action btn-fertilizar-prop" data-prop="comida_por_dia">
-                    COMIDA POR DÍA: ${planta.comida_por_dia} → ${planta.comida_por_dia + 1}
-                </button>
-                <button class="btn-action btn-fertilizar-prop" data-prop="agua_cosecha">
-                    AGUA EN COSECHA: ${planta.agua_cosecha} → ${planta.agua_cosecha + 1}
-                </button>
-                <button class="btn-action btn-fertilizar-prop" data-prop="comida_cosecha">
-                    COMIDA EN COSECHA: ${planta.comida_cosecha} → ${planta.comida_cosecha + 1}
-                </button>
-                <button class="btn-action btn-fertilizar-prop" data-prop="oxigeno_por_dia">
-                    OXÍGENO POR DÍA: ${planta.oxigeno_por_dia} → ${planta.oxigeno_por_dia + 1}
-                </button>
-            </div>
-        `
-        main_view.appendChild(fertilizar_window)
-
-        document.getElementById("btn-close-fertilizar").addEventListener("click", () => {
-            fertilizar_window.remove()
-            activar_botones()
-        })
-
-        document.querySelectorAll(".btn-fertilizar-prop").forEach(btn => {
-            btn.addEventListener("click", async () => {
-                const propiedad = btn.dataset.prop
-                const response = await fetch(`http://localhost:3000/especies/${planta.id}/fertilizar`, {
-                    method: "POST",
-                    body: JSON.stringify({ propiedad }),
-                    headers: { "Content-Type": "application/json" }
-                })
-                const data = await response.json()
-                if (response.ok) {
-                    generar_logs(data.msg, "info")
-                    fertilizar_window.remove()
-                    activar_botones()
-                } else {
-                    generar_logs(data.error, "alerta")
-                    fertilizar_window.remove()
-                    activar_botones()
-                }
-            })
-        })
-    })
-}
+            if (modulo == null || bloqueado) {
+                btn_sembrar.disabled = true
+            }
             btn_sembrar.addEventListener("click", async () => {
                 let response = await fetch(`http://localhost:3000/modulos/${modulo.id}/${planta.id}`)
                 let msg = await response.json()
