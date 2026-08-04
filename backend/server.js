@@ -497,9 +497,13 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
 })
 
-app.post("/especies/:id/adquirir", (req, res) => {
+app.post("/especies/:id/adquirir", async (req, res) => {
     const especie = ESPECIES.find(e => e.id == req.params.id)
     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+    const estado_base = await pool.query("SELECT nivel FROM base_espacial WHERE id = 1")
+    if (estado_base.rows[0].nivel < especie.nivel_requerido) {
+        return res.status(400).json({ error: `Necesitas nivel ${especie.nivel_requerido} para adquirir ${especie.nombre}` })
+    }
     especie.adquirida = true
     res.status(200).json(especie)
 })
