@@ -95,7 +95,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 `;
         catalogGrid.appendChild(card_planta);
         card_planta.addEventListener("click", () => {
-            if (bloqueado) return
+            
             catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion")
@@ -122,9 +122,6 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 </div>
 
                 <button id="sembrar-button" class="btn-action" ${!planta.adquirida ? 'disabled' : ''}>SEMBRAR</button>
-                ${desbloqueable ? `<button id="adquirir-button" class="btn-action">ADQUIRIR</button>` : ''}
-                ${planta.adquirida ? `<button id="eliminar-especie-button" class="btn-action">ELIMINAR DEL CATÁLOGO</button>` : ''}
-                ${planta.adquirida ? `<button id="fertilizar-button" class="btn-action">FERTILIZAR</button>` : ''}
             `;
 
             

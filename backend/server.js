@@ -197,7 +197,7 @@ app.get("/avanzar-dia", async (req, res) => {
     const modulos = await pool.query("SELECT * FROM modulos")
     
     // Modulos y plantas -> backend/dia.js
-    let eventos_del_dia = procesarModulos(modulos.rows, RECURSOS)
+    // let eventos_del_dia = procesarModulos(modulos.rows, RECURSOS)
 
     // Tripulacion, niveles y eventos
     if (estado_juego.rows[0].cant_comida < 60) {
