@@ -433,9 +433,11 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
     if (evento.tipo !== "negativo") return res.status(400).json({ error: "Solo podés bloquear eventos negativos" })
 
     const costo = Math.abs(evento.efecto_energia + evento.efecto_oxigeno + evento.efecto_agua + evento.efecto_nutrientes) * 0.3
-    if (RECURSOS.cant_energia < costo) return res.status(400).json({ error: `Necesitás ${costo} de energía para bloquear este evento` })
 
-    RECURSOS.cant_energia -= costo
+    const recursosBD = await pool.query("SELECT * FROM base_espacial")
+    if (recursosBD.rows[0].cant_energia < costo) return res.status(400).json({ error: `Necesitás ${costo} de energía para bloquear este evento` })
+    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [costo])
+
     await pool.query("UPDATE base_espacial SET evento_bloqueado_id = $1, dias_restantes_bloqueo = 15", [evento.id])
 
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
