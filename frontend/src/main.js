@@ -67,8 +67,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
     })
     
     plantas.forEach((planta) => {
-        const bloqueado = !planta.adquirida;
-        const desbloqueable = planta.nivel_requerido <= nivelActual && !planta.adquirida;
+        const bloqueado = planta.nivel_requerido > nivelActual;
         const statusClass = bloqueado ? "locked" : "";
         const colorSvg = bloqueado
             ? 'stroke="#f97316" filter="none" opacity="0.4"'
