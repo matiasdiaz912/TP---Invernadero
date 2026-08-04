@@ -44,6 +44,7 @@ export const MODULO = {
 }
 
 export const COSECHAS_POR_NIVEL = [0, 0, 10, 30, 70, 140, 250]
+export const MODULOS_POR_NIVEL = [0, 2, 4, 6, 8, 10, 12]
 
 export function calcularNivel(total_cosechas) {
     let nivel = 1

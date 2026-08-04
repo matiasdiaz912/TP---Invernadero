@@ -1,7 +1,7 @@
 import express from 'express'
 import { Pool } from 'pg'
 import cors from 'cors'
-import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, calcularNivel } from './constantes.js';
+import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, calcularNivel, MODULOS_POR_NIVEL } from './constantes.js';
 import { procesarModulos } from './dia.js';
 import { cargarParaElDia, guardarModulos } from './repositorio.js';
 
@@ -112,6 +112,14 @@ app.get("/recursos", (req, res) => {
 // Modulos
 app.post("/modulos", async (req, res) => {
     const modulo_resources = req.body
+
+    const estado_base = await pool.query("SELECT nivel FROM base_espacial WHERE id = 1")
+    const nivel_actual = estado_base.rows[0].nivel
+    const cant_modulos = await pool.query("SELECT COUNT(*) FROM modulos")
+    const tope = MODULOS_POR_NIVEL[nivel_actual]
+    if (Number(cant_modulos.rows[0].count) >= tope) {
+        return res.status(400).json({ error: `Alcanzaste el limite de ${tope} modulos para el nivel ${nivel_actual}` })
+    }
 
     await pool.query("INSERT INTO modulos (nombre, nivel, cosechas, bloques_totales, bloques_ocupados, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
         [modulo_resources.nombre, 1, 0, 2, 0, modulo_resources.cant_agua, modulo_resources.cant_nutrientes, modulo_resources.cant_energia, modulo_resources.cant_oxigeno]
