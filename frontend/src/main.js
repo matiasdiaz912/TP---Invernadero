@@ -110,7 +110,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 <div class="plant-card-descripcion">
                     <div class="plant-image-container">
                         <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                            ${planta.pathSvg}
+                            ${planta.pathsvg}
                         </svg>
                     </div>
                     <div class="descripcion_planta">
@@ -202,9 +202,6 @@ if (btn_fertilizar) {
         })
     })
 }
-            if (modulo == null || bloqueado) {
-                btn_sembrar.disabled = true
-            }
             btn_sembrar.addEventListener("click", async () => {
                 let response = await fetch(`http://localhost:3000/modulos/${modulo.id}/${planta.id}`)
                 let msg = await response.json()

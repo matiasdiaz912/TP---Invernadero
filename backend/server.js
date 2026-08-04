@@ -51,7 +51,7 @@ app.get("/recursos", async (req, res) => {
     res.status(200).json(recursos.rows[0])
 })
 
-// Modulos
+////////////////////////////////////////////////////  Modulos  ///////////////////////////////////////////////////////////////////////
 app.post("/modulos", async (req, res) => {
     const modulo_resources = req.body
 
@@ -175,19 +175,6 @@ app.get("/modulos/:moduloId/:plantaId", async (req, res) => {
     await pool.query("INSERT INTO plantas (nombre, modulo_id, especie_id, dias_transcurridos, duracion, estado, porcentaje_agua, porcentaje_nutrientes, porcentaje_energia) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
         [especie.rows[0].nombre, modulo.rows[0].id, especie.rows[0].id, 0, especie.rows[0].duracion, "creciendo", 100, 100, 100]
     )
-
-    // const nueva_planta = {
-    //     id: PLANTAS.length + 1,
-    //     especie_id: especie.rows[0].id,
-    //     modulo_id: modulo.rows[0].id,
-    //     nombre: especie.nombre,
-    //     duracion: especie.duracion,
-    //     estado: "creciendo",
-    //     porcentaje_agua: 100,
-    //     porcentaje_nutrientes: 100,
-    //     porcentaje_energia: 100,
-    //     dias_transcurridos: 0
-    // }
 
     res.status(201).json([])
 })
@@ -323,6 +310,8 @@ async function actualizarRecursos(especie) {
     )
 }
 
+
+/////////////////////////////////////////////////////////// Eventos //////////////////////////////////////////////////////////////////
 app.get("/eventos", async (req, res) => {
     const result = await pool.query("SELECT * FROM eventos")
     res.json(result.rows)
@@ -440,45 +429,45 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
 })
 
-app.post("/especies/:id/adquirir", (req, res) => {
-    const especie = ESPECIES.find(e => e.id == req.params.id)
-    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-    especie.adquirida = true
-    res.status(200).json(especie)
-})
+// app.post("/especies/:id/adquirir", (req, res) => {
+//     const especie = ESPECIES.find(e => e.id == req.params.id)
+//     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+//     especie.adquirida = true
+//     res.status(200).json(especie)
+// })
 
 // Eliminar especie del catálogo
-app.delete("/especies/:id", (req, res) => {
-    const especie = ESPECIES.find(e => e.id == req.params.id)
-    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-    especie.adquirida = false
-    res.status(200).json({ msg: `${especie.nombre} eliminada del catálogo` })
-})
+// app.delete("/especies/:id", (req, res) => {
+//     const especie = ESPECIES.find(e => e.id == req.params.id)
+//     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+//     especie.adquirida = false
+//     res.status(200).json({ msg: `${especie.nombre} eliminada del catálogo` })
+// })
 
-app.post("/especies/:id/fertilizar", async (req, res) => {
-    const estado = await pool.query("SELECT * FROM base_espacial")
-    if (estado.rows[0].fertilizaciones_disponibles <= 0) {
-        return res.status(400).json({ error: "No tenés fertilizaciones disponibles" })
-    }
-    const especie = ESPECIES.find(e => e.id == req.params.id)
-    if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-    if (!especie.adquirida) return res.status(400).json({ error: "No podés fertilizar una especie no adquirida" })
+// app.post("/especies/:id/fertilizar", async (req, res) => {
+//     const estado = await pool.query("SELECT * FROM base_espacial")
+//     if (estado.rows[0].fertilizaciones_disponibles <= 0) {
+//         return res.status(400).json({ error: "No tenés fertilizaciones disponibles" })
+//     }
+//     const especie = ESPECIES.find(e => e.id == req.params.id)
+//     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
+//     if (!especie.adquirida) return res.status(400).json({ error: "No podés fertilizar una especie no adquirida" })
 
-    const { propiedad } = req.body
-    const propiedades_validas = ['comida_por_dia', 'agua_cosecha', 'comida_cosecha', 'oxigeno_por_dia']
-    if (!propiedades_validas.includes(propiedad)) {
-        return res.status(400).json({ error: "Propiedad no válida para fertilizar" })
-    }
+//     const { propiedad } = req.body
+//     const propiedades_validas = ['comida_por_dia', 'agua_cosecha', 'comida_cosecha', 'oxigeno_por_dia']
+//     if (!propiedades_validas.includes(propiedad)) {
+//         return res.status(400).json({ error: "Propiedad no válida para fertilizar" })
+//     }
 
-    especie[propiedad] += 1
-    await pool.query("UPDATE base_espacial SET fertilizaciones_disponibles = fertilizaciones_disponibles - 1")
+//     especie[propiedad] += 1
+//     await pool.query("UPDATE base_espacial SET fertilizaciones_disponibles = fertilizaciones_disponibles - 1")
 
-    res.status(200).json({ 
-        msg: `${especie.nombre} fertilizada. ${propiedad} aumentó a ${especie[propiedad]}`,
-        fertilizaciones_disponibles: estado.rows[0].fertilizaciones_disponibles - 1,
-        especie
-    })
-})
+//     res.status(200).json({ 
+//         msg: `${especie.nombre} fertilizada. ${propiedad} aumentó a ${especie[propiedad]}`,
+//         fertilizaciones_disponibles: estado.rows[0].fertilizaciones_disponibles - 1,
+//         especie
+//     })
+// })
 
 
 app.listen(3000, () => {
