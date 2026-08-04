@@ -129,7 +129,6 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 card_descripcion.classList.add("plant-card-descripcion-desactivada")
             }
             main_view.appendChild(card_descripcion);
-
             let btn_close_detalles = document.getElementById("btn-close-detalles");
             let btn_back = document.getElementById("btn-back")
             btn_close_detalles.addEventListener("click", () => {
@@ -144,33 +143,7 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             })
 
             let btn_sembrar = document.getElementById("sembrar-button")
-            let btn_adquirir = document.getElementById("adquirir-button")
-if (btn_adquirir) {
-    btn_adquirir.addEventListener("click", async () => {
-        await fetch(`http://localhost:3000/especies/${planta.id}/adquirir`, {
-            method: "POST"
-        })
-        planta.adquirida = true
-        generar_logs(`${planta.nombre} adquirida al catálogo`, "info")
-        card_descripcion.remove()
-        catalog.remove()
-        activar_botones()
-    })
-}
 
-let btn_eliminar_especie = document.getElementById("eliminar-especie-button")
-if (btn_eliminar_especie) {
-    btn_eliminar_especie.addEventListener("click", async () => {
-        await fetch(`http://localhost:3000/especies/${planta.id}`, {
-            method: "DELETE"
-        })
-        planta.adquirida = false
-        generar_logs(`${planta.nombre} eliminada del catálogo`, "alerta")
-        card_descripcion.remove()
-        catalog.remove()
-        activar_botones()
-    })
-}
 
 let btn_fertilizar = document.getElementById("fertilizar-button")
 if (btn_fertilizar) {
