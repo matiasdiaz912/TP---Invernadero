@@ -1,7 +1,7 @@
 import express from 'express'
 import { Pool } from 'pg'
 import cors from 'cors'
-import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA } from './constantes.js';
+import { RECURSOS_INICIALES, ESPECIES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, calcularNivel } from './constantes.js';
 import { procesarModulos } from './dia.js';
 import { cargarParaElDia, guardarModulos } from './repositorio.js';
 
@@ -158,10 +158,11 @@ app.put("/modulos/:moduloId", async (req, res) => {
     await pool.query("UPDATE base_espacial SET total_cosechas = total_cosechas + 1 WHERE id = 1")
     const estado_juego = await pool.query("SELECT * FROM base_espacial")
 
-    if (estado_juego.rows[0].total_cosechas % 10 == 0 && estado_juego.rows[0].total_cosechas != 1) {
-        estado_juego.rows[0].nivel++
+    const nivel_nuevo = calcularNivel(estado_juego.rows[0].total_cosechas)
+    if (nivel_nuevo > estado_juego.rows[0].nivel) {
+        await pool.query("UPDATE base_espacial SET nivel = $1 WHERE id = 1", [nivel_nuevo])
     }
-    res.status(200).json({ nivel: estado_juego.rows[0].nivel })
+    res.status(200).json({ nivel: nivel_nuevo })
 })
 
 app.put("/modulos", async (req, res) => {

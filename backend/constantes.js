@@ -44,6 +44,14 @@ export const MODULO = {
 }
 
 export const COSECHAS_POR_NIVEL = [0, 0, 10, 30, 70, 140, 250]
+
+export function calcularNivel(total_cosechas) {
+    let nivel = 1
+    for (let n = 2; n < COSECHAS_POR_NIVEL.length; n++) {
+        if (total_cosechas >= COSECHAS_POR_NIVEL[n]) nivel = n
+    }
+    return nivel
+}
 export const ENTREGA_POR_NIVEL = { agua: 20, energia: 10, nutrientes: 15, bloques: 1 }
 
 export const TRIPULANTES_INICIALES = 10
