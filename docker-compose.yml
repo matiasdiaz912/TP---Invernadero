@@ -13,6 +13,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   backend:
     build: ./backend
@@ -30,7 +36,8 @@ services:
       DB_PASSWORD: 1234
       NODE_OPTIONS: --max-old-space-size=4096
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
        
@@ -44,6 +51,8 @@ services:
       - backend
     networks:
       - app-network
+    volumes:
+      - ./frontend/src:/usr/share/nginx/html:ro
 
 networks:
   app-network:

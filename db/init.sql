@@ -2,11 +2,11 @@ CREATE TABLE base_espacial (
     id               SERIAL PRIMARY KEY,
     dia_actual       INT DEFAULT 1,
     nivel            INT DEFAULT 1,
-    cant_agua        DECIMAL(8,2) DEFAULT 20,
-    cant_nutrientes  DECIMAL(8,2) DEFAULT 20,
-    cant_energia     DECIMAL(5,2) DEFAULT 90,
-    cant_oxigeno     DECIMAL(5,2) DEFAULT 100,
-    cant_comida      DECIMAL(5,2) DEFAULT 100,
+    cant_agua        INT DEFAULT 20,
+    cant_nutrientes  INT DEFAULT 20,
+    cant_energia     INT DEFAULT 90,
+    cant_oxigeno     INT DEFAULT 100,
+    cant_comida      INT DEFAULT 100,
     total_cosechas   INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'en_curso'
                      CHECK (estado IN ('en_curso', 'victoria', 'derrota')),
@@ -55,10 +55,10 @@ CREATE TABLE modulos (
     cosechas         INT DEFAULT 0,
     bloques_totales  INT DEFAULT 2,
     bloques_ocupados INT DEFAULT 0,
-    cant_agua        DECIMAL(8,2) DEFAULT 0,
-    cant_nutrientes  DECIMAL(8,2) DEFAULT 0,
-    cant_energia     DECIMAL(8,2) DEFAULT 0,
-    cant_oxigeno     DECIMAL(8,2) DEFAULT 0,
+    cant_agua        INT DEFAULT 0,
+    cant_nutrientes  INT DEFAULT 0,
+    cant_energia     INT DEFAULT 0,
+    cant_oxigeno     INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'estable'
                      CHECK (estado IN ('estable', 'critico', 'sobreriego', 'desechado'))
 );
