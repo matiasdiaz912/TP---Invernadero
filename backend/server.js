@@ -19,12 +19,6 @@ const pool = new Pool({
     password: "1234",
 })
 
-pool.connect()
-  .then(async () => {
-        console.log('✅ Conectado a la base de datos PostgreSQL exitosamente')
-    })
-  .catch(err => console.error('❌ Error al conectar a la base de datos:', err.stack));
-
 
 app.get("/", (req, res) => {
     res.send("Servidor funcionando")
@@ -121,29 +115,32 @@ app.put("/modulos", async (req, res) => {
 
 app.put("/modulos/:moduloId/recursos", async (req, res) => {
     const { moduloId } = req.params
-    const { agua, nutrientes, energia } = req.body
+    const { agua, nutrientes, energia, oxigeno } = req.body
 
     let modulo = await pool.query("SELECT * FROM modulos WHERE id = $1", [moduloId])
     if (!modulo.rows) return res.status(404).json({ error: "Módulo no encontrado" })
     const RECURSOS = await pool.query("SELECT * FROM base_espacial WHERE id = 1")
 
-    if (RECURSOS.rows[0].cant_agua < agua) return res.status(400).json({ error: "No hay suficiente agua disponible" })
-    if (RECURSOS.rows[0].cant_nutrientes < nutrientes) return res.status(400).json({ error: "No hay suficientes nutrientes disponibles" })
-    if (RECURSOS.rows[0].cant_energia < energia) return res.status(400).json({ error: "No hay suficiente energía disponible" })
-
-    modulo.cant_agua += agua
-    modulo.cant_nutrientes += nutrientes
-    modulo.cant_energia += energia
+    // if (RECURSOS.rows[0].cant_agua < agua) return res.status(400).json({ error: "No hay suficiente agua disponible" })
+    // if (RECURSOS.rows[0].cant_nutrientes < nutrientes) return res.status(400).json({ error: "No hay suficientes nutrientes disponibles" })
+    // if (RECURSOS.rows[0].cant_energia < energia) return res.status(400).json({ error: "No hay suficiente energía disponible" })
+    // if (RECURSOS.rows[0].cant_oxigeno < oxigeno) return res.status(400).json({ error: "No hay suficiente oxígeno disponible" })
+    modulo.rows[0].cant_agua += agua
+    modulo.rows[0].cant_nutrientes += nutrientes
+    modulo.rows[0].cant_energia += energia
+    modulo.rows[0].cant_oxigeno += oxigeno
+    
 
     RECURSOS.rows[0].cant_agua -= agua
     RECURSOS.rows[0].cant_nutrientes -= nutrientes
     RECURSOS.rows[0].cant_energia -= energia
+    RECURSOS.rows[0].cant_oxigeno -= oxigeno
 
-    await pool.query("UPDATE modulos SET cant_agua = $1, cant_nutrientes = $2, cant_energia = $3 WHERE id = $4",
-        [modulo.cant_agua, modulo.cant_nutrientes, modulo.cant_energia, moduloId]
+    await pool.query("UPDATE modulos SET cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4 WHERE id = $5",
+        [modulo.rows[0].cant_agua, modulo.rows[0].cant_nutrientes, modulo.rows[0].cant_energia, modulo.rows[0].cant_oxigeno, moduloId]
     )
-    await pool.query("UPDATE base_espacial SET cant_agua = $1, cant_nutrientes = $2, cant_energia = $3 WHERE id = 1",
-        [RECURSOS.rows[0].cant_agua, RECURSOS.rows[0].cant_nutrientes, RECURSOS.rows[0].cant_energia]
+    await pool.query("UPDATE base_espacial SET cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4 WHERE id = 1",
+        [RECURSOS.rows[0].cant_agua, RECURSOS.rows[0].cant_nutrientes, RECURSOS.rows[0].cant_energia, RECURSOS.rows[0].cant_oxigeno]
     )
 
     res.status(200).json(modulo)
@@ -200,7 +197,7 @@ app.get("/avanzar-dia", async (req, res) => {
     const modulos = await pool.query("SELECT * FROM modulos")
     
     // Modulos y plantas -> backend/dia.js
-    // let eventos_del_dia = procesarModulos(modulos.rows, RECURSOS)
+    let eventos_del_dia = procesarModulos(modulos.rows, RECURSOS)
 
     // Tripulacion, niveles y eventos
     if (estado_juego.rows[0].cant_comida < 60) {
@@ -487,3 +484,9 @@ app.post("/especies/:id/fertilizar", async (req, res) => {
 app.listen(3000, () => {
     console.log("Servidor iniciado")
 })
+
+pool.connect()
+  .then(() => {
+        console.log('✅ Conectado a la base de datos PostgreSQL exitosamente')
+    })
+  .catch(err => console.error('❌ Error al conectar a la base de datos:', err.stack));
