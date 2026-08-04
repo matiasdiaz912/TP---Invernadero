@@ -35,6 +35,11 @@ export const MODULO = {
     bloques_iniciales: 2,
 }
 
+export const PLANTA = {
+    lista_para_cosechar_consume: true,
+    desechado_se_reusa: true
+}
+
 export const COSECHAS_POR_NIVEL = [0, 0, 10, 30, 70, 140, 250]
 export const ENTREGA_POR_NIVEL = { agua: 20, energia: 10, nutrientes: 15, bloques: 1 }
 
