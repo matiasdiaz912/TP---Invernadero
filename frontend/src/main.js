@@ -17,6 +17,10 @@ const nivelActual = 3;
 let contador = 0
 let contador_encendido = false
 
+fetch("http://localhost:3000/recursos")
+    .then((response) => response.json())
+    .then((data) => generar_nuevos_datos(data))
+
 function activar_botones() {
     crear_modulo_button.disabled = false
     module_manage_button.disabled = false
@@ -96,7 +100,7 @@ const cargarCatalogo = (especies, modulo, nivel) => {
         card_especie.addEventListener("click", () => {
             catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
-            card_descripcion.classList.add("planta-descripcion")
+            card_descripcion.classList.add("planta-descripcion");
             card_descripcion.innerHTML = `
                 <div class="catalog-header header-planta">
                         <h2>> DETALLES SEMILLA</h2>
@@ -119,7 +123,7 @@ const cargarCatalogo = (especies, modulo, nivel) => {
                     </div>
                 </div>
 
-                <button id="sembrar-button" class="btn-action">SEMBRAR</button>
+                <button id="sembrar-button" class="btn-action ${statusClass}">SEMBRAR</button>
             `;
 
             
@@ -201,11 +205,11 @@ boton_avanzar_dia.addEventListener("click", async () => {
             generar_logs(`DIA ${data.dia_actual}: ALERTA! Recursos críticos. Agua: ${data.recursos.cant_agua}, Comida: ${data.recursos.cant_comida}, Oxígeno: ${data.recursos.cant_oxigeno}`, "alerta")
         }
 
-        if (data.dia_actual == 1) {
+        if (data.dia_actual == 0) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
 
-        if (data.dia_actual % 10 == 0) {
+        if (data.dia_actual % 10 == 0 && data.dia_actual != 0) {
             await generar_evento()
         }
 
@@ -242,6 +246,9 @@ boton_avanzar_dia.addEventListener("click", async () => {
                 child.remove()
             }
                 banner_victoria.remove()
+                activar_botones()
+                generar_nuevos_datos(datos_iniciales)
+                boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
             })
         } else if (data.estado == "derrota") {
             const banner_derrota = document.createElement("div")
@@ -256,14 +263,18 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
             let btn_reiniciar = document.getElementById("btn-reiniciar")
             btn_reiniciar.addEventListener("click", async () => {
-            const datos_iniciales = await reiniciarJuego()
-            for(const child of document.querySelector("footer").children) {
-                child.remove()
-            }
+                const datos_iniciales = await reiniciarJuego()            
+                document.querySelector("footer").textContent = ""
                 banner_derrota.remove()
+                activar_botones()
+                generar_nuevos_datos(datos_iniciales)
+                boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
             })
+
+        }else{
+            data.recursos.dia_actual += 1
+            generar_nuevos_datos(data.recursos)
         }
-        generar_nuevos_datos(data)
 
     }, 1000)
 })
@@ -312,22 +323,16 @@ const obtener_recursos = async () => {
 }
 
 
-const generar_nuevos_datos = (data) => {
-    cant_agua.innerText = data.recursos.cant_agua
-    cant_oxigeno.innerText = data.recursos.cant_oxigeno
-    cant_energia.innerText = data.recursos.cant_energia
-    cant_nutrientes.innerText = data.recursos.cant_nutrientes
-    cant_comida.innerText = data.recursos.cant_comida
+const generar_nuevos_datos = (data) => {    
+    cant_agua.innerText = data.cant_agua
+    cant_oxigeno.innerText = data.cant_oxigeno
+    cant_energia.innerText = data.cant_energia
+    cant_nutrientes.innerText = data.cant_nutrientes
+    cant_comida.innerText = data.cant_comida
     cant_tripulantes.innerText = `TRIPULACIÓN: [ ${data.tripulantes}/30 ]`
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
 }
-
-
-
-
-
-
 
 
 

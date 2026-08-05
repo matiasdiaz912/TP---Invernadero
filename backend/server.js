@@ -287,12 +287,12 @@ app.get("/avanzar-dia", async (req, res) => {
         estado_juego.rows[0].estado = "victoria"
     }
 
+
     res.status(200).json({
         dia_actual: estado_juego.rows[0].dia_actual,
         estado: estado_juego.rows[0].estado,
         recursos: estado_juego.rows[0],
         modulos: modulos.rows,
-        // eventos: eventos_del_dia,
         eventos: [],
         tripulantes: estado_juego.rows[0].tripulantes,
         plantas: plantas.rows
@@ -306,11 +306,10 @@ app.get("/estado-juego", async (req, res) => {
 
 app.get("/reiniciar", async (req, res) => {
     const ESTADO_JUEGO = {
+        ...RECURSOS_INICIALES,
         dia_actual: 0,
         estado: "en_curso",
-        total_cosechas: 0,
         tripulantes: TRIPULANTES_INICIALES,
-        dias_comida_insuficiente: 0,
         nivel: 1
     }
 
@@ -320,14 +319,7 @@ app.get("/reiniciar", async (req, res) => {
         [RECURSOS_INICIALES.cant_agua, RECURSOS_INICIALES.cant_nutrientes, RECURSOS_INICIALES.cant_energia, RECURSOS_INICIALES.cant_oxigeno, RECURSOS_INICIALES.cant_comida, TRIPULANTES_INICIALES]
     )
 
-    res.status(200).json({
-        dia_actual: ESTADO_JUEGO.dia_actual,
-        estado: ESTADO_JUEGO.estado,
-        total_cosechas: ESTADO_JUEGO.total_cosechas,
-        recursos: RECURSOS_INICIALES,
-        modulos: [],
-        tripulantes: ESTADO_JUEGO.tripulantes
-    })
+    res.status(200).json(ESTADO_JUEGO)
 })
 
 
