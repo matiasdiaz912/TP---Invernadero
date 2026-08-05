@@ -501,7 +501,6 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             </div>
         </div>
         <div class="module-details">
-            <p><strong>ID:</strong> ${modulo.id}</p>
             <p><strong>Nombre:</strong> ${modulo.nombre}</p>
             <p><strong>Agua:</strong> ${modulo.cant_agua}</p>
             <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}</p>
