@@ -160,7 +160,6 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
     desactivar_botones();
     let btn_close = document.getElementById("btn-close-catalog");
     btn_close.addEventListener("click", () => {
-        // const catalogWindow = document.getElementById("catalogo-header");
         catalog.remove();
         activar_botones();
     });
@@ -218,6 +217,15 @@ boton_avanzar_dia.addEventListener("click", async () => {
             main_view.appendChild(banner_victoria)
             desactivar_botones()
             contador_encendido = false
+
+            let btn_reiniciar = document.getElementById("btn-reiniciar")
+            btn_reiniciar.addEventListener("click", async () => {
+            const datos_iniciales = await reiniciarJuego()
+            for(const child of document.querySelector("footer").children) {
+                child.remove()
+            }
+                banner_victoria.remove()
+            })
         } else if (data.estado == "derrota") {
             const banner_derrota = document.createElement("div")
             banner_derrota.classList.add("banner-juego-finalizado", "banner-derrota")
@@ -231,8 +239,10 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
             let btn_reiniciar = document.getElementById("btn-reiniciar")
             btn_reiniciar.addEventListener("click", async () => {
-                const datos_iniciales = await reiniciarJuego()
-                generar_nuevos_datos(datos_iniciales)
+            const datos_iniciales = await reiniciarJuego()
+            for(const child of document.querySelector("footer").children) {
+                child.remove()
+            }
                 banner_derrota.remove()
             })
         }
@@ -505,7 +515,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
             const planta_sembrada = document.createElement("div")
             planta_sembrada.classList.add("lista-plantas-modulo")
             planta_sembrada.innerHTML = `<li>${planta.nombre} — ${planta.estado} (día ${planta.dias_transcurridos}/${planta.duracion})</li>`
-            if (planta.estado == "lista_para_cosechar") {
+            if (planta.dias_transcurridos >= planta.duracion) {
                 const btn_cosechar = document.createElement("button")
                 btn_cosechar.innerHTML = "[ COSECHAR }"
                 btn_cosechar.classList.add("btn-action")
@@ -521,6 +531,12 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
                     nivelActual = await nivelActual.json()
 
                     contador_nivel.textContent = `NIVEL: [ ${nivelActual.nivel} ]`
+                    
+                    let moduloPlantasActualizado = await fetch(`http://localhost:3000/modulos/${modulo_id}/plantas`)
+                    moduloPlantasActualizado = await moduloPlantasActualizado.json()
+                    if (moduloPlantasActualizado.length === 0) {
+                        lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
+                    }
                 })
             }
             lista_plantas.appendChild(planta_sembrada)

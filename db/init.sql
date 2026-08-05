@@ -30,13 +30,13 @@ CREATE TABLE especies (
     tamanio               INT NOT NULL,
     nivel_requerido       INT NOT NULL,
     duracion              INT NOT NULL,
-    agua_requerida        DECIMAL(5,2) NOT NULL,
-    oxigeno_requerido     DECIMAL(5,2) NOT NULL,
-    nutrientes_requeridos DECIMAL(5,2) NOT NULL,
-    energia_requerida     DECIMAL(5,2) NOT NULL,
-    nutrientes_generados  DECIMAL(5,2) NOT NULL,
-    agua_generada         DECIMAL(5,2) NOT NULL,
-    comida_generada       DECIMAL(5,2) NOT NULL,
+    agua_requerida        INT NOT NULL,
+    oxigeno_requerido     INT NOT NULL,
+    nutrientes_requeridos INT NOT NULL,
+    energia_requerida     INT NOT NULL,
+    nutrientes_generados  INT NOT NULL,
+    agua_generada         INT NOT NULL,
+    comida_generada       INT NOT NULL,
     estado                VARCHAR(20) DEFAULT 'inicial',
     pathSvg               TEXT,
     descripcion           TEXT
@@ -44,11 +44,12 @@ CREATE TABLE especies (
 
 INSERT INTO especies (nombre, tamanio, nivel_requerido, duracion, agua_requerida, oxigeno_requerido, nutrientes_requeridos, energia_requerida, nutrientes_generados, agua_generada, comida_generada, estado, pathSvg, descripcion)
 VALUES
-('Rábano',     1, 1, 3, 0.5, 0.5, 1, 1, 1.5,  1, 1, 'inicial', '<circle cx="50" cy="60" r="16"/><path d="M50 44 V16 M40 22 Q50 27 60 22"/><path d="M50 76 V88"/>', 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
-('Lechuga',    1, 1, 4, 0.5, 0.5, 1, 1, 2,    1, 1, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Una opción de bajo costo y rápido crecimiento. Ideal para mantener la dieta balanceada.'),
-('Tomate',     2, 2, 5, 1,   1,   2, 2, 3.5, 2, 2, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Requiere más recursos que el rábano o la lechuga pero ofrece una mayor recompensa.'),
-('Papa',       3, 3, 6, 1.5, 1.5, 3, 3, 5.5, 3, 3, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Una opción más costosa pero con un rendimiento mucho mayor en comparación con las anteriores.'),
-('Zanahoria',   4,4 ,7 ,2 ,2 ,4 ,4 ,7.5 ,4 ,4 ,'inicial','<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>','Una opción de alto costo y alto rendimiento. Perfecta para cuando los suministros son abundantes.');
+('Rábano',     1, 1, 3, 1, 1, 1, 1, 2,  1, 1, 'inicial', '<circle cx="50" cy="60" r="16"/><path d="M50 44 V16 M40 22 Q50 27 60 22"/><path d="M50 76 V88"/>', 'El más económico en recursos. Perfecto para cuando los suministros escasean.'),
+('Lechuga',    1, 1, 4, 1, 1, 1, 1, 2,    1, 1, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Una opción de bajo costo y rápido crecimiento. Ideal para mantener la dieta balanceada.'),
+('Tomate',     2, 2, 5, 1,   1,   2, 2, 4, 2, 2, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Requiere más recursos que el rábano o la lechuga pero ofrece una mayor recompensa.'),
+('Papa',       3, 3, 6, 2, 2, 3, 3, 6, 3, 3, 'inicial', '<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 60 30"/>', 'Una opción más costosa pero con un rendimiento mucho mayor en comparación con las anteriores.'),
+('Zanahoria',   4,4 ,7 ,2 ,2 ,4 ,4 ,8 ,4 ,4 ,'inicial','<ellipse cx="50" cy="65" rx="12" ry="18"/><path d="M50 47 V25 M40 30 Q50 27 
+60 30"/>','Una opción de alto costo y alto rendimiento. Perfecta para cuando los suministros son abundantes.');
 
 
 CREATE TABLE modulos (
