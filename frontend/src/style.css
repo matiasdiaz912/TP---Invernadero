@@ -236,10 +236,10 @@ footer {
 /* Área de la Imagen (SVG Holográfico) */
 .plant-image-container {
   flex-grow: 1;
-  border-bottom: 1px dashed rgba(45, 212, 191, 0.3);
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   position: relative;
 }
 

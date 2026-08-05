@@ -115,13 +115,27 @@ const cargarCatalogo = (especies, modulo, nivel) => {
                         <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
                             ${especie.pathsvg}
                         </svg>
+                        <div>
+                            <h3>${especie.nombre}</h3>
+                        </div>
                     </div>
                     <div class="descripcion_planta">
-                        <h3>${especie.nombre}</h3>
+                        <h3>REQUISITOS</h3>
                         <h4>AGUA: ${especie.agua_requerida}</h4>
                         <h4>OXIGENO: ${especie.oxigeno_requerido}</h4>
+                        <h4>NUTRIENTES: ${especie.nutrientes_requeridos}</h4>
+                        <h4>ENERGIA: ${especie.energia_requerida}</h4>
+                    </div>
+                    <div class="descripcion_planta">
+                        <h3>BENEFICIOS</h3>
+                        <h4>AGUA: ${especie.agua_generada}</h4>
+                        <h4>OXIGENO: ${especie.oxigeno_generado}</h4>
+                        <h4>NUTRIENTES: ${especie.nutrientes_generados}</h4>
+                        <h4>ENERGIA: ${especie.comida_generada}</h4>
                     </div>
                 </div>
+                
+                <p>${especie.descripcion}</p>
 
                 <button id="sembrar-button" class="btn-action ${statusClass}">SEMBRAR</button>
             `;
@@ -321,7 +335,7 @@ const obtener_recursos = async () => {
 }
 
 
-const generar_nuevos_datos = (data) => {    
+const generar_nuevos_datos = (data) => {
     cant_agua.innerText = `${data.cant_agua}L`
     cant_oxigeno.innerText = `${data.cant_oxigeno}%`
     cant_energia.innerText = `${data.cant_energia}W`
