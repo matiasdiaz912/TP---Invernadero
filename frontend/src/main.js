@@ -40,7 +40,7 @@ const reiniciarJuego = async () => {
     return data
 }
 
-const cargarCatalogo = (plantas, modulo, nivel) => {
+const cargarCatalogo = (especies, modulo, nivel) => {
     let planta_retornada = null
     const catalog = document.createElement("div");
     catalog.classList.add("catalog-window");
@@ -66,34 +66,34 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             activar_botones();
     })
     
-    plantas.forEach((planta) => {
-        const bloqueado = planta.nivel_requerido > nivelActual;
+    especies.forEach((especie) => {
+        const bloqueado = especie.nivel_requerido > nivelActual;
         const statusClass = bloqueado ? "locked" : "";
         const colorSvg = bloqueado
             ? 'stroke="#f97316" filter="none" opacity="0.4"'
             : "";
 
-        let card_planta = document.createElement("div")
-        card_planta.classList.add("plant-card");
-        card_planta.style.borderColor = bloqueado ? "#f97316" : "";
-        card_planta.innerHTML = `
-                        <div class="level-badge ${statusClass}">NVL ${planta.nivel_requerido}</div>
+        let card_especie = document.createElement("div")
+        card_especie.classList.add("plant-card");
+        card_especie.style.borderColor = bloqueado ? "#f97316" : "";
+        card_especie.innerHTML = `
+                        <div class="level-badge ${statusClass}">NVL ${especie.nivel_requerido}</div>
                         
                         <div class="plant-image-container">
                             <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                                ${planta.pathsvg}
+                                ${especie.pathsvg}
                             </svg>
                         </div>
                         
                         <div class="plant-info">
-                            <h3 class="plant-name" ${bloqueado ? 'style="color: #f97316;"' : ""}>${planta.nombre}</h3>
+                            <h3 class="plant-name" ${bloqueado ? 'style="color: #f97316;"' : ""}>${especie.nombre}</h3>
                             <div class="plant-stats">
-                                H2O: ${planta.agua_requerida} | O2: ${planta.oxigeno_requerido}
+                                H2O: ${especie.agua_requerida} | O2: ${especie.oxigeno_requerido}
                             </div>
                         </div>
                 `;
-        catalogGrid.appendChild(card_planta);
-        card_planta.addEventListener("click", () => {
+        catalogGrid.appendChild(card_especie);
+        card_especie.addEventListener("click", () => {
             catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion")
@@ -109,13 +109,13 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
                 <div class="plant-card-descripcion">
                     <div class="plant-image-container">
                         <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                            ${planta.pathsvg}
+                            ${especie.pathsvg}
                         </svg>
                     </div>
                     <div class="descripcion_planta">
-                        <h3>${planta.nombre}</h3>
-                        <h4>AGUA: ${planta.agua_requerida}</h4>
-                        <h4>OXIGENO: ${planta.oxigeno_requerido}</h4>
+                        <h3>${especie.nombre}</h3>
+                        <h4>AGUA: ${especie.agua_requerida}</h4>
+                        <h4>OXIGENO: ${especie.oxigeno_requerido}</h4>
                     </div>
                 </div>
 
@@ -145,12 +145,20 @@ const cargarCatalogo = (plantas, modulo, nivel) => {
             if (modulo == null || bloqueado) {
                 btn_sembrar.disabled = true
             }
+
             btn_sembrar.addEventListener("click", async () => {
-                let response = await fetch(`http://localhost:3000/modulos/${modulo.id}/${planta.id}`)
-                let msg = await response.json()
+                let response = await fetch(`http://localhost:3000/plantas/${especie.id}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(modulo)
+                })
+
                 if (response.ok) {
                     generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
                 } else {
+                    let msg = await response.json()
                     generar_logs(msg.error, "alerta")
                 }
             })
@@ -190,6 +198,7 @@ boton_avanzar_dia.addEventListener("click", async () => {
             setTimeout(() => {
                 main_view.classList.remove("resources-danger")
             }, 500)
+            generar_logs(`DIA ${data.dia_actual}: ALERTA! Recursos críticos. Agua: ${data.recursos.cant_agua}, Comida: ${data.recursos.cant_comida}, Oxígeno: ${data.recursos.cant_oxigeno}`, "alerta")
         }
 
         if (data.dia_actual == 1) {
@@ -206,6 +215,14 @@ boton_avanzar_dia.addEventListener("click", async () => {
                 else generar_logs(`DIA ${data.dia_actual}: ALERTA! ${evento.mensaje}`, "info")
             })
         }
+
+        data.plantas.forEach((planta) => {
+            if (planta.estado != "creciendo") {
+                let modulo = data.modulos.find((mod) => mod.id == planta.modulo_id)
+                generar_logs(`DIA ${data.dia_actual}: ALERTA! La planta "${planta.nombre}" del modulo "${modulo.nombre}" ha sido ${planta.estado}`, "alerta")
+            }
+        })
+
 
         if (data.estado == "victoria") {
             const banner_victoria = document.createElement("div")
@@ -461,7 +478,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     const [modulosRes, plantasRes, moduloPlantasRes] = await Promise.all([
         fetch(`http://localhost:3000/modulos/${modulo_id}`),
         fetch("http://localhost:3000/especies"),
-        fetch(`http://localhost:3000/modulos/${modulo_id}/plantas`)
+        fetch(`http://localhost:3000/plantas/${modulo_id}`)
     ])
 
     const modulo = await modulosRes.json()
@@ -523,8 +540,14 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                 btn_cosechar.addEventListener("click", async () => {
                     planta_sembrada.remove()
-                    let nivelActual = await fetch(`http://localhost:3000/modulos/${modulo.id}`, {
+                    let plantaActual = await fetch(`http://localhost:3000/plantas`, {
                         method: "PUT",
+                        body: JSON.stringify(planta),
+                        headers: { "Content-Type": "application/json" }
+                    })
+
+                    let nivelActual = await fetch(`http://localhost:3000/plantas`, {
+                        method: "DELETE",
                         body: JSON.stringify(planta),
                         headers: { "Content-Type": "application/json" }
                     })
@@ -532,11 +555,35 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                     contador_nivel.textContent = `NIVEL: [ ${nivelActual.nivel} ]`
                     
-                    let moduloPlantasActualizado = await fetch(`http://localhost:3000/modulos/${modulo_id}/plantas`)
+                    let moduloPlantasActualizado = await fetch(`http://localhost:3000/plantas/${modulo_id}`)
                     moduloPlantasActualizado = await moduloPlantasActualizado.json()
                     if (moduloPlantasActualizado.length === 0) {
                         lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
                     }
+
+                    generar_logs(`Planta ${planta.nombre} cosechada en "${modulo.nombre}"`, "info")
+                })
+            }else if (planta.estado == "perdida"){
+                const btn_desechar = document.createElement("button")
+                btn_desechar.innerHTML = "[ DESECHAR }"
+                btn_desechar.classList.add("btn-action")
+                planta_sembrada.appendChild(btn_desechar)
+
+                btn_desechar.addEventListener("click", async () =>{
+                    planta_sembrada.remove()
+                    await fetch(`http://localhost:3000/plantas`, {
+                        method: "DELETE",
+                        body: JSON.stringify(planta),
+                        headers: { "Content-Type": "application/json" }
+                    })
+
+                    let moduloPlantasActualizado = await fetch(`http://localhost:3000/plantas/${modulo_id}`)
+                    moduloPlantasActualizado = await moduloPlantasActualizado.json()
+                    if (moduloPlantasActualizado.length === 0) {
+                        lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
+                    }
+                    generar_logs(`Planta ${planta.nombre} desechada en "${modulo.nombre}"`, "alerta")
+
                 })
             }
             lista_plantas.appendChild(planta_sembrada)

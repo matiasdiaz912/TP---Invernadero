@@ -28,6 +28,7 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
+    command: node --watch server.js
     environment:
       DB_HOST: db
       DB_PORT: 5432

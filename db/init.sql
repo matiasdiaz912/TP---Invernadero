@@ -76,7 +76,7 @@ CREATE TABLE plantas (
     dias_transcurridos    INT NOT NULL,
     duracion              INT NOT NULL,
     estado                VARCHAR(30) DEFAULT 'creciendo'
-                          CHECK (estado IN ('creciendo', 'lista_para_cosechar', 'seca', 'perdida')),
+                          CHECK (estado IN ('creciendo', 'lista_para_cosechar', 'cosechada', 'seca', 'perdida')),
     porcentaje_agua       DECIMAL(5,2) DEFAULT 100,
     porcentaje_nutrientes DECIMAL(5,2) DEFAULT 100,
     porcentaje_energia    DECIMAL(5,2) DEFAULT 100
