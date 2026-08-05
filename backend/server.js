@@ -267,20 +267,6 @@ app.get("/avanzar-dia", async (req, res) => {
         }
     })
 
-    //     await pool.query(`
-//     UPDATE base_espacial 
-//     SET fertilizaciones_disponibles = fertilizaciones_disponibles + 
-//         CASE WHEN (dia_actual % 10) = 0 THEN 1 ELSE 0 END
-//     `)
-//     await pool.query(`
-//     UPDATE base_espacial 
-//     SET dias_restantes_bloqueo = GREATEST(dias_restantes_bloqueo - 1, 0),
-//         evento_bloqueado_id = CASE 
-//             WHEN dias_restantes_bloqueo <= 1 THEN NULL 
-//             ELSE evento_bloqueado_id 
-//         END
-// `)
-
     if (estado_juego.rows[0].tripulantes <= 0 || estado_juego.rows[0].dias_oxigeno_insuficiente == 3) { 
         estado_juego.rows[0].estado = "derrota"
     } else if (estado_juego.rows[0].dia_actual >= DIA_VICTORIA) {      

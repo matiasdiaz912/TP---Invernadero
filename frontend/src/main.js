@@ -241,10 +241,8 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
             let btn_reiniciar = document.getElementById("btn-reiniciar")
             btn_reiniciar.addEventListener("click", async () => {
-            const datos_iniciales = await reiniciarJuego()
-            for(const child of document.querySelector("footer").children) {
-                child.remove()
-            }
+                const datos_iniciales = await reiniciarJuego()
+                document.querySelector("footer").textContent = ""
                 banner_victoria.remove()
                 activar_botones()
                 generar_nuevos_datos(datos_iniciales)
@@ -324,11 +322,11 @@ const obtener_recursos = async () => {
 
 
 const generar_nuevos_datos = (data) => {    
-    cant_agua.innerText = data.cant_agua
-    cant_oxigeno.innerText = data.cant_oxigeno
-    cant_energia.innerText = data.cant_energia
-    cant_nutrientes.innerText = data.cant_nutrientes
-    cant_comida.innerText = data.cant_comida
+    cant_agua.innerText = `${data.cant_agua}L`
+    cant_oxigeno.innerText = `${data.cant_oxigeno}%`
+    cant_energia.innerText = `${data.cant_energia}W`
+    cant_nutrientes.innerText = `${data.cant_nutrientes}U`
+    cant_comida.innerText = `${data.cant_comida}kg`
     cant_tripulantes.innerText = `TRIPULACIÓN: [ ${data.tripulantes}/30 ]`
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
