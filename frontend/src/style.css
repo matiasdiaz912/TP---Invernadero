@@ -493,9 +493,13 @@ footer {
 
 .plant-card-descripcion {
   display: flex;
-  justify-content: center;
   gap: 20px;
 }
+
+.parrafo-detalles{
+  text-decoration: underline white;
+}
+
 
 .plant-card-descripcion-desactivada {
   border: #f97316 solid 2px;

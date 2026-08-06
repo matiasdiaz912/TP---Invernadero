@@ -119,15 +119,16 @@ const cargarCatalogo = (especies, modulo, nivel) => {
                             <h3>${especie.nombre}</h3>
                         </div>
                     </div>
+                    
                     <div class="descripcion_planta">
-                        <h3>REQUISITOS</h3>
+                        <h3 class="parrafo-detalles">REQUISITOS</h3>
                         <h4>AGUA: ${especie.agua_requerida}</h4>
                         <h4>OXIGENO: ${especie.oxigeno_requerido}</h4>
                         <h4>NUTRIENTES: ${especie.nutrientes_requeridos}</h4>
                         <h4>ENERGIA: ${especie.energia_requerida}</h4>
                     </div>
                     <div class="descripcion_planta">
-                        <h3>BENEFICIOS</h3>
+                        <h3 class="parrafo-detalles">BENEFICIOS</h3>
                         <h4>AGUA: ${especie.agua_generada}</h4>
                         <h4>OXIGENO: ${especie.oxigeno_generado}</h4>
                         <h4>NUTRIENTES: ${especie.nutrientes_generados}</h4>
@@ -336,11 +337,37 @@ const obtener_recursos = async () => {
 
 
 const generar_nuevos_datos = (data) => {
-    cant_agua.innerText = `${data.cant_agua}L`
-    cant_oxigeno.innerText = `${data.cant_oxigeno}%`
-    cant_energia.innerText = `${data.cant_energia}W`
-    cant_nutrientes.innerText = `${data.cant_nutrientes}U`
-    cant_comida.innerText = `${data.cant_comida}kg`
+    if(data.cant_agua < 0){
+        cant_agua.innerText = `0L`
+    }else{
+        cant_agua.innerText = `${data.cant_agua}L`
+    }
+
+    if(data.cant_comida < 0){
+        cant_comida.innerText = `0kg`
+    }else{
+        cant_comida.innerText = `${data.cant_comida}kg`
+    }
+
+    if(data.cant_energia < 0){
+        cant_energia.innerText = `0W`
+    }else{
+        cant_energia.innerText = `${data.cant_energia}W`
+    }
+
+    if(data.cant_nutrientes < 0){
+        cant_nutrientes.innerText = `0U`
+    }else{
+        cant_nutrientes.innerText = `${data.cant_nutrientes}U`
+    }
+
+    if(data.cant_oxigeno < 0){
+        cant_oxigeno.innerText = `0%`
+    }else{
+        cant_oxigeno.innerText = `${data.cant_oxigeno}%`
+    }
+    
+
     cant_tripulantes.innerText = `TRIPULACIÓN: [ ${data.tripulantes}/30 ]`
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
@@ -413,8 +440,11 @@ crear_modulo_button.addEventListener("click", async () => {
             generar_logs(`Módulo "${inputs[0].value}" creado correctamente`, "info")
             form_modulo.remove()
             activar_botones()
+            let recursos = await fetch(`http://localhost:3000/recursos`)
+            recursos = await recursos.json()
+            generar_nuevos_datos(recursos)
         } else {
-            generar_logs("No se pudo crear el módulo", "alerta")
+            generar_logs("No puedes crear un modulo nuevo hasta que subas de nivel", "alerta")
         }
     })
 
@@ -673,6 +703,9 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         }
         gestionar_recursos.remove()
         activar_botones()
+        let recursos = await fetch(`http://localhost:3000/recursos`)
+        recursos = await recursos.json()
+        generar_nuevos_datos(recursos)
     })
 })     
     let btn_sembrar = document.getElementById("btn-sembrar")

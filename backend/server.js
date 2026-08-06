@@ -106,6 +106,13 @@ app.put("/plantas", async (req, res) =>{
 app.post("/modulos", async (req, res) => {
     const modulo_resources = req.body
 
+    let modulos = await pool.query("SELECT * FROM modulos")
+    let estado_juego = await pool.query("SELECT * FROM base_espacial")
+    if(modulos.rows.length == estado_juego.rows[0].nivel){
+        res.status(404).json({msg:"No puedes crear mas modulos hasta que subas de nivel"})
+        return
+    }
+
     await pool.query("INSERT INTO modulos (nombre, nivel, cosechas, bloques_totales, bloques_ocupados, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
         [modulo_resources.nombre, 1, 0, 2, 0, modulo_resources.cant_agua, modulo_resources.cant_nutrientes, modulo_resources.cant_energia, modulo_resources.cant_oxigeno]
     )

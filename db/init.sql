@@ -50,7 +50,7 @@ INSERT INTO especies (
     estado, pathSvg, descripcion
 ) VALUES 
 (
-    'Alga Chlorella', 1, 1, 15,
+    'Alga Chlorella', 1, 1, 4,
     10, 0, 2, 5,
     0, 25, 0, 2,
     'inicial', 
@@ -58,7 +58,7 @@ INSERT INTO especies (
     'Microalga de crecimiento súper rápido. Excelente para estabilizar y purificar la atmósfera inicial del invernadero.'
 ),
 (
-    'Papa', 2, 1, 30,
+    'Papa', 2, 1, 5,
     15, 2, 8, 10,
     0, 5, 0, 35,
     'inicial', 
@@ -66,7 +66,7 @@ INSERT INTO especies (
     'El tubérculo de supervivencia por excelencia. Muy rica en calorías y carbohidratos para mantener a la tripulación.'
 ),
 (
-    'Lechuga Hidropónica', 1, 1, 20,
+    'Lechuga Hidropónica', 1, 1, 5,
     8, 1, 4, 4,
     0, 10, 5, 15,
     'inicial', 
@@ -74,7 +74,7 @@ INSERT INTO especies (
     'De ciclo corto y bajo costo energético. Recupera parte del agua de riego gracias a un sistema de transpiración eficiente.'
 ),
 (
-    'Tomate Cherry', 2, 2, 35,
+    'Tomate Cherry', 2, 2, 10,
     20, 3, 10, 15,
     0, 8, 5, 45,
     'inicial', 
@@ -82,7 +82,7 @@ INSERT INTO especies (
     'Cultivo en vertical que aporta grandes nutrientes y variedad a la dieta de la base a cambio de más riego y luz.'
 ),
 (
-    'Frutilla', 1, 2, 25,
+    'Frutilla', 1, 2, 9,
     12, 2, 6, 10,
     0, 12, 0, 25,
     'inicial', 
@@ -90,7 +90,7 @@ INSERT INTO especies (
     'Fruto pequeño de alta moral para los astronautas. Consume poca agua y tiene un tiempo de cosecha relativamente rápido.'
 ),
 (
-    'Trigo Enano', 2, 3, 60,
+    'Trigo Enano', 2, 3, 13,
     25, 5, 15, 30,
     5, 15, 0, 80,
     'inicial', 
@@ -98,7 +98,7 @@ INSERT INTO especies (
     'Cereal modificado de tallo corto para optimizar volumen. Base fundamental para producir harinas y reservas a largo plazo.'
 ),
 (
-    'Soja', 2, 3, 50,
+    'Soja', 2, 3, 15,
     18, 4, 0, 20,
     30, 15, 0, 50,
     'inicial', 
@@ -106,7 +106,7 @@ INSERT INTO especies (
     'Legumbre clave del invernadero: gracias a sus bacterias simbióticas fija nitrógeno y genera nutrientes para la tierra.'
 ),
 (
-    'Arroz Hidropónico', 3, 4, 80,
+    'Arroz Hidropónico', 3, 4, 20,
     45, 8, 20, 35,
     10, 45, 30, 95,
     'inicial', 
