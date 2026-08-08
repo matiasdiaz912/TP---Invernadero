@@ -757,3 +757,16 @@ footer {
   text-decoration: none;
   text-align: center;
 }
+
+.video-final-container{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+.recursos-usados{
+  color: var(--neon-alert);
+  font-weight: bold;
+  font-size: 0.8rem;
+}

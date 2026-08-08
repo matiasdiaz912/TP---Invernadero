@@ -60,7 +60,7 @@ app.post("/plantas/:especieId", async (req, res) => {
     const especie = await pool.query("SELECT * FROM especies WHERE id = $1", [especieId])
     const plantasModulo = await pool.query("SELECT * FROM plantas WHERE modulo_id = $1", [moduloBody.id])
 
-    if (moduloBody.bloques_totales == plantasModulo.rows.length) return res.status(404).json({ error: "Modulo a su capacidad maxima" })
+    if (moduloBody.bloques_totales == plantasModulo.rows.length || especie.rows[0].tamanio > moduloBody.bloques_totales - plantasModulo.rows.length) return res.status(404).json({ error: "Modulo a su capacidad maxima" })
     await pool.query("INSERT INTO plantas (nombre, modulo_id, especie_id, dias_transcurridos, duracion, estado, porcentaje_agua, porcentaje_nutrientes, porcentaje_energia) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
         [especie.rows[0].nombre, moduloBody.id, especie.rows[0].id, 0, especie.rows[0].duracion, "creciendo", 100, 100, 100]
     )
@@ -222,7 +222,6 @@ app.get("/avanzar-dia", async (req, res) => {
                 estado_juego.rows[0].tripulantes--
             }
         }
-        
     }
     
     if (estado_juego.rows[0].cant_agua < 50 && estado_juego.rows[0].cant_agua > 0){
@@ -247,16 +246,19 @@ app.get("/avanzar-dia", async (req, res) => {
         estado_juego.rows[0].dias_oxigeno_insuficiente++
     }
 
+    estado_juego.rows[0].agua_usada_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.2)
+    estado_juego.rows[0].nutrientes_usados_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.1)
+    estado_juego.rows[0].energia_usada_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.1)
+    estado_juego.rows[0].oxigeno_usado_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.2)
+    estado_juego.rows[0].comida_usada_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.1)
 
-
-    estado_juego.rows[0].cant_comida -= Math.round(estado_juego.rows[0].tripulantes * 0.1)
-    estado_juego.rows[0].cant_agua -= Math.round(estado_juego.rows[0].tripulantes * 0.2)
-    estado_juego.rows[0].cant_oxigeno -= Math.round(estado_juego.rows[0].tripulantes * 0.2)
-    if (estado_juego.rows[0].cant_comida < 0) estado_juego.rows[0].cant_comida = 0
+    estado_juego.rows[0].cant_comida -= estado_juego.rows[0].comida_usada_por_dia
+    estado_juego.rows[0].cant_agua -= estado_juego.rows[0].agua_usada_por_dia
+    estado_juego.rows[0].cant_oxigeno -= estado_juego.rows[0].oxigeno_usado_por_dia
     if (estado_juego.rows[0].cant_agua < 0) estado_juego.rows[0].cant_agua = 0
 
-    await pool.query("UPDATE base_espacial SET dia_actual = dia_actual + 1, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, dias_comida_insuficiente = $6, dias_agua_insuficiente = $7, dias_oxigeno_insuficiente = $8, tripulantes = $9",
-        [estado_juego.rows[0].cant_agua, estado_juego.rows[0].cant_nutrientes, estado_juego.rows[0].cant_energia, estado_juego.rows[0].cant_oxigeno, estado_juego.rows[0].cant_comida, estado_juego.rows[0].dias_comida_insuficiente, estado_juego.rows[0].dias_agua_insuficiente, estado_juego.rows[0].dias_oxigeno_insuficiente, estado_juego.rows[0].tripulantes]
+    await pool.query("UPDATE base_espacial SET dia_actual = dia_actual + 1, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, dias_comida_insuficiente = $6, dias_agua_insuficiente = $7, dias_oxigeno_insuficiente = $8, tripulantes = $9, agua_usada_por_dia = $10, nutrientes_usados_por_dia = $11, energia_usada_por_dia = $12, oxigeno_usado_por_dia = $13, comida_usada_por_dia = $14 WHERE id = 1",
+        [estado_juego.rows[0].cant_agua, estado_juego.rows[0].cant_nutrientes, estado_juego.rows[0].cant_energia, estado_juego.rows[0].cant_oxigeno, estado_juego.rows[0].cant_comida, estado_juego.rows[0].dias_comida_insuficiente, estado_juego.rows[0].dias_agua_insuficiente, estado_juego.rows[0].dias_oxigeno_insuficiente, estado_juego.rows[0].tripulantes, estado_juego.rows[0].agua_usada_por_dia, estado_juego.rows[0].nutrientes_usados_por_dia, estado_juego.rows[0].energia_usada_por_dia, estado_juego.rows[0].oxigeno_usado_por_dia, estado_juego.rows[0].comida_usada_por_dia]
     )
 
 
@@ -264,6 +266,7 @@ app.get("/avanzar-dia", async (req, res) => {
     plantas.rows.forEach(async (planta) => {
         const especie = await pool.query("SELECT * FROM especies WHERE id = $1", [planta.especie_id])
         const modulo = await pool.query("SELECT * FROM modulos WHERE id = $1", [planta.modulo_id])
+
         if(modulo.rows[0].cant_agua > 0 && modulo.rows[0].cant_nutrientes > 0 && modulo.rows[0].cant_energia > 0 && modulo.rows[0].cant_oxigeno > 0){
             await pool.query("UPDATE modulos SET cant_agua = cant_agua - $1, cant_nutrientes = cant_nutrientes - $2, cant_energia = cant_energia - $3, cant_oxigeno = cant_oxigeno - $4 WHERE id = $5",
             [especie.rows[0].agua_requerida, especie.rows[0].nutrientes_requeridos, especie.rows[0].energia_requerida, especie.rows[0].oxigeno_requerido, planta.modulo_id]
@@ -271,6 +274,10 @@ app.get("/avanzar-dia", async (req, res) => {
             await pool.query("UPDATE plantas SET dias_transcurridos = dias_transcurridos + 1 WHERE id = $1", [planta.id])
         }else{
             await pool.query("UPDATE plantas SET estado = 'perdida' WHERE id = $1", [planta.id])
+        }
+
+        if(planta.dias_transcurridos + 2 == planta.duracion){
+            await pool.query("UPDATE plantas SET estado = 'lista_para_cosechar' WHERE id = $1", [planta.id])
         }
     })
 
@@ -282,12 +289,9 @@ app.get("/avanzar-dia", async (req, res) => {
 
 
     res.status(200).json({
-        dia_actual: estado_juego.rows[0].dia_actual,
-        estado: estado_juego.rows[0].estado,
-        recursos: estado_juego.rows[0],
+        estado_base: estado_juego.rows[0],
         modulos: modulos.rows,
         eventos: [],
-        tripulantes: estado_juego.rows[0].tripulantes,
         plantas: plantas.rows
     })
 })
@@ -323,13 +327,17 @@ const generarEventoAleatorio = async () => {
 }
     
 async function actualizarRecursos(especie) {
+    console.log(especie.rows[0]);
+    
     const RECURSOS = await pool.query("SELECT * FROM base_espacial")
-    // Solo el golpe de cosecha; el goteo diario ya lo sumo el tick.
     RECURSOS.rows[0].cant_agua += especie.rows[0].agua_generada
     RECURSOS.rows[0].cant_comida += especie.rows[0].comida_generada
-    await pool.query("UPDATE base_espacial SET cant_agua = $1, cant_comida = $2 WHERE id = 1",
-        [RECURSOS.rows[0].cant_agua, RECURSOS.rows[0].cant_comida]
-    )
+    RECURSOS.rows[0].cant_nutrientes += especie.rows[0].nutrientes_generados
+    // RECURSOS.rows[0].cant_energia += especie.rows[0].energia_generada
+    RECURSOS.rows[0].cant_oxigeno += especie.rows[0].oxigeno_generado
+    await pool.query("UPDATE base_espacial SET cant_agua = $1, cant_comida = $2, cant_nutrientes = $3, cant_oxigeno = $4 WHERE id = 1",
+            [RECURSOS.rows[0].cant_agua, RECURSOS.rows[0].cant_comida, RECURSOS.rows[0].cant_nutrientes, RECURSOS.rows[0].cant_oxigeno]
+        )
 }
 
 
@@ -450,46 +458,6 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
 
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
 })
-
-// app.post("/especies/:id/adquirir", (req, res) => {
-//     const especie = ESPECIES.find(e => e.id == req.params.id)
-//     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-//     especie.adquirida = true
-//     res.status(200).json(especie)
-// })
-
-// Eliminar especie del catálogo
-// app.delete("/especies/:id", (req, res) => {
-//     const especie = ESPECIES.find(e => e.id == req.params.id)
-//     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-//     especie.adquirida = false
-//     res.status(200).json({ msg: `${especie.nombre} eliminada del catálogo` })
-// })
-
-// app.post("/especies/:id/fertilizar", async (req, res) => {
-//     const estado = await pool.query("SELECT * FROM base_espacial")
-//     if (estado.rows[0].fertilizaciones_disponibles <= 0) {
-//         return res.status(400).json({ error: "No tenés fertilizaciones disponibles" })
-//     }
-//     const especie = ESPECIES.find(e => e.id == req.params.id)
-//     if (!especie) return res.status(404).json({ error: "Especie no encontrada" })
-//     if (!especie.adquirida) return res.status(400).json({ error: "No podés fertilizar una especie no adquirida" })
-
-//     const { propiedad } = req.body
-//     const propiedades_validas = ['comida_por_dia', 'agua_cosecha', 'comida_cosecha', 'oxigeno_por_dia']
-//     if (!propiedades_validas.includes(propiedad)) {
-//         return res.status(400).json({ error: "Propiedad no válida para fertilizar" })
-//     }
-
-//     especie[propiedad] += 1
-//     await pool.query("UPDATE base_espacial SET fertilizaciones_disponibles = fertilizaciones_disponibles - 1")
-
-//     res.status(200).json({ 
-//         msg: `${especie.nombre} fertilizada. ${propiedad} aumentó a ${especie[propiedad]}`,
-//         fertilizaciones_disponibles: estado.rows[0].fertilizaciones_disponibles - 1,
-//         especie
-//     })
-// })
 
 
 app.listen(3000, () => {

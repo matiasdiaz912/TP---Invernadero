@@ -52,7 +52,9 @@ const cargarCatalogo = (especies, modulo, nivel) => {
     catalog.innerHTML = `
                     <div class="catalog-header">
                         <h2>> CATÁLOGO DE SEMILLAS</h2>
-                        <button id="btn-close-catalog" class="btn-action">[ CERRAR ]</button>
+                        <div>
+                            <button id="btn-close-catalog" class="btn-action">[ CERRAR ]</button>
+                        </div>
                     </div>
             
                     <div class="plant-grid" id="catalog-grid">
@@ -69,7 +71,8 @@ const cargarCatalogo = (especies, modulo, nivel) => {
             catalog.remove();
             activar_botones();
     })
-    
+
+
     especies.forEach((especie) => {
         const bloqueado = especie.nivel_requerido > nivelActual;
         const statusClass = bloqueado ? "locked" : "";
@@ -122,17 +125,21 @@ const cargarCatalogo = (especies, modulo, nivel) => {
                     
                     <div class="descripcion_planta">
                         <h3 class="parrafo-detalles">REQUISITOS</h3>
-                        <h4>AGUA: ${especie.agua_requerida}</h4>
-                        <h4>OXIGENO: ${especie.oxigeno_requerido}</h4>
-                        <h4>NUTRIENTES: ${especie.nutrientes_requeridos}</h4>
-                        <h4>ENERGIA: ${especie.energia_requerida}</h4>
+                        <h4>AGUA: ${especie.agua_requerida}L / d</h4>
+                        <h4>OXIGENO: ${especie.oxigeno_requerido}% / d</h4>
+                        <h4>NUTRIENTES: ${especie.nutrientes_requeridos}U / d</h4>
+                        <h4>ENERGIA: ${especie.energia_requerida}W / d</h4>
                     </div>
                     <div class="descripcion_planta">
                         <h3 class="parrafo-detalles">BENEFICIOS</h3>
-                        <h4>AGUA: ${especie.agua_generada}</h4>
-                        <h4>OXIGENO: ${especie.oxigeno_generado}</h4>
-                        <h4>NUTRIENTES: ${especie.nutrientes_generados}</h4>
-                        <h4>ENERGIA: ${especie.comida_generada}</h4>
+                        <h4>AGUA: ${especie.agua_generada}L</h4>
+                        <h4>OXIGENO: ${especie.oxigeno_generado}%</h4>
+                        <h4>NUTRIENTES: ${especie.nutrientes_generados}U</h4>
+                        <h4>ENERGIA: ${especie.comida_generada}W</h4>
+                    </div>
+                     <div class="descripcion_planta">
+                        <p>Tiempo de sembrado: ${especie.duracion} días</p>
+                        <p>Tamaño: ${especie.tamanio}</p>
                     </div>
                 </div>
                 
@@ -212,50 +219,67 @@ boton_avanzar_dia.addEventListener("click", async () => {
         const response = await fetch("http://localhost:3000/avanzar-dia")
         const data = await response.json()
 
-        if (data.recursos.cant_agua < 50 || data.recursos.cant_comida < 60 || data.recursos.cant_oxigeno == 0) {
+
+
+        if (data.estado_base.cant_agua < 50 || data.estado_base.cant_comida < 60 || data.estado_base.cant_oxigeno == 0) {
             main_view.classList.add("resources-danger")
             setTimeout(() => {
                 main_view.classList.remove("resources-danger")
             }, 500)
-            generar_logs(`DIA ${data.dia_actual}: ALERTA! Recursos críticos. Agua: ${data.recursos.cant_agua}, Comida: ${data.recursos.cant_comida}, Oxígeno: ${data.recursos.cant_oxigeno}`, "alerta")
+            generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! Recursos críticos. Agua: ${data.estado_base.cant_agua}, Comida: ${data.estado_base.cant_comida}, Oxígeno: ${data.estado_base.cant_oxigeno}`, "alerta")
         }
 
-        if (data.dia_actual == 0) {
+        if (data.estado_base.dia_actual == 0) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
 
-        if (data.dia_actual % 10 == 0 && data.dia_actual != 0) {
+        if (data.estado_base.dia_actual % 10 == 0 && data.estado_base.dia_actual != 0) {
             await generar_evento()
         }
 
         if (data.eventos.length != 0) {
             data.eventos.forEach((evento) => {
-                if (evento.tipo == "alerta") generar_logs(`DIA ${data.dia_actual}: ALERTA! ${evento.mensaje}`, "alerta")
-                else generar_logs(`DIA ${data.dia_actual}: ALERTA! ${evento.mensaje}`, "info")
+                if (evento.tipo == "alerta") generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! ${evento.mensaje}`, "alerta")
+                else generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! ${evento.mensaje}`, "info")
             })
         }
 
         data.plantas.forEach((planta) => {
-            if (planta.estado != "creciendo") {
+            if (planta.estado == "perdida") {
                 let modulo = data.modulos.find((mod) => mod.id == planta.modulo_id)
-                generar_logs(`DIA ${data.dia_actual}: ALERTA! La planta "${planta.nombre}" del modulo "${modulo.nombre}" ha sido ${planta.estado}`, "alerta")
+                generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! La planta "${planta.nombre}" del modulo "${modulo.nombre}" ha sido ${planta.estado}`, "alerta")
+            }else if(planta.estado == "lista_para_cosechar"){
+                let modulo = data.modulos.find((mod) => mod.id == planta.modulo_id)
+                generar_logs(`DIA ${data.estado_base.dia_actual}: INFO! La planta "${planta.nombre}" del modulo "${modulo.nombre}" está lista para cosechar`, "info")
             }
         })
 
 
-        if (data.estado == "victoria") {
+        if (data.estado_base.estado == "victoria") {
+            const video_final = document.createElement("div")
+            video_final.classList.add("video-final-container")
+            video_final.innerHTML = `
+                <video width="100%" height="100%" id="video_final" autoplay muted class="video-final">
+                    <source src="final_victoria.mp4" type="video/mp4">
+                </video>
+            `
+            desactivar_botones()
+            contador_encendido = false
             const banner_victoria = document.createElement("div")
             banner_victoria.classList.add("banner-juego-finalizado")
             banner_victoria.innerHTML = `
                 <h1>FELICIDADES, LOGRASTE SALVAR A LA CIVILIZACION</h1>
                 <button id="btn-reiniciar" class="btn-action">JUGAR DE NUEVO</button>
             `
-            main_view.appendChild(banner_victoria)
-            desactivar_botones()
-            contador_encendido = false
 
-            let btn_reiniciar = document.getElementById("btn-reiniciar")
-            btn_reiniciar.addEventListener("click", async () => {
+            document.querySelector("body").appendChild(video_final)
+            const video_final_ganador = document.getElementById("video_final")
+            video_final_ganador.addEventListener("ended", () => {
+                video_final.remove()
+                main_view.appendChild(banner_victoria)
+
+                let btn_reiniciar = document.getElementById("btn-reiniciar")
+                btn_reiniciar.addEventListener("click", async () => {
                 const datos_iniciales = await reiniciarJuego()
                 document.querySelector("footer").textContent = ""
                 banner_victoria.remove()
@@ -263,7 +287,9 @@ boton_avanzar_dia.addEventListener("click", async () => {
                 generar_nuevos_datos(datos_iniciales)
                 boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
             })
-        } else if (data.estado == "derrota") {
+            })
+
+        } else if (data.estado_base.estado == "derrota") {
             const banner_derrota = document.createElement("div")
             banner_derrota.classList.add("banner-juego-finalizado", "banner-derrota")
             banner_derrota.innerHTML = `
@@ -285,8 +311,8 @@ boton_avanzar_dia.addEventListener("click", async () => {
             })
 
         }else{
-            data.recursos.dia_actual += 1
-            generar_nuevos_datos(data.recursos)
+            data.estado_base.dia_actual += 1
+            generar_nuevos_datos(data.estado_base)
         }
 
     }, 1000)
@@ -338,36 +364,43 @@ const obtener_recursos = async () => {
 
 const generar_nuevos_datos = (data) => {
     if(data.cant_agua < 0){
-        cant_agua.innerText = `0L`
+        cant_agua.innerHTML = `<span>0L   </span>`
     }else{
-        cant_agua.innerText = `${data.cant_agua}L`
+        cant_agua.innerHTML = `<span>${data.cant_agua}L   </span>`
     }
 
     if(data.cant_comida < 0){
-        cant_comida.innerText = `0kg`
+        cant_comida.innerHTML = `<span>0kg   </span>`
     }else{
-        cant_comida.innerText = `${data.cant_comida}kg`
+        cant_comida.innerHTML = `<span>${data.cant_comida}kg   </span>`
     }
 
     if(data.cant_energia < 0){
-        cant_energia.innerText = `0W`
+        cant_energia.innerHTML = `<span>0W   </span>`
     }else{
-        cant_energia.innerText = `${data.cant_energia}W`
+        cant_energia.innerHTML = `<span>${data.cant_energia}W   </span>`
     }
 
     if(data.cant_nutrientes < 0){
-        cant_nutrientes.innerText = `0U`
+        cant_nutrientes.innerHTML = `<span>0U   </span>`
     }else{
-        cant_nutrientes.innerText = `${data.cant_nutrientes}U`
+        cant_nutrientes.innerHTML = `<span>${data.cant_nutrientes}U   </span>`
     }
 
     if(data.cant_oxigeno < 0){
-        cant_oxigeno.innerText = `0%`
+        cant_oxigeno.innerHTML = `<span>0%   </span>`
     }else{
-        cant_oxigeno.innerText = `${data.cant_oxigeno}%`
+        cant_oxigeno.innerHTML = `<span>${data.cant_oxigeno}%   </span>`
     }
     
-
+    if(data.agua_usada_por_dia && data.comida_usada_por_dia && data.energia_usada_por_dia && data.nutrientes_usados_por_dia && data.oxigeno_usado_por_dia){
+        cant_agua.innerHTML += ` <span class="recursos-usados">[ - ${data.agua_usada_por_dia}L/día ]</span>`
+        cant_comida.innerHTML += ` <span class="recursos-usados">[ - ${data.comida_usada_por_dia}kg/día ]</span>`
+        cant_energia.innerHTML += ` <span class="recursos-usados">[ - ${data.energia_usada_por_dia}W/día ]</span>`
+        cant_nutrientes.innerHTML += `<span class="recursos-usados">[ - ${data.nutrientes_usados_por_dia}U/día ]</span>`
+        cant_oxigeno.innerHTML += `<span class="recursos-usados">[ - ${data.oxigeno_usado_por_dia}%/día ]</span>`
+    }
+    contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
     cant_tripulantes.innerText = `TRIPULACIÓN: [ ${data.tripulantes}/30 ]`
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
@@ -394,19 +427,19 @@ crear_modulo_button.addEventListener("click", async () => {
             <input required id="nombre_modulo" class="input-nombre-modulo" type="text"></input>
             <label>Cantidad de agua suministrada:
                 <input value="${recursos.cant_agua}" id="input_agua" type="range" min="0" max="${recursos.cant_agua}"></input>
-                <p>${recursos.cant_agua}</p>
+                <p>${recursos.cant_agua}</p><span>L</span>
             </label>
             <label>Cantidad de oxígeno suministrado:
                 <input value="${recursos.cant_oxigeno}" id="input_oxigeno" type="range" min="0" max="${recursos.cant_oxigeno}"></input>
-                <p>${recursos.cant_oxigeno}</p>
+                <p>${recursos.cant_oxigeno}</p><span>%</span>
             </label>
             <label>Cantidad de energía suministrada:
                 <input value="${recursos.cant_energia}" id="input_energia" type="range" min="0" max="${recursos.cant_energia}"></input>
-                <p>${recursos.cant_energia}</p>
+                <p>${recursos.cant_energia}</p><span>W</span>
             </label>
             <label>Cantidad de nutrientes suministrados:
                 <input value="${recursos.cant_nutrientes}" id="input_nutrientes" type="range" min="0" max="${recursos.cant_nutrientes}"></input>
-                <p>${recursos.cant_nutrientes}</p>
+                <p>${recursos.cant_nutrientes}</p><span>U</span>
             </label>
             <button class="btn-action crear-modulo-boton" type="submit">CREAR MÓDULO</button>
         </form>
@@ -549,10 +582,10 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         </div>
         <div class="module-details">
             <p><strong>Nombre:</strong> ${modulo.nombre}</p>
-            <p><strong>Agua:</strong> ${modulo.cant_agua}</p>
-            <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}</p>
-            <p><strong>Energía:</strong> ${modulo.cant_energia}</p>
-            <p><strong>Nutrientes:</strong> ${modulo.cant_nutrientes}</p>
+            <p><strong>Agua:</strong> ${modulo.cant_agua}L</p>
+            <p><strong>Oxígeno:</strong> ${modulo.cant_oxigeno}%</p>
+            <p><strong>Energía:</strong> ${modulo.cant_energia}W</p>
+            <p><strong>Nutrientes:</strong> ${modulo.cant_nutrientes}U</p>
             <p><strong>NIVEL:</strong>${modulo.nivel}</p>
         </div>
         <div class="module-plantas">
@@ -591,7 +624,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
                         body: JSON.stringify(planta),
                         headers: { "Content-Type": "application/json" }
                     })
-
+                    
                     let nivelActual = await fetch(`http://localhost:3000/plantas`, {
                         method: "DELETE",
                         body: JSON.stringify(planta),
@@ -646,7 +679,10 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     gestionar_recursos.innerHTML = `
         <div class="catalog-header">
             <h2>> GESTIONAR RECURSOS</h2>
-            <button id="btn-close-gestionar" class="btn-action">[ CERRAR ]</button>
+            <div>
+                <button id="btn-back-gestionar" class="btn-action">[ VOLVER ATRAS ]</button>
+                <button id="btn-close-gestionar" class="btn-action">[ CERRAR ]</button>
+            </div>
         </div>
         <form class="gestionar-recursos" id="gestionar-recursos-form">
             <label>Cantidad de agua:
@@ -673,6 +709,11 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     document.getElementById("btn-close-gestionar").addEventListener("click", () => {
         gestionar_recursos.remove()
         activar_botones()
+    })
+
+    document.getElementById("btn-back-gestionar").addEventListener("click", () => {
+        gestionar_recursos.remove()
+        main_view.appendChild(modulo_detalles)
     })
 
     document.getElementById("gestionar-recursos-form").querySelectorAll("input[type='range']").forEach((input) => {
@@ -734,8 +775,11 @@ btn_renombrar_modulo.addEventListener("click", () => {
     renombrar_window.classList.add("catalog-window")
     renombrar_window.innerHTML = `
         <div class="catalog-header">
-            <h2>> RENOMBRAR MÓDULO</h2>
-            <button id="btn-close-renombrar" class="btn-action">[ CERRAR ]</button>
+            <h2>> RENOMBRAR MÓDULO </h2>
+            <div>
+                <button id="btn-back-renombrar" class="btn-action">[ VOLVER ATRAS ]</button>
+                <button id="btn-close-renombrar" class="btn-action">[ CERRAR ]</button>
+            </div>
         </div>
         <div class="gestionar-recursos">
             <label>NOMBRE ACTUAL: ${modulo.nombre}</label>
@@ -748,6 +792,11 @@ btn_renombrar_modulo.addEventListener("click", () => {
     document.getElementById("btn-close-renombrar").addEventListener("click", () => {
         renombrar_window.remove()
         activar_botones()
+    })
+
+    document.getElementById("btn-back-renombrar").addEventListener("click", () => {
+        renombrar_window.remove()
+        main_view.appendChild(modulo_detalles)
     })
 
     document.getElementById("btn-confirmar-nombre").addEventListener("click", async () => {
