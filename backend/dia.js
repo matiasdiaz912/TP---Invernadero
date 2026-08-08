@@ -1,4 +1,4 @@
-import { ESPECIES, SALUD, MODULO, PLANTA } from './constantes.js'
+import { SALUD, MODULO, PLANTA } from './constantes.js'
 
 const VIVA = ["creciendo", "lista_para_cosechar"]
 
