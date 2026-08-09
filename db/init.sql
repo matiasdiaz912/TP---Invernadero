@@ -1,11 +1,11 @@
 CREATE TABLE base_espacial (
     id               SERIAL PRIMARY KEY,
-    dia_actual       INT DEFAULT 1,
+    dia_actual       INT DEFAULT 0,
     nivel            INT DEFAULT 1,
-    cant_agua        INT DEFAULT 100,
+    cant_agua        INT DEFAULT 150,
     cant_nutrientes  INT DEFAULT 100,
-    cant_energia     INT DEFAULT 80,
-    cant_oxigeno     INT DEFAULT 80,
+    cant_energia     INT DEFAULT 120,
+    cant_oxigeno     INT DEFAULT 80 CHECK (cant_oxigeno <= 100),
     cant_comida      INT DEFAULT 100,
     total_cosechas   INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'en_curso'
@@ -26,7 +26,7 @@ CREATE TABLE base_espacial (
 );
 
 INSERT INTO base_espacial (dia_actual, nivel, cant_agua, cant_nutrientes, cant_energia, cant_oxigeno, cant_comida, total_cosechas, estado, tripulantes, evento_bloqueado_id, dias_restantes_bloqueo, eventos_creados)
-VALUES (1, 1, 100, 100, 80, 80, 100, 0, 'en_curso', 30, NULL, 0, 0);
+VALUES (0, 1, 150, 100, 120, 80, 100, 0, 'en_curso', 30, NULL, 0, 0);
 
 CREATE TABLE especies (
     id                    SERIAL PRIMARY KEY,
@@ -55,7 +55,7 @@ INSERT INTO especies (
 ) VALUES 
 (
     'Alga Chlorella', 1, 1, 4,
-    3, 2, 2, 1,
+    2, 2, 2, 1,
     8, 25, 15, 10,
     'inicial', 
     '<circle cx="50" cy="50" r="38" fill="#1b4332"/><circle cx="45" cy="45" r="28" fill="#2d6a4f"/><path d="M40 70 C25 55 30 30 50 20 C70 30 75 55 60 70 Z" fill="#40916c" opacity="0.8"/><circle cx="40" cy="35" r="5" fill="#74c69d"/><circle cx="62" cy="55" r="4" fill="#95d5b2"/>',
@@ -63,7 +63,7 @@ INSERT INTO especies (
 ),
 (
     'Papa', 2, 1, 5,
-    3, 2, 3, 1,
+    2, 2, 3, 1,
     12, 5, 15, 35,
     'inicial', 
     '<path d="M50 50 Q45 20 30 15 Q45 20 40 35 Q50 20 60 10 Q55 25 50 50 Z" fill="#2e8b57"/><ellipse cx="50" cy="70" rx="26" ry="18" fill="#a0522d"/><ellipse cx="38" cy="65" rx="3" ry="2" fill="#693010"/><ellipse cx="62" cy="74" rx="4" ry="2" fill="#693010"/><ellipse cx="48" cy="78" rx="3" ry="1.5" fill="#693010"/>',
@@ -87,7 +87,7 @@ INSERT INTO especies (
 ),
 (
     'Frutilla', 1, 2, 9,
-    12, 2, 6, 10,
+    7, 2, 6, 10,
     0, 12, 0, 25,
     'inicial', 
     '<path d="M50 25 Q30 25 28 45 Q26 75 50 88 Q74 75 72 45 Q70 25 50 25 Z" fill="#e63946"/><path d="M50 25 L35 18 M50 25 L50 12 M50 25 L65 18" stroke="#2a9d8f" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="45" r="1.5" fill="#ffd166"/><circle cx="60" cy="45" r="1.5" fill="#ffd166"/><circle cx="50" cy="60" r="1.5" fill="#ffd166"/><circle cx="42" cy="70" r="1.5" fill="#ffd166"/><circle cx="58" cy="68" r="1.5" fill="#ffd166"/>',
@@ -95,7 +95,7 @@ INSERT INTO especies (
 ),
 (
     'Trigo Enano', 2, 3, 13,
-    25, 5, 15, 30,
+    8, 5, 15, 30,
     5, 15, 0, 80,
     'inicial', 
     '<line x1="50" y1="90" x2="50" y2="15" stroke="#d4a373" stroke-width="4"/><ellipse cx="42" cy="30" rx="6" ry="12" fill="#ffd166" transform="rotate(-15 42 30)"/><ellipse cx="58" cy="40" rx="6" ry="12" fill="#ffd166" transform="rotate(15 58 40)"/><ellipse cx="42" cy="50" rx="6" ry="12" fill="#ffd166" transform="rotate(-15 42 50)"/><ellipse cx="58" cy="60" rx="6" ry="12" fill="#ffd166" transform="rotate(15 58 60)"/><ellipse cx="50" cy="18" rx="5" ry="10" fill="#ffb703"/>',
@@ -103,7 +103,7 @@ INSERT INTO especies (
 ),
 (
     'Soja', 2, 3, 15,
-    18, 4, 0, 20,
+    12, 4, 0, 20,
     30, 15, 0, 50,
     'inicial', 
     '<path d="M50 90 L50 20" stroke="#52796f" stroke-width="4"/><path d="M50 40 C30 40 25 60 50 65 Z" fill="#84a98c"/><path d="M50 55 C70 55 75 75 50 80 Z" fill="#52796f"/><circle cx="38" cy="51" r="4" fill="#cad2c5"/><circle cx="45" cy="54" r="4" fill="#cad2c5"/><circle cx="55" cy="67" r="4" fill="#cad2c5"/><circle cx="62" cy="69" r="4" fill="#cad2c5"/>',
@@ -111,7 +111,7 @@ INSERT INTO especies (
 ),
 (
     'Arroz Hidropónico', 3, 4, 20,
-    45, 8, 20, 35,
+    18, 8, 20, 35,
     10, 45, 30, 95,
     'inicial', 
     '<rect x="20" y="75" width="60" height="15" rx="5" fill="#48cae4" opacity="0.5"/><path d="M50 80 L50 25 M50 60 L35 35 M50 65 L65 40" stroke="#588157" stroke-width="3" stroke-linecap="round"/><ellipse cx="46" cy="20" rx="3" ry="8" fill="#a3b18a" transform="rotate(-10 46 20)"/><ellipse cx="54" cy="22" rx="3" ry="8" fill="#a3b18a" transform="rotate(15 54 22)"/><ellipse cx="32" cy="32" rx="3" ry="8" fill="#a3b18a" transform="rotate(-20 32 32)"/><ellipse cx="68" cy="37" rx="3" ry="8" fill="#a3b18a" transform="rotate(20 68 37)"/>',
@@ -143,7 +143,7 @@ CREATE TABLE plantas (
     dias_transcurridos    INT NOT NULL,
     duracion              INT NOT NULL,
     estado                VARCHAR(30) DEFAULT 'creciendo'
-                          CHECK (estado IN ('creciendo', 'lista_para_cosechar', 'cosechada', 'seca', 'perdida')),
+                          CHECK (estado IN ('creciendo', 'lista', 'cosechada', 'seca', 'perdida')),
     porcentaje_agua       DECIMAL(5,2) DEFAULT 100,
     porcentaje_nutrientes DECIMAL(5,2) DEFAULT 100,
     porcentaje_energia    DECIMAL(5,2) DEFAULT 100

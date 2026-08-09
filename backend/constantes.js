@@ -1,7 +1,7 @@
 export const RECURSOS_INICIALES = {
-    cant_agua: 100,
+    cant_agua: 150,
     cant_oxigeno: 80,
-    cant_energia: 80,
+    cant_energia: 120,
     cant_nutrientes: 100,
     cant_comida: 100,
 }

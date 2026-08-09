@@ -559,6 +559,10 @@ footer {
   align-items: center;
   font-size: 1em;
   gap: 30px;
+
+  & h2{
+    text-align: center;
+  }
 }
 
 /* Contenedor Principal del Panel de Estadísticas */
@@ -770,3 +774,4 @@ footer {
   font-weight: bold;
   font-size: 0.8rem;
 }
+

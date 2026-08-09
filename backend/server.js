@@ -51,6 +51,7 @@ app.get("/recursos", async (req, res) => {
     res.status(200).json(recursos.rows[0])
 })
 
+
 /////////////////////////////////////////////////// Plantas //////////////////////////////////////////////////////////////////////////
 
 app.post("/plantas/:especieId", async (req, res) => {
@@ -92,7 +93,7 @@ app.delete("/plantas", async (req, res) => {
     if (estado_juego.rows[0].total_cosechas % 10 == 0 && estado_juego.rows[0].total_cosechas != 0) {
         await pool.query("UPDATE base_espacial SET nivel = nivel + 1 WHERE id = 1")
     }
-    res.status(200).json({ nivel: estado_juego.rows[0].nivel })
+    res.status(200).json({ nivel: estado_juego.rows[0].nivel, recursos: estado_juego.rows[0] })
 })
 
 app.put("/plantas", async (req, res) =>{
@@ -137,9 +138,9 @@ app.get("/modulos/:moduloId", async (req, res) => {
 app.put("/modulos", async (req, res) => {
     let modulo = req.body
     const moduloDB = await pool.query("SELECT * FROM modulos WHERE id = $1", [modulo.id])
-    if (moduloDB.rows[0].cosechas - (10 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel) == 0) {
+    if (moduloDB.rows[0].cosechas - (5 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel) >= 0) {
         await pool.query("UPDATE modulos SET nivel = nivel + 1, bloques_totales = bloques_totales + 1 WHERE id = $1", [modulo.id])
-        return res.status(200).json({ msg: `El modulo ha sido mejorado al nivel ${moduloDB.rows[0].nivel} y ahora tiene capacidad para ${moduloDB.rows[0].bloques_totales} plantas`, type: "succes" })
+        return res.status(200).json({ msg: `El modulo ha sido mejorado al nivel ${moduloDB.rows[0].nivel + 1} y ahora tiene capacidad para ${moduloDB.rows[0].bloques_totales + 1} plantas`, type: "succes" })
     }
 
     res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${10 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel} de las ${moduloDB.rows[0].cosechas} cosechas actuales`, type: "error" })
@@ -199,100 +200,113 @@ app.delete("/modulos/:moduloId", async (req, res) => {
 
 //////////////////////////////////////////////////////// Juego General ////////////////////////////////////////////////////////////////
 app.get("/avanzar-dia", async (req, res) => {
-    const estado_juego = await pool.query("SELECT * FROM base_espacial")
-    const modulos = await pool.query("SELECT * FROM modulos")
+    let estado_juego = await pool.query("SELECT * FROM base_espacial")
+    let modulos = await pool.query("SELECT * FROM modulos")
+    let plantas = await pool.query("SELECT * FROM plantas")
+    estado_juego = estado_juego.rows[0]
     
-    // Modulos y plantas -> backend/dia.js
-    // let eventos_del_dia = procesarModulos(modulos.rows, RECURSOS)
 
     // Tripulacion, niveles y eventos
-    if (estado_juego.rows[0].cant_comida < 60 && estado_juego.rows[0].cant_comida > 0) {
-        estado_juego.rows[0].dias_comida_insuficiente++
-        if(estado_juego.rows[0].cant_comida < 60 && estado_juego.rows[0].cant_comida > 45){
-            if (estado_juego.rows[0].dias_comida_insuficiente > 7) {
-                estado_juego.rows[0].tripulantes--
+    if (estado_juego.cant_comida < 60 && estado_juego.cant_comida > 0) {
+        estado_juego.dias_comida_insuficiente++
+        if(estado_juego.cant_comida < 60 && estado_juego.cant_comida > 45){
+            if (estado_juego.dias_comida_insuficiente > 7) {
+                estado_juego.tripulantes--
             }
-        } else if(estado_juego.rows[0].cant_comida < 45 && estado_juego.rows[0].cant_comida > 30){
+        } else if(estado_juego.cant_comida < 45 && estado_juego.cant_comida > 30){
         
-            if (estado_juego.rows[0].dias_comida_insuficiente > 5) {
-                estado_juego.rows[0].tripulantes--
+            if (estado_juego.dias_comida_insuficiente > 5) {
+                estado_juego.tripulantes--
             }
-        } else if(estado_juego.rows[0].cant_comida < 30 && estado_juego.rows[0].cant_comida > 0){
-            if (estado_juego.rows[0].dias_comida_insuficiente > 3) {
-                estado_juego.rows[0].tripulantes--
-            }
-        }
-    }
-    
-    if (estado_juego.rows[0].cant_agua < 50 && estado_juego.rows[0].cant_agua > 0){
-        estado_juego.rows[0].dias_agua_insuficiente++
-        if(estado_juego.rows[0].cant_agua < 50 && estado_juego.rows[0].cant_agua > 30){
-            if (estado_juego.rows[0].dias_agua_insuficiente > 5) {
-                estado_juego.rows[0].tripulantes--
-            }
-        } else if (estado_juego.rows[0].cant_agua < 30 && estado_juego.rows[0].cant_agua > 15) {
-            if (estado_juego.rows[0].dias_agua_insuficiente > 5) {
-                estado_juego.rows[0].tripulantes -= 2
-            }
-        } else if (estado_juego.rows[0].cant_agua < 15 && estado_juego.rows[0].cant_agua >= 0) {
-            estado_juego.rows[0].dias_agua_insuficiente++
-            if (estado_juego.rows[0].dias_agua_insuficiente > 5) {
-                estado_juego.rows[0].tripulantes -= 3
+        } else if(estado_juego.cant_comida < 30 && estado_juego.cant_comida > 0){
+            if (estado_juego.dias_comida_insuficiente > 3) {
+                estado_juego.tripulantes--
             }
         }
     }
     
-    if(estado_juego.rows[0].cant_oxigeno <= 0){
-        estado_juego.rows[0].dias_oxigeno_insuficiente++
+    if (estado_juego.cant_agua < 50 && estado_juego.cant_agua > 0){
+        estado_juego.dias_agua_insuficiente++
+        if(estado_juego.cant_agua < 50 && estado_juego.cant_agua > 30){
+            if (estado_juego.dias_agua_insuficiente > 5) {
+                estado_juego.tripulantes--
+            }
+        } else if (estado_juego.cant_agua < 30 && estado_juego.cant_agua > 15) {
+            if (estado_juego.dias_agua_insuficiente > 5) {
+                estado_juego.tripulantes -= 2
+            }
+        } else if (estado_juego.cant_agua < 15 && estado_juego.cant_agua >= 0) {
+            estado_juego.dias_agua_insuficiente++
+            if (estado_juego.dias_agua_insuficiente > 5) {
+                estado_juego.tripulantes -= 3
+            }
+        }
+    }
+    
+    if(estado_juego.cant_oxigeno <= 0){
+        estado_juego.dias_oxigeno_insuficiente++
+        estado_juego.dias_oxigeno_insuficiente = Math.round(estado_juego.dias_oxigeno_insuficiente)
     }
 
-    estado_juego.rows[0].agua_usada_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.2)
-    estado_juego.rows[0].nutrientes_usados_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.1)
-    estado_juego.rows[0].energia_usada_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.1)
-    estado_juego.rows[0].oxigeno_usado_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.2)
-    estado_juego.rows[0].comida_usada_por_dia = Math.round(estado_juego.rows[0].tripulantes * 0.1)
+    
+    estado_juego.agua_usada_por_dia = Math.round(estado_juego.tripulantes * 0.2)
+    estado_juego.energia_usada_por_dia = Math.round(estado_juego.tripulantes * 0.1)
+    estado_juego.oxigeno_usado_por_dia = Math.round(estado_juego.tripulantes * 0.2)
+    estado_juego.comida_usada_por_dia = Math.round(estado_juego.tripulantes * 0.1)
 
-    estado_juego.rows[0].cant_comida -= estado_juego.rows[0].comida_usada_por_dia
-    estado_juego.rows[0].cant_agua -= estado_juego.rows[0].agua_usada_por_dia
-    estado_juego.rows[0].cant_oxigeno -= estado_juego.rows[0].oxigeno_usado_por_dia
-    if (estado_juego.rows[0].cant_agua < 0) estado_juego.rows[0].cant_agua = 0
+    estado_juego.cant_comida -= estado_juego.comida_usada_por_dia
+    estado_juego.cant_agua -= estado_juego.agua_usada_por_dia
+    estado_juego.cant_oxigeno -= estado_juego.oxigeno_usado_por_dia
+    if (estado_juego.cant_agua < 0) estado_juego.cant_agua = 0
+    if (estado_juego.cant_oxigeno < 0) estado_juego.cant_oxigeno = 0
+    if(estado_juego.cant_comida < 0) estado_juego.cant_comida = 0
 
-    await pool.query("UPDATE base_espacial SET dia_actual = dia_actual + 1, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, dias_comida_insuficiente = $6, dias_agua_insuficiente = $7, dias_oxigeno_insuficiente = $8, tripulantes = $9, agua_usada_por_dia = $10, nutrientes_usados_por_dia = $11, energia_usada_por_dia = $12, oxigeno_usado_por_dia = $13, comida_usada_por_dia = $14 WHERE id = 1",
-        [estado_juego.rows[0].cant_agua, estado_juego.rows[0].cant_nutrientes, estado_juego.rows[0].cant_energia, estado_juego.rows[0].cant_oxigeno, estado_juego.rows[0].cant_comida, estado_juego.rows[0].dias_comida_insuficiente, estado_juego.rows[0].dias_agua_insuficiente, estado_juego.rows[0].dias_oxigeno_insuficiente, estado_juego.rows[0].tripulantes, estado_juego.rows[0].agua_usada_por_dia, estado_juego.rows[0].nutrientes_usados_por_dia, estado_juego.rows[0].energia_usada_por_dia, estado_juego.rows[0].oxigeno_usado_por_dia, estado_juego.rows[0].comida_usada_por_dia]
+    await pool.query("UPDATE base_espacial SET dia_actual = dia_actual + 1, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, dias_comida_insuficiente = $6, dias_agua_insuficiente = $7, dias_oxigeno_insuficiente = $8, tripulantes = $9, agua_usada_por_dia = $10, energia_usada_por_dia = $11, oxigeno_usado_por_dia = $12, comida_usada_por_dia = $13 WHERE id = 1",
+        [estado_juego.cant_agua, estado_juego.cant_nutrientes, estado_juego.cant_energia, estado_juego.cant_oxigeno, estado_juego.cant_comida, estado_juego.dias_comida_insuficiente, estado_juego.dias_agua_insuficiente, estado_juego.dias_oxigeno_insuficiente, estado_juego.tripulantes, estado_juego.agua_usada_por_dia, estado_juego.energia_usada_por_dia, estado_juego.oxigeno_usado_por_dia, estado_juego.comida_usada_por_dia]
     )
 
 
-    let plantas = await pool.query("SELECT * FROM plantas")
-    plantas.rows.forEach(async (planta) => {
-        const especie = await pool.query("SELECT * FROM especies WHERE id = $1", [planta.especie_id])
-        const modulo = await pool.query("SELECT * FROM modulos WHERE id = $1", [planta.modulo_id])
-
-        if(modulo.rows[0].cant_agua > 0 && modulo.rows[0].cant_nutrientes > 0 && modulo.rows[0].cant_energia > 0 && modulo.rows[0].cant_oxigeno > 0){
+    
+    plantas.rows.forEach(async (planta, id) => {
+        let especie = await pool.query("SELECT * FROM especies WHERE id = $1", [planta.especie_id])
+        let modulo = await pool.query("SELECT * FROM modulos WHERE id = $1", [planta.modulo_id])
+        especie = especie.rows[0]
+        modulo = modulo.rows[0]
+        if(modulo.cant_agua > 0 && modulo.cant_nutrientes > 0 && modulo.cant_energia > 0 && modulo.cant_oxigeno > 0){
             await pool.query("UPDATE modulos SET cant_agua = cant_agua - $1, cant_nutrientes = cant_nutrientes - $2, cant_energia = cant_energia - $3, cant_oxigeno = cant_oxigeno - $4 WHERE id = $5",
-            [especie.rows[0].agua_requerida, especie.rows[0].nutrientes_requeridos, especie.rows[0].energia_requerida, especie.rows[0].oxigeno_requerido, planta.modulo_id]
+            [especie.agua_requerida, especie.nutrientes_requeridos, especie.energia_requerida, especie.oxigeno_requerido, planta.modulo_id]
             )
-            await pool.query("UPDATE plantas SET dias_transcurridos = dias_transcurridos + 1 WHERE id = $1", [planta.id])
+            if(planta.dias_transcurridos + 1 == planta.duracion){
+                await pool.query("UPDATE plantas SET dias_transcurridos = dias_transcurridos + 1, estado = 'lista' WHERE id = $1", [planta.id])
+            }else{
+                await pool.query("UPDATE plantas SET dias_transcurridos = dias_transcurridos + 1 WHERE id = $1", [planta.id])
+
+            }
         }else{
             await pool.query("UPDATE plantas SET estado = 'perdida' WHERE id = $1", [planta.id])
         }
-
-        if(planta.dias_transcurridos + 2 == planta.duracion){
-            await pool.query("UPDATE plantas SET estado = 'lista_para_cosechar' WHERE id = $1", [planta.id])
-        }
     })
-
-    if (estado_juego.rows[0].tripulantes <= 0 || estado_juego.rows[0].dias_oxigeno_insuficiente == 3) { 
-        estado_juego.rows[0].estado = "derrota"
-    } else if (estado_juego.rows[0].dia_actual >= DIA_VICTORIA) {      
-        estado_juego.rows[0].estado = "victoria"
+    
+    if (estado_juego.tripulantes <= 0 || estado_juego.dias_oxigeno_insuficiente == 3) { 
+        await pool.query("UPDATE base_espacial SET estado = $1", ["derrota"])
+    } else if (estado_juego.dia_actual >= DIA_VICTORIA) {      
+        await pool.query("UPDATE base_espacial SET estado = $1", ["victoria"])
     }
+    res.status(200).json([])
+})
 
-
+app.get("/recursos-actualizados", async (req, res) =>{
+    let estado_juego = await pool.query("SELECT * FROM base_espacial")
+    let modulos = await pool.query("SELECT * FROM modulos")
+    let plantas = await pool.query("SELECT * FROM plantas")
+    console.log(plantas.rows);
+    
+    
     res.status(200).json({
         estado_base: estado_juego.rows[0],
         modulos: modulos.rows,
-        eventos: [],
-        plantas: plantas.rows
+        plantas: plantas.rows,
+        eventos: [] 
     })
 })
 
@@ -312,7 +326,7 @@ app.get("/reiniciar", async (req, res) => {
 
     await pool.query("DELETE FROM plantas")
     await pool.query("DELETE FROM modulos")
-    await pool.query("UPDATE base_espacial SET dia_actual = 0, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, total_cosechas = 0, estado = 'en_curso', dias_comida_insuficiente = 0, dias_agua_insuficiente = 0, dias_oxigeno_insuficiente = 0, tripulantes = $6",
+    await pool.query("UPDATE base_espacial SET nivel = 1, dia_actual = 0, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, total_cosechas = 0, estado = 'en_curso', dias_comida_insuficiente = 0, dias_agua_insuficiente = 0, dias_oxigeno_insuficiente = 0, tripulantes = $6",
         [RECURSOS_INICIALES.cant_agua, RECURSOS_INICIALES.cant_nutrientes, RECURSOS_INICIALES.cant_energia, RECURSOS_INICIALES.cant_oxigeno, RECURSOS_INICIALES.cant_comida, TRIPULANTES_INICIALES]
     )
 

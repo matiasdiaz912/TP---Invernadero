@@ -43,8 +43,8 @@ const cargarCatalogo = (especies, nivel) => {
                         </div>
                 `;``
 
-        catalog_grid.appendChild(card_planta);
-        card_planta.addEventListener("click", () => {
+        catalog_grid.appendChild(card_especie);
+        card_especie.addEventListener("click", () => {
             main_view.remove()
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion")

@@ -216,9 +216,9 @@ boton_avanzar_dia.addEventListener("click", async () => {
             return
         }
 
-        const response = await fetch("http://localhost:3000/avanzar-dia")
-        const data = await response.json()
-
+        await fetch("http://localhost:3000/avanzar-dia")
+        const response = await fetch("http://localhost:3000/recursos-actualizados")
+        const data = await response.json()        
 
 
         if (data.estado_base.cant_agua < 50 || data.estado_base.cant_comida < 60 || data.estado_base.cant_oxigeno == 0) {
@@ -226,10 +226,19 @@ boton_avanzar_dia.addEventListener("click", async () => {
             setTimeout(() => {
                 main_view.classList.remove("resources-danger")
             }, 500)
-            generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! Recursos críticos. Agua: ${data.estado_base.cant_agua}, Comida: ${data.estado_base.cant_comida}, Oxígeno: ${data.estado_base.cant_oxigeno}`, "alerta")
+            if(data.estado_base.cant_oxigeno == 0){
+                generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! Recursos críticos. Oxígeno: ${data.estado_base.cant_oxigeno}%`, "alerta")
+            }
+            if(data.estado_base.cant_agua < 50){
+                generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! Recursos críticos. Agua: ${data.estado_base.cant_agua}L`, "alerta")
+            }
+
+            if(data.estado_base.cant_comida < 60){
+                generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! Recursos críticos. Comida: ${data.estado_base.cant_comida}kg`, "alerta")
+            }
         }
 
-        if (data.estado_base.dia_actual == 0) {
+        if (data.estado_base.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
 
@@ -248,7 +257,7 @@ boton_avanzar_dia.addEventListener("click", async () => {
             if (planta.estado == "perdida") {
                 let modulo = data.modulos.find((mod) => mod.id == planta.modulo_id)
                 generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! La planta "${planta.nombre}" del modulo "${modulo.nombre}" ha sido ${planta.estado}`, "alerta")
-            }else if(planta.estado == "lista_para_cosechar"){
+            }else if(planta.estado == "lista"){
                 let modulo = data.modulos.find((mod) => mod.id == planta.modulo_id)
                 generar_logs(`DIA ${data.estado_base.dia_actual}: INFO! La planta "${planta.nombre}" del modulo "${modulo.nombre}" está lista para cosechar`, "info")
             }
@@ -311,7 +320,6 @@ boton_avanzar_dia.addEventListener("click", async () => {
             })
 
         }else{
-            data.estado_base.dia_actual += 1
             generar_nuevos_datos(data.estado_base)
         }
 
@@ -393,7 +401,7 @@ const generar_nuevos_datos = (data) => {
         cant_oxigeno.innerHTML = `<span>${data.cant_oxigeno}%   </span>`
     }
     
-    if(data.agua_usada_por_dia && data.comida_usada_por_dia && data.energia_usada_por_dia && data.nutrientes_usados_por_dia && data.oxigeno_usado_por_dia){
+    if(data.agua_usada_por_dia && data.comida_usada_por_dia && data.energia_usada_por_dia && data.oxigeno_usado_por_dia){
         cant_agua.innerHTML += ` <span class="recursos-usados">[ - ${data.agua_usada_por_dia}L/día ]</span>`
         cant_comida.innerHTML += ` <span class="recursos-usados">[ - ${data.comida_usada_por_dia}kg/día ]</span>`
         cant_energia.innerHTML += ` <span class="recursos-usados">[ - ${data.energia_usada_por_dia}W/día ]</span>`
@@ -625,14 +633,15 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
                         headers: { "Content-Type": "application/json" }
                     })
                     
-                    let nivelActual = await fetch(`http://localhost:3000/plantas`, {
+                    let res = await fetch(`http://localhost:3000/plantas`, {
                         method: "DELETE",
                         body: JSON.stringify(planta),
                         headers: { "Content-Type": "application/json" }
                     })
-                    nivelActual = await nivelActual.json()
+                    res = await res.json()
 
-                    contador_nivel.textContent = `NIVEL: [ ${nivelActual.nivel} ]`
+                    contador_nivel.textContent = `NIVEL: [ ${res.nivel} ]`
+                    generar_nuevos_datos(res.recursos)
                     
                     let moduloPlantasActualizado = await fetch(`http://localhost:3000/plantas/${modulo_id}`)
                     moduloPlantasActualizado = await moduloPlantasActualizado.json()
@@ -686,26 +695,31 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         </div>
         <form class="gestionar-recursos" id="gestionar-recursos-form">
             <label>Cantidad de agua:
-                <input value="${modulo.cant_agua}" id="input_water" type="range" min="${-modulo.cant_agua}" max="${recursos.cant_agua}"></input>
-                <p>${recursos.cant_agua}</p>
+                <input value="0" id="input_water" type="range" min="${-modulo.cant_agua}" max="${recursos.cant_agua}"></input>
+                <p id="p_water">${recursos.cant_agua}</p>
             </label>
             <label>Cantidad de oxígeno:
-                <input value="${modulo.cant_oxigeno}" id="input_oxygen" type="range" min="${-modulo.cant_oxigeno}" max="${recursos.cant_oxigeno}"></input>
-                <p>${recursos.cant_oxigeno}</p>
+                <input value="0" id="input_oxygen" type="range" min="${-modulo.cant_oxigeno}" max="${recursos.cant_oxigeno}"></input>
+                <p id="p_oxygen">${recursos.cant_oxigeno}</p>
             </label>
             <label>Cantidad de energía:
-                <input value="${recursos.cant_energia}" id="input_energy" type="range" min="${-modulo.cant_energia}" max="${recursos.cant_energia}"></input>
-                <p>${recursos.cant_energia}</p>
+                <input value="0" id="input_energy" type="range" min="${-modulo.cant_energia}" max="${recursos.cant_energia}"></input>
+                <p id="p_energy">${recursos.cant_energia}</p>
             </label>
             <label>Cantidad de nutrientes:
-                <input value="${recursos.cant_nutrientes}" id="input_nutrients" type="range" min="${-modulo.cant_nutrientes}" max="${recursos.cant_nutrientes}"></input>
-                <p>${recursos.cant_nutrientes}</p>
+                <input value="0" id="input_nutrients" type="range" min="${-modulo.cant_nutrientes}" max="${recursos.cant_nutrientes}"></input>
+                <p id="p_nutrients">${recursos.cant_nutrientes}</p>
             </label>
             <button id="btn-confirmar-recursos" class="btn-action">CONFIRMAR</button>
         </form>
     `
     main_view.appendChild(gestionar_recursos)
 
+    document.getElementById("p_water").textContent = document.getElementById("input_water").value
+    document.getElementById("p_oxygen").textContent = document.getElementById("input_oxygen").value
+    document.getElementById("p_energy").textContent = document.getElementById("input_energy").value
+    document.getElementById("p_nutrients").textContent = document.getElementById("input_nutrients").value
+    
     document.getElementById("btn-close-gestionar").addEventListener("click", () => {
         gestionar_recursos.remove()
         activar_botones()
