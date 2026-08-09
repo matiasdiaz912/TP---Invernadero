@@ -53,7 +53,6 @@ const cargarCatalogo = (especies, nivel) => {
                         <h2>> DETALLES SEMILLA</h2>
                     <div>
                         <button id="btn-back" class="btn-action ${statusClass}">[ VOLVER ATRAS ]</button>
-                        <button id="btn-close-detalles" class="btn-action ${statusClass}">[ CERRAR ]</button>
                     </div>
             
                 </div>
