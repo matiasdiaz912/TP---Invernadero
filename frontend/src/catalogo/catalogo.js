@@ -87,7 +87,6 @@ const cargarCatalogo = (especies, nivel) => {
                 
                 <p>${especie.descripcion}</p>
 
-                <button id="sembrar-button" class="btn-action ${statusClass}">SEMBRAR</button>
             `;
 
          if (bloqueado) {
