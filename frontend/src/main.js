@@ -101,6 +101,10 @@ const cargarCatalogo = (especies, modulo, nivel) => {
                 `;
         catalogGrid.appendChild(card_especie);
         card_especie.addEventListener("click", () => {
+            if (bloqueado) {
+                generar_logs(`Necesitás nivel ${especie.nivel_requerido} para sembrar ${especie.nombre}`, "alerta")
+                return
+            }
             catalog.classList.add("catalog-hidden");
             let card_descripcion = document.createElement("div")
             card_descripcion.classList.add("planta-descripcion");
