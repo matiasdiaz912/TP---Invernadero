@@ -533,7 +533,6 @@ module_manage_button.addEventListener("click", async () => {
         let barra_info_modulos = document.createElement("ul")
         barra_info_modulos.classList.add("barra-info-modulos")
         barra_info_modulos.innerHTML = `
-            <li>ID</li>
             <li>NOMBRE</li>
             <li>AGUA</li>
             <li>OXIGENO</li>
@@ -545,7 +544,6 @@ module_manage_button.addEventListener("click", async () => {
             let module = document.createElement("div")
             module.classList.add("btn-action", "module-card")
             module.innerHTML = `
-                <p>${modulo.id}</p>
                 <p>${modulo.nombre}</p>
                 <p>${modulo.cant_agua}</p>
                 <p>${modulo.cant_oxigeno}</p>
