@@ -5,7 +5,7 @@ CREATE TABLE base_espacial (
     cant_agua        INT DEFAULT 150,
     cant_nutrientes  INT DEFAULT 100,
     cant_energia     INT DEFAULT 120,
-    cant_oxigeno     INT DEFAULT 80 CHECK (cant_oxigeno <= 100),
+    cant_oxigeno     INT DEFAULT 80,
     cant_comida      INT DEFAULT 100,
     total_cosechas   INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'en_curso'
