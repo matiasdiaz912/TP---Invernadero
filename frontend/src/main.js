@@ -929,20 +929,18 @@ button_eventos.addEventListener("click", async () => {
         </div>
             <p>Costo: la mitad de los efectos que definas</p>
             <div class="gestionar-recursos">
-                <label>ID (sin espacios):</label>
-                <input id="input-evento-id" type="text" class="btn-action" placeholder="ej: lluvia_marciana"/>
                 <label>NOMBRE:</label>
                 <input id="input-evento-nombre" type="text" class="btn-action" placeholder="Nombre del evento"/>
                 <label>DESCRIPCIÓN:</label>
                 <input id="input-evento-desc" type="text" class="btn-action" placeholder="Descripción"/>
                 <label>EFECTO AGUA:</label>
-                <input id="input-evento-agua" type="number" class="btn-action" placeholder="0"/>
+                <input id="input-evento-agua" type="number" min="0" onkeydown="return false" class="btn-action" placeholder="0"/>
                 <label>EFECTO OXÍGENO:</label>
-                <input id="input-evento-oxigeno" type="number" class="btn-action" placeholder="0"/>
+                <input id="input-evento-oxigeno" type="number" min="0" onkeydown="return false" class="btn-action" placeholder="0"/>
                 <label>EFECTO ENERGÍA:</label>
-                <input id="input-evento-energia" type="number" class="btn-action" placeholder="0"/>
+                <input id="input-evento-energia" type="number" min="0" onkeydown="return false" class="btn-action" placeholder="0"/>
                 <label>EFECTO NUTRIENTES:</label>
-                <input id="input-evento-nutrientes" type="number" class="btn-action" placeholder="0"/>
+                <input id="input-evento-nutrientes" type="number" min="0" onkeydown="return false" class="btn-action" placeholder="0"/>
                 <button id="btn-confirmar-evento" class="btn-action">SINTETIZAR</button>
             </div>
         `
@@ -960,7 +958,6 @@ button_eventos.addEventListener("click", async () => {
 
         document.getElementById("btn-confirmar-evento").addEventListener("click", async () => {
             const body = {
-                id: document.getElementById("input-evento-id").value,
                 nombre: document.getElementById("input-evento-nombre").value,
                 descripcion: document.getElementById("input-evento-desc").value,
                 efecto_agua: parseFloat(document.getElementById("input-evento-agua").value) || 0,

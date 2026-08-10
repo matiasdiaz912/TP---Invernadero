@@ -368,8 +368,8 @@ app.get("/eventos", async (req, res) => {
 
 
 app.post("/eventos", async (req, res) => {
-    const { id, nombre, descripcion, efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
-    
+    const { nombre, descripcion, efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
+    const id = nombre.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now()    
     const estado = await pool.query("SELECT * FROM base_espacial")
     if (estado.rows[0].eventos_creados >= 3) {
         return res.status(400).json({ error: "Ya alcanzaste el límite de 3 eventos creados" })
@@ -380,15 +380,17 @@ app.post("/eventos", async (req, res) => {
     const costo_energia = Math.abs(efecto_energia) / 2
     const costo_nutrientes = Math.abs(efecto_nutrientes) / 2
 
-    if (RECURSOS.cant_agua < costo_agua) return res.status(400).json({ error: "No tenés suficiente agua" })
-    if (RECURSOS.cant_oxigeno < costo_oxigeno) return res.status(400).json({ error: "No tenés suficiente oxígeno" })
-    if (RECURSOS.cant_energia < costo_energia) return res.status(400).json({ error: "No tenés suficiente energía" })
-    if (RECURSOS.cant_nutrientes < costo_nutrientes) return res.status(400).json({ error: "No tenés suficientes nutrientes" })
+    const recursosBD = await pool.query("SELECT * FROM base_espacial")
+    const recursos = recursosBD.rows[0]
 
-    RECURSOS.cant_agua -= costo_agua
-    RECURSOS.cant_oxigeno -= costo_oxigeno
-    RECURSOS.cant_energia -= costo_energia
-    RECURSOS.cant_nutrientes -= costo_nutrientes
+    if (recursos.cant_agua < costo_agua) return res.status(400).json({ error: "No tenés suficiente agua" })
+    if (recursos.cant_oxigeno < costo_oxigeno) return res.status(400).json({ error: "No tenés suficiente oxígeno" })
+    if (recursos.cant_energia < costo_energia) return res.status(400).json({ error: "No tenés suficiente energía" })
+    if (recursos.cant_nutrientes < costo_nutrientes) return res.status(400).json({ error: "No tenés suficientes nutrientes" })
+
+    await pool.query("UPDATE base_espacial SET cant_agua = cant_agua - $1, cant_oxigeno = cant_oxigeno - $2, cant_energia = cant_energia - $3, cant_nutrientes = cant_nutrientes - $4 WHERE id = 1",
+        [costo_agua, costo_oxigeno, costo_energia, costo_nutrientes]
+    )
 
     const nuevo_evento = { id, nombre, descripcion, tipo: "positivo", efectos: { agua: efecto_agua, oxigeno: efecto_oxigeno, energia: efecto_energia, nutrientes: efecto_nutrientes } }
     await pool.query(
