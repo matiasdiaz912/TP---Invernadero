@@ -131,7 +131,7 @@ CREATE TABLE modulos (
     cant_energia     INT DEFAULT 0,
     cant_oxigeno     INT DEFAULT 0,
     estado           VARCHAR(20) DEFAULT 'estable'
-                     CHECK (estado IN ('estable', 'critico', 'sobreriego', 'desechado'))
+                        CHECK (estado IN ('estable', 'critico'))
 );
 
 

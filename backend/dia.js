@@ -107,13 +107,6 @@ export function procesarModulos(modulos, RECURSOS) {
     const eventos = []
 
     for (const modulo of modulos) {
-        if (modulo.estado == "desechado") {
-            if (!MODULO.desechado_se_reusa) continue
-            modulo.estado = "estable"
-            modulo.dias_en_critico = 0
-            eventos.push({ mensaje: `"${modulo.nombre}" fue reacondicionado y vuelve a estar disponible, vacío`, tipo: "info" })
-            continue
-        }
 
         if (modulo.dias_en_critico == undefined) modulo.dias_en_critico = 0
         if (modulo.cant_oxigeno == undefined) modulo.cant_oxigeno = 0
@@ -128,13 +121,10 @@ export function procesarModulos(modulos, RECURSOS) {
             modulo.estado = "critico"
             modulo.dias_en_critico++
             eventos.push({ mensaje: `"${modulo.nombre}" en estado crítico por falta de energía (${modulo.dias_en_critico}/${MODULO.dias_criticos_para_desechar})`, tipo: "alerta" })
+        
         } else {
             modulo.dias_en_critico = 0
-            modulo.estado = flags.sobreriego ? "sobreriego" : "estable"
-        }
-
-        if (flags.sobreriego) {
-            eventos.push({ mensaje: `"${modulo.nombre}" está en sobreriego: las plantas se están ahogando`, tipo: "alerta" })
+            modulo.estado = "estable"
         }
 
         if (modulo.dias_en_critico >= MODULO.dias_criticos_para_desechar) {
