@@ -949,6 +949,7 @@ button_eventos.addEventListener("click", async () => {
         main_view.appendChild(crear_window)
         document.getElementById("btn-back-crear-evento").addEventListener("click", () => {
         crear_window.remove()
+        activar_botones()
         button_eventos.click()
     })
 
