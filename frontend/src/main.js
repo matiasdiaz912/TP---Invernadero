@@ -409,6 +409,7 @@ const generar_nuevos_datos = (data) => {
     cant_tripulantes.innerText = `TRIPULACIÓN: [ ${data.tripulantes}/30 ]`
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
+    renderizarModulos()
 }
 
 
@@ -1112,3 +1113,58 @@ button_help.addEventListener("click", () => {
     })
 })
 
+const renderizarModulos = async () => {
+    const [modulosRes, estadoRes] = await Promise.all([
+        fetch("http://localhost:3000/modulos"),
+        fetch("http://localhost:3000/estado-juego")
+    ])
+    const modulos = await modulosRes.json()
+    const estado = await estadoRes.json()
+    const maxModulos = 6
+
+    let grilla = document.getElementById("grilla-modulos")
+    if (!grilla) {
+        grilla = document.createElement("div")
+        grilla.id = "grilla-modulos"
+        grilla.classList.add("grilla-modulos")
+        main_view.appendChild(grilla)
+    }
+    grilla.innerHTML = ""
+
+    for (let i = 0; i < maxModulos; i++) {
+        const modulo = modulos[i]
+        const slot = document.createElement("div")
+        slot.classList.add("modulo-slot")
+
+        if (!modulo) {
+            const bloqueado = i >= estado.nivel
+            slot.classList.add(bloqueado ? "modulo-bloqueado" : "modulo-vacio")
+            slot.innerHTML = bloqueado ? `<p>🔒</p><p>NVL ${i + 1}</p>` : `<p>+ VACÍO</p>`
+        } else {
+            slot.classList.add(`modulo-${modulo.estado}`)
+            const plantasRes = await fetch(`http://localhost:3000/plantas/${modulo.id}`)
+            const plantas = await plantasRes.json()
+            const bloquesVacios = modulo.bloques_totales - modulo.bloques_ocupados
+
+            slot.innerHTML = `
+                <div class="modulo-header">
+                    <span class="modulo-nombre">${modulo.nombre}</span>
+                    <span class="modulo-nivel">NVL ${modulo.nivel}</span>
+                </div>
+                <div class="modulo-estado-badge">${modulo.estado.toUpperCase()}</div>
+                <div class="modulo-plantas-grid">
+                    ${plantas.map(p => `
+                        <div class="planta-slot">
+                            <svg viewBox="0 0 100 100" width="30" height="30">
+                                ${p.pathsvg || ''}
+                            </svg>
+                            <span>${p.nombre}</span>
+                        </div>
+                    `).join('')}
+                    ${Array(bloquesVacios).fill('<div class="planta-slot-vacio">·</div>').join('')}
+                </div>
+            `
+        }
+        grilla.appendChild(slot)
+    }
+}
