@@ -79,40 +79,40 @@ INSERT INTO especies (
 ),
 (
     'Tomate Cherry', 2, 2, 10,
-    3, 3, 3, 2,
-    2, 8, 50, 60,
+    4, 3, 3, 4,
+    50, 30, 30, 60,
     'inicial', 
     '<rect x="30" y="80" width="40" height="6" fill="#495057" rx="3"/><path d="M50 80 L50 30 M50 50 L30 40 M50 60 L70 45" stroke="#2d6a4f" stroke-width="4" stroke-linecap="round"/><circle cx="33" cy="44" r="10" fill="#d00000"/><circle cx="67" cy="49" r="11" fill="#dc2f02"/><circle cx="50" cy="26" r="9" fill="#e85d04"/><path d="M33 34 L33 31 M67 38 L67 35 M50 17 L50 14" stroke="#1b4332" stroke-width="3"/>',
     'Cultivo en vertical que aporta grandes nutrientes y variedad a la dieta de la base a cambio de más riego y luz.'
 ),
 (
-    'Frutilla', 1, 2, 9,
-    7, 2, 6, 10,
-    0, 12, 0, 25,
+    'Frutilla', 1, 2, 6,
+    2, 2, 6, 2,
+    80, 12, 20, 30,
     'inicial', 
     '<path d="M50 25 Q30 25 28 45 Q26 75 50 88 Q74 75 72 45 Q70 25 50 25 Z" fill="#e63946"/><path d="M50 25 L35 18 M50 25 L50 12 M50 25 L65 18" stroke="#2a9d8f" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="45" r="1.5" fill="#ffd166"/><circle cx="60" cy="45" r="1.5" fill="#ffd166"/><circle cx="50" cy="60" r="1.5" fill="#ffd166"/><circle cx="42" cy="70" r="1.5" fill="#ffd166"/><circle cx="58" cy="68" r="1.5" fill="#ffd166"/>',
     'Fruto pequeño de alta moral para los astronautas. Consume poca agua y tiene un tiempo de cosecha relativamente rápido.'
 ),
 (
     'Trigo Enano', 2, 3, 13,
-    8, 5, 15, 30,
-    5, 15, 0, 80,
+    5, 2, 5, 1,
+    80, 80, 20, 90,
     'inicial', 
     '<line x1="50" y1="90" x2="50" y2="15" stroke="#d4a373" stroke-width="4"/><ellipse cx="42" cy="30" rx="6" ry="12" fill="#ffd166" transform="rotate(-15 42 30)"/><ellipse cx="58" cy="40" rx="6" ry="12" fill="#ffd166" transform="rotate(15 58 40)"/><ellipse cx="42" cy="50" rx="6" ry="12" fill="#ffd166" transform="rotate(-15 42 50)"/><ellipse cx="58" cy="60" rx="6" ry="12" fill="#ffd166" transform="rotate(15 58 60)"/><ellipse cx="50" cy="18" rx="5" ry="10" fill="#ffb703"/>',
     'Cereal modificado de tallo corto para optimizar volumen. Base fundamental para producir harinas y reservas a largo plazo.'
 ),
 (
     'Soja', 2, 3, 15,
-    12, 4, 0, 20,
-    30, 15, 0, 50,
+    6, 4, 0, 20,
+    100, 15, 100, 50,
     'inicial', 
     '<path d="M50 90 L50 20" stroke="#52796f" stroke-width="4"/><path d="M50 40 C30 40 25 60 50 65 Z" fill="#84a98c"/><path d="M50 55 C70 55 75 75 50 80 Z" fill="#52796f"/><circle cx="38" cy="51" r="4" fill="#cad2c5"/><circle cx="45" cy="54" r="4" fill="#cad2c5"/><circle cx="55" cy="67" r="4" fill="#cad2c5"/><circle cx="62" cy="69" r="4" fill="#cad2c5"/>',
     'Legumbre clave del invernadero: gracias a sus bacterias simbióticas fija nitrógeno y genera nutrientes para la tierra.'
 ),
 (
     'Arroz Hidropónico', 3, 4, 20,
-    18, 8, 20, 35,
-    10, 45, 30, 95,
+    9, 8, 10, 15,
+    120, 200, 150, 120,
     'inicial', 
     '<rect x="20" y="75" width="60" height="15" rx="5" fill="#48cae4" opacity="0.5"/><path d="M50 80 L50 25 M50 60 L35 35 M50 65 L65 40" stroke="#588157" stroke-width="3" stroke-linecap="round"/><ellipse cx="46" cy="20" rx="3" ry="8" fill="#a3b18a" transform="rotate(-10 46 20)"/><ellipse cx="54" cy="22" rx="3" ry="8" fill="#a3b18a" transform="rotate(15 54 22)"/><ellipse cx="32" cy="32" rx="3" ry="8" fill="#a3b18a" transform="rotate(-20 32 32)"/><ellipse cx="68" cy="37" rx="3" ry="8" fill="#a3b18a" transform="rotate(20 68 37)"/>',
     'Cultivo masivo de alto nivel en bandejas inundadas. Excelente rendimiento calórico y gran productor de oxígeno.'

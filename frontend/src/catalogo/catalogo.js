@@ -47,45 +47,47 @@ const cargarCatalogo = (especies, nivel) => {
         card_especie.addEventListener("click", () => {
             main_view.remove()
             let card_descripcion = document.createElement("div")
-            card_descripcion.classList.add("planta-descripcion")
+            card_descripcion.classList.add("catalog-window");
+            const btn_status = bloqueado ? "btn-alert" : ""
             card_descripcion.innerHTML = `
-                <div class="catalog-header header-planta">
-                        <h2>> DETALLES SEMILLA</h2>
-                    <div>
-                        <button id="btn-back" class="btn-action ${statusClass}">[ VOLVER ATRAS ]</button>
-                    </div>
-            
-                </div>
-                <div class="plant-card-descripcion">
-                    <div class="plant-image-container">
-                        <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                            ${especie.pathsvg}
-                        </svg>
+                 <div class="catalog-header ${statusClass}">
+                            <h2>> DETALLES SEMILLA</h2>
                         <div>
-                            <h3>${especie.nombre}</h3>
+                            <button id="btn-back" class="btn-action ${btn_status}">[ VOLVER ATRAS ]</button>
+                        </div>
+                
+                    </div>
+                    <div class="plant-card-descripcion">
+                        <div class="plant-image-container plant-image">
+                            <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
+                                ${especie.pathsvg}
+                            </svg>
+                            <div>
+                                <h3>${especie.nombre}</h3>
+                            </div>
+                        </div>
+                        
+                        <div class="descripcion_planta">
+                            <h3 class="parrafo-detalles">REQUISITOS</h3>
+                            <h4>AGUA: ${especie.agua_requerida}L / d</h4>
+                            <h4>OXIGENO: ${especie.oxigeno_requerido}% / d</h4>
+                            <h4>NUTRIENTES: ${especie.nutrientes_requeridos}U / d</h4>
+                            <h4>ENERGIA: ${especie.energia_requerida}W / d</h4>
+                        </div>
+                        <div class="descripcion_planta">
+                            <h3 class="parrafo-detalles">BENEFICIOS</h3>
+                            <h4>AGUA: ${especie.agua_generada}L</h4>
+                            <h4>OXIGENO: ${especie.oxigeno_generado}%</h4>
+                            <h4>NUTRIENTES: ${especie.nutrientes_generados}U</h4>
+                            <h4>ENERGIA: ${especie.comida_generada}W</h4>
+                        </div>
+                        <div class="descripcion_planta">
+                            <p>Tiempo de sembrado: ${especie.duracion} días</p>
+                            <p>Tamaño: ${especie.tamanio}</p>
                         </div>
                     </div>
                     
-                    <div class="descripcion_planta">
-                        <h3 class="parrafo-detalles">REQUISITOS</h3>
-                        <h4>AGUA: ${especie.agua_requerida}L/dia</h4>
-                        <h4>OXIGENO: ${especie.oxigeno_requerido}%/dia</h4>
-                        <h4>NUTRIENTES: ${especie.nutrientes_requeridos}U/dia</h4>
-                        <h4>ENERGIA: ${especie.energia_requerida}W/dia</h4>
-                    </div>
-                    <div class="descripcion_planta">
-                        <h3 class="parrafo-detalles">BENEFICIOS</h3>
-                        <h4>AGUA: ${especie.agua_generada}</h4>
-                        <h4>OXIGENO: ${especie.oxigeno_generado}</h4>
-                        <h4>NUTRIENTES: ${especie.nutrientes_generados}</h4>
-                        <h4>ENERGIA: ${especie.comida_generada}</h4>
-                    </div>
-                     <div class="descripcion_planta">
-                        <p>Tiempo de sembrado: ${especie.duracion} días</p>
-                    </div>
-                </div>
-                
-                <p>${especie.descripcion}</p>
+                    <p>${especie.descripcion}</p>
 
             `;
 

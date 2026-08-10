@@ -1,7 +1,7 @@
 import express from 'express'
 import { Pool } from 'pg'
 import cors from 'cors'
-import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA } from './constantes.js';
+import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
 import { procesarModulos } from './dia.js';
 
 
@@ -223,6 +223,8 @@ app.get("/avanzar-dia", async (req, res) => {
                 estado_juego.tripulantes--
             }
         }
+    }else{
+        estado_juego.dias_comida_insuficiente = 0
     }
     
     if (estado_juego.cant_agua < 50 && estado_juego.cant_agua > 0){
@@ -241,6 +243,9 @@ app.get("/avanzar-dia", async (req, res) => {
                 estado_juego.tripulantes -= 3
             }
         }
+    }else{
+        estado_juego.dias_agua_insuficiente = 0
+
     }
     
     if(estado_juego.cant_oxigeno <= 0){
@@ -345,15 +350,32 @@ const generarEventoAleatorio = async () => {
     return response.rows[indiceAleatorio];
 }
     
-async function actualizarRecursos(especie) {
-    console.log(especie.rows[0]);
-    
+async function actualizarRecursos(especie) {    
     const RECURSOS = await pool.query("SELECT * FROM base_espacial")
-    RECURSOS.rows[0].cant_agua += especie.rows[0].agua_generada
-    RECURSOS.rows[0].cant_comida += especie.rows[0].comida_generada
-    RECURSOS.rows[0].cant_nutrientes += especie.rows[0].nutrientes_generados
-    // RECURSOS.rows[0].cant_energia += especie.rows[0].energia_generada
-    RECURSOS.rows[0].cant_oxigeno += especie.rows[0].oxigeno_generado
+    if(especie.rows[0].agua_generada + RECURSOS.rows[0].cant_agua > AGUA_MAX){
+        RECURSOS.rows[0].cant_agua = AGUA_MAX
+    }else{
+        RECURSOS.rows[0].cant_agua += especie.rows[0].agua_generada
+    }
+
+    if(especie.rows[0].comida_generada + RECURSOS.rows[0].cant_comida > COMIDA_MAX){
+        RECURSOS.rows[0].cant_agua = COMIDA_MAX
+    }else{
+        RECURSOS.rows[0].cant_comida += especie.rows[0].comida_generada     
+    }
+    
+    if(especie.rows[0].nutrientes_generados + RECURSOS.rows[0].cant_nutrientes > NUTRIENTES_MAX){
+        RECURSOS.rows[0].cant_nutrientes = NUTRIENTES_MAX
+    }else{
+        RECURSOS.rows[0].cant_nutrientes += especie.rows[0].nutrientes_generados   
+    }
+
+    if(especie.rows[0].oxigeno_generado + RECURSOS.rows[0].cant_oxigeno > OXIGENO_MAX){
+        RECURSOS.rows[0].cant_oxigeno = OXIGENO_MAX
+    }else{
+        RECURSOS.rows[0].cant_oxigeno += especie.rows[0].oxigeno_generado
+    }
+
     await pool.query("UPDATE base_espacial SET cant_agua = $1, cant_comida = $2, cant_nutrientes = $3, cant_oxigeno = $4 WHERE id = 1",
             [RECURSOS.rows[0].cant_agua, RECURSOS.rows[0].cant_comida, RECURSOS.rows[0].cant_nutrientes, RECURSOS.rows[0].cant_oxigeno]
         )
