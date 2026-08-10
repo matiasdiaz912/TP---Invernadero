@@ -113,7 +113,6 @@ const cargarCatalogo = (especies, modulo, nivel) => {
                         <h2>> DETALLES SEMILLA</h2>
                     <div>
                         <button id="btn-back" class="btn-action ${statusClass}">[ VOLVER ATRAS ]</button>
-                        <button id="btn-close-detalles" class="btn-action ${statusClass}">[ CERRAR ]</button>
                     </div>
             
                 </div>
@@ -158,13 +157,7 @@ const cargarCatalogo = (especies, modulo, nivel) => {
             }
             main_view.appendChild(card_descripcion);
 
-            let btn_close_detalles = document.getElementById("btn-close-detalles");
             let btn_back = document.getElementById("btn-back")
-            btn_close_detalles.addEventListener("click", () => {
-            card_descripcion.remove();
-            catalog.remove();
-            activar_botones();
-            });
 
             btn_back.addEventListener("click", () => {
                 card_descripcion.remove();
@@ -929,8 +922,11 @@ button_eventos.addEventListener("click", async () => {
         crear_window.innerHTML = `
             <div class="catalog-header">
                 <h2>> SINTETIZAR EVENTO</h2>
+                <div style="display:flex; gap:8px;">
+                <button id="btn-back-crear-evento" class="btn-action">[ VOLVER ATRAS ]</button>
                 <button id="btn-close-crear-evento" class="btn-action">[ CERRAR ]</button>
             </div>
+        </div>
             <p>Costo: la mitad de los efectos que definas</p>
             <div class="gestionar-recursos">
                 <label>ID (sin espacios):</label>
@@ -951,6 +947,10 @@ button_eventos.addEventListener("click", async () => {
             </div>
         `
         main_view.appendChild(crear_window)
+        document.getElementById("btn-back-crear-evento").addEventListener("click", () => {
+        crear_window.remove()
+        button_eventos.click()
+    })
 
         document.getElementById("btn-close-crear-evento").addEventListener("click", () => {
             crear_window.remove()
