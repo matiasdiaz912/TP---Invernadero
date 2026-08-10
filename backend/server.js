@@ -286,7 +286,12 @@ app.get("/avanzar-dia", async (req, res) => {
             await pool.query("UPDATE plantas SET estado = 'perdida' WHERE id = $1", [planta.id])
         }
     })
-    
+    const modulosActualizados = await pool.query("SELECT * FROM modulos")
+    for (const modulo of modulosActualizados.rows) {
+        const faltaEnergia = modulo.cant_energia <= 0
+        const nuevoEstado = faltaEnergia ? "critico" : "estable"
+        await pool.query("UPDATE modulos SET estado = $1 WHERE id = $2", [nuevoEstado, modulo.id])
+    }
     if (estado_juego.tripulantes <= 0 || estado_juego.dias_oxigeno_insuficiente == 3) { 
         await pool.query("UPDATE base_espacial SET estado = $1", ["derrota"])
     } else if (estado_juego.dia_actual >= DIA_VICTORIA) {      
