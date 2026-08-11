@@ -71,7 +71,12 @@ app.post("/plantas/:especieId", async (req, res) => {
 
 app.get("/plantas/:moduloId", async (req, res) => {
     const { moduloId } = req.params
-    const response = await pool.query("SELECT * FROM plantas WHERE modulo_id = $1", [moduloId])
+    const response = await pool.query(`
+        SELECT plantas.*, especies.pathsvg, especies.nombre as especie_nombre 
+        FROM plantas 
+        JOIN especies ON plantas.especie_id = especies.id 
+        WHERE plantas.modulo_id = $1
+    `, [moduloId])
     res.json(response.rows)
 })
 
