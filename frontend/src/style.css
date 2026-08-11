@@ -860,17 +860,19 @@ footer {
 .modulo-critico .modulo-estado-badge { color: #ef4444; }
 
 .modulo-plantas-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
+    padding: 8px;
     margin-top: auto;
-    align-items: center;
+    justify-items: center;
 }
 
 .planta-slot {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-self: center;
     font-size: 0.7rem;
     color: rgba(45, 212, 191, 0.85);
 }
@@ -884,15 +886,11 @@ footer {
 }
 
 .planta-slot-vacio {
-    width: 42px;
-    height: 42px;
-    border: 1px dashed rgba(45, 212, 191, 0.15);
-    border-radius: 4px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(45, 212, 191, 0.15);
-    font-size: 1.2rem;
 }
 
 #main_view {
