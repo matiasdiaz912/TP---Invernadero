@@ -1149,7 +1149,7 @@ const renderizarModulos = async () => {
             slot.innerHTML = `
                 <div class="modulo-header">
                     <span class="modulo-nombre">${modulo.nombre}</span>
-                    <span class="modulo-nivel">NVL ${modulo.nivel}</span>
+                    <span class="modulo-nivel">NIVEL ${modulo.nivel}</span>
                 </div>
                 <div class="modulo-estado-badge">${modulo.estado.toUpperCase()}</div>
                 <div class="modulo-plantas-grid">

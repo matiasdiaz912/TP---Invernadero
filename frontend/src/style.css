@@ -831,7 +831,7 @@ footer {
 .modulo-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     font-size: 0.9rem;
     background: rgba(0, 0, 0, 0.4);
     padding: 6px 8px;
@@ -844,7 +844,7 @@ footer {
 }
 
 .modulo-nivel {
-    color: rgba(45, 212, 191, 0.5);
+    color: var(--neon-cyan);
     font-size: 0.7rem;
 }
 
@@ -852,6 +852,8 @@ footer {
     font-size: 0.75rem;
     letter-spacing: 1px;
     font-weight: bold;
+    padding-left: 0;
+    margin-left: -7px;
 }
 
 .modulo-estable .modulo-estado-badge { color: #22c55e; }
