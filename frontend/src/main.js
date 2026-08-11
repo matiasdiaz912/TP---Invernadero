@@ -1148,7 +1148,7 @@ const renderizarModulos = async () => {
 
             slot.innerHTML = `
                 <div class="modulo-header">
-                    <span class="modulo-nombre">${modulo.nombre}</span>
+                    <span class="modulo-nombre">${modulo.nombre.substring(0, 20)}</span>
                     <span class="modulo-nivel">NIVEL ${modulo.nivel}</span>
                 </div>
                 <div class="modulo-estado-badge">${modulo.estado.toUpperCase()}</div>
@@ -1161,14 +1161,14 @@ const renderizarModulos = async () => {
                             <span>${p.nombre}</span>
                         </div>
                     `).join('')}
-                    ${Array(Math.min(bloquesVacios, 6 - plantas.length)).fill(`
-                    <div class="planta-slot-vacio">
-                        <svg viewBox="0 0 40 30" width="34" height="26" stroke="rgba(45,212,191,0.3)" fill="none" stroke-width="1.2">
-                            <rect x="2" y="2" width="36" height="5" rx="1"/>
-                            <polygon points="5,7 35,7 32,28 8,28"/>
-                        </svg>
-                    </div>
-                `).join('')}
+                    ${Array(6 - plantas.length).fill(`
+                        <div class="planta-slot-vacio">
+                            <svg viewBox="0 0 40 30" width="34" height="26" stroke="rgba(45,212,191,0.3)" fill="none" stroke-width="1.2">
+                                <rect x="2" y="2" width="36" height="5" rx="1"/>
+                                <polygon points="5,7 35,7 32,28 8,28"/>
+                            </svg>
+                        </div>
+                    `).join('')}
                 </div>
             `
         }
