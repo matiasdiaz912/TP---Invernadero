@@ -154,6 +154,8 @@ footer {
   backdrop-filter: blur(5px);
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 10;
 }
 
 .catalog-header {
@@ -405,6 +407,8 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
   box-shadow: 0 0 5px var(--neon-cyan) inset;
   background-color: #0f172a;
+  position: relative; 
+  z-index: 10;
 
   & form {
     display: flex;
@@ -777,14 +781,15 @@ footer {
     margin-top: 10px;
     width: 95%;
     box-sizing: border-box;
-    position: relative;
-    z-index: 5;
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
 }
 
 .modulo-slot {
     background: rgba(10, 25, 35, 0.9);
-    border: 1px solid rgba(45, 212, 191, 0.25);
-    border-radius: 6px;
+    border: 1px solid var(--neon-cyan);
+    border-radius: 0;
     padding: 14px;
     min-height: 150px;
     display: flex;
@@ -828,11 +833,14 @@ footer {
     justify-content: space-between;
     align-items: flex-start;
     font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 8px;
+    margin: -14px -14px 0 -14px;
 }
 
 .modulo-nombre {
     color: var(--neon-cyan);
-    font-weight: bold;
+    font-weight: monospace;
 }
 
 .modulo-nivel {
@@ -883,4 +891,8 @@ footer {
     justify-content: center;
     color: rgba(45, 212, 191, 0.15);
     font-size: 1.2rem;
+}
+
+#main_view {
+    position: relative;
 }
