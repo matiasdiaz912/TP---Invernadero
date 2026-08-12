@@ -143,7 +143,7 @@ app.put("/modulos", async (req, res) => {
         return res.status(200).json({ msg: `El modulo ha sido mejorado al nivel ${moduloDB.rows[0].nivel + 1} y ahora tiene capacidad para ${moduloDB.rows[0].bloques_totales + 1} plantas`, type: "succes" })
     }
 
-    res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${10 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel} de las ${moduloDB.rows[0].cosechas} cosechas actuales`, type: "error" })
+    res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${5 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel} de las ${moduloDB.rows[0].cosechas} cosechas actuales`, type: "error" })
 })
 
 app.put("/modulos/:moduloId/recursos", async (req, res) => {
@@ -218,7 +218,7 @@ app.get("/avanzar-dia", async (req, res) => {
             if (estado_juego.dias_comida_insuficiente > 5) {
                 estado_juego.tripulantes--
             }
-        } else if(estado_juego.cant_comida < 30 && estado_juego.cant_comida > 0){
+        } else if(estado_juego.cant_comida < 30 && estado_juego.cant_comida >= 0){
             if (estado_juego.dias_comida_insuficiente > 3) {
                 estado_juego.tripulantes--
             }
