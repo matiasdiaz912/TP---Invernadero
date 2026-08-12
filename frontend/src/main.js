@@ -13,7 +13,6 @@ const contador_nivel = document.getElementById("contador_nivel")
 const button_help = document.getElementById("button-help")
 const button_eventos = document.getElementById("button-eventos")
 
-const nivelActual = 3;
 let contador = 0
 let contador_encendido = false
 
@@ -42,160 +41,6 @@ const reiniciarJuego = async () => {
     const response = await fetch("http://localhost:3000/reiniciar")
     let data = await response.json()
     return data
-}
-
-const cargarCatalogo = (especies, modulo, nivel) => {
-    let planta_retornada = null
-    const catalog = document.createElement("div");
-    catalog.classList.add("catalog-window");
-    catalog.id = "catalogo-header";
-    catalog.innerHTML = `
-                    <div class="catalog-header">
-                        <h2>> CATÁLOGO DE SEMILLAS</h2>
-                        <div>
-                            <button id="btn-close-catalog" class="btn-action">[ CERRAR ]</button>
-                        </div>
-                    </div>
-            
-                    <div class="plant-grid" id="catalog-grid">
-                        <!-- Las tarjetas se generan por JS -->
-                    </div>`;
-
-    main_view.appendChild(catalog);
-    const nivelActual = nivel;
-    const catalogGrid = document.getElementById("catalog-grid");
-    let btn_close_catalog = document.getElementById("btn-close-catalog")
-    btn_close_catalog.addEventListener("click", () => {
-        const descripcion = document.querySelector(".planta-descripcion");
-        if (descripcion) descripcion.remove();
-            catalog.remove();
-            activar_botones();
-    })
-
-
-    especies.forEach((especie) => {
-        const bloqueado = especie.nivel_requerido > nivelActual;
-        const statusClass = bloqueado ? "locked" : "";
-        const colorSvg = bloqueado
-            ? 'stroke="#f97316" filter="none" opacity="0.4"'
-            : "";
-
-        let card_especie = document.createElement("div")
-        card_especie.classList.add("plant-card");
-        card_especie.style.borderColor = bloqueado ? "#f97316" : "";
-        card_especie.innerHTML = `
-                        <div class="level-badge ${statusClass}">NVL ${especie.nivel_requerido}</div>
-                        
-                        <div class="plant-image-container">
-                            <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                                ${especie.pathsvg}
-                            </svg>
-                        </div>
-                        
-                        <div class="plant-info">
-                            <h3 class="plant-name" ${bloqueado ? 'style="color: #f97316;"' : ""}>${especie.nombre}</h3>
-                            <div class="plant-stats">
-                                H2O: ${especie.agua_requerida} | O2: ${especie.oxigeno_requerido}
-                            </div>
-                        </div>
-                `;
-        catalogGrid.appendChild(card_especie);
-        card_especie.addEventListener("click", () => {
-            if (bloqueado) {
-                generar_logs(`Necesitás nivel ${especie.nivel_requerido} para sembrar ${especie.nombre}`, "alerta")
-                return
-            }
-            catalog.classList.add("catalog-hidden");
-            let card_descripcion = document.createElement("div")
-            card_descripcion.classList.add("planta-descripcion");
-            card_descripcion.innerHTML = `
-                <div class="catalog-header header-planta">
-                        <h2>> DETALLES SEMILLA</h2>
-                    <div>
-                        <button id="btn-back" class="btn-action ${statusClass}">[ VOLVER ATRAS ]</button>
-                    </div>
-            
-                </div>
-                <div class="plant-card-descripcion">
-                    <div class="plant-image-container">
-                        <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
-                            ${especie.pathsvg}
-                        </svg>
-                        <div>
-                            <h3>${especie.nombre}</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="descripcion_planta">
-                        <h3 class="parrafo-detalles">REQUISITOS</h3>
-                        <h4>AGUA: ${especie.agua_requerida}L / d</h4>
-                        <h4>OXIGENO: ${especie.oxigeno_requerido}% / d</h4>
-                        <h4>NUTRIENTES: ${especie.nutrientes_requeridos}U / d</h4>
-                        <h4>ENERGIA: ${especie.energia_requerida}W / d</h4>
-                    </div>
-                    <div class="descripcion_planta">
-                        <h3 class="parrafo-detalles">BENEFICIOS</h3>
-                        <h4>AGUA: ${especie.agua_generada}L</h4>
-                        <h4>OXIGENO: ${especie.oxigeno_generado}%</h4>
-                        <h4>NUTRIENTES: ${especie.nutrientes_generados}U</h4>
-                        <h4>ENERGIA: ${especie.comida_generada}W</h4>
-                    </div>
-                     <div class="descripcion_planta">
-                        <p>Tiempo de sembrado: ${especie.duracion} días</p>
-                        <p>Tamaño: ${especie.tamanio}</p>
-                    </div>
-                </div>
-                
-                <p>${especie.descripcion}</p>
-
-                <button id="sembrar-button" class="btn-action ${statusClass}">SEMBRAR</button>
-            `;
-
-            
-            if (bloqueado) {
-                card_descripcion.classList.add("plant-card-descripcion-desactivada")
-            }
-            main_view.appendChild(card_descripcion);
-
-            let btn_back = document.getElementById("btn-back")
-
-            btn_back.addEventListener("click", () => {
-                card_descripcion.remove();
-                catalog.classList.remove("catalog-hidden");
-            })
-
-            let btn_sembrar = document.getElementById("sembrar-button")
-            if (modulo == null || bloqueado) {
-                btn_sembrar.disabled = true
-            }
-
-            btn_sembrar.addEventListener("click", async () => {
-                let response = await fetch(`http://localhost:3000/plantas/${especie.id}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(modulo)
-                })
-
-                if (response.ok) {
-                    generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
-                } else {
-                    let msg = await response.json()
-                    generar_logs(msg.error, "alerta")
-                }
-            })
-        })
-    })
-
-    desactivar_botones();
-    let btn_close = document.getElementById("btn-close-catalog");
-    btn_close.addEventListener("click", () => {
-        catalog.remove();
-        activar_botones();
-    });
-
-    return planta_retornada
 }
 
 //Manejo del contador de días
@@ -233,6 +78,10 @@ boton_avanzar_dia.addEventListener("click", async () => {
             if(data.estado_base.cant_comida < 60){
                 generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! Recursos críticos. Comida: ${data.estado_base.cant_comida}kg`, "alerta")
             }
+        }
+
+        if(data.estado_base.cant_energia <= 30 && data.estado_base.cant_energia % 10 == 0){
+            
         }
 
         if (data.estado_base.dia_actual == 1) {
@@ -766,7 +615,158 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         const response = await fetch("http://localhost:3000/estado-juego")
         const estado_juego = await response.json()
         let nivel = estado_juego.nivel
-        cargarCatalogo(catalogo, modulo, nivel)
+
+        const catalog = document.createElement("div");
+        catalog.classList.add("catalog-window");
+        catalog.id = "catalogo-header";
+        catalog.innerHTML = `
+                    <div class="catalog-header">
+                        <h2>> CATÁLOGO DE SEMILLAS</h2>
+                        <div>
+                            <button id="btn-back-catalog" class="btn-action">[ VOLVER ATRAS ]</button>
+                            <button id="btn-close-catalog" class="btn-action">[ CERRAR ]</button>
+                        </div>
+                    </div>
+            
+                    <div class="plant-grid" id="catalog-grid">
+
+                    </div>`;
+
+        main_view.appendChild(catalog);
+        const nivelActual = nivel;
+        const catalogGrid = document.getElementById("catalog-grid");
+        let btn_close_catalog = document.getElementById("btn-close-catalog")
+        btn_close_catalog.addEventListener("click", () => {
+            catalog.remove();
+            activar_botones();
+        })
+
+        let btn_back_catalog = document.getElementById("btn-back-catalog")
+        btn_back_catalog.addEventListener("click", () =>{
+            catalog.remove();
+            main_view.appendChild(modulo_detalles)
+            activar_botones();
+        })
+
+
+        catalogo.forEach((especie) => {
+            const bloqueado = especie.nivel_requerido > nivelActual;
+            const statusClass = bloqueado ? "locked" : "";
+            const colorSvg = bloqueado
+                ? 'stroke="#f97316" filter="none" opacity="0.4"'
+                : "";
+
+            let card_especie = document.createElement("div")
+            card_especie.classList.add("plant-card");
+            card_especie.style.borderColor = bloqueado ? "#f97316" : "";
+            card_especie.innerHTML = `
+                            <div class="level-badge ${statusClass}">NVL ${especie.nivel_requerido}</div>
+                            
+                            <div class="plant-image-container">
+                                <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
+                                    ${especie.pathsvg}
+                                </svg>
+                            </div>
+                            
+                            <div class="plant-info">
+                                <h3 class="plant-name" ${bloqueado ? 'style="color: #f97316;"' : ""}>${especie.nombre}</h3>
+                                <div class="plant-stats">
+                                    H2O: ${especie.agua_requerida} | O2: ${especie.oxigeno_requerido}
+                                </div>
+                            </div>
+                    `;
+            catalogGrid.appendChild(card_especie);
+            card_especie.addEventListener("click", () => {
+                if (bloqueado) {
+                    generar_logs(`Necesitás nivel ${especie.nivel_requerido} para sembrar ${especie.nombre}`, "alerta")
+                    return
+                }
+
+                catalog.remove()
+                let card_descripcion = document.createElement("div")
+                card_descripcion.classList.add("catalog-window");
+                card_descripcion.innerHTML = `
+                    <div class="catalog-header">
+                            <h2>> DETALLES SEMILLA</h2>
+                        <div>
+                            <button id="btn-back" class="btn-action ${statusClass}">[ VOLVER ATRAS ]</button>
+                        </div>
+                
+                    </div>
+                    <div class="plant-card-descripcion">
+                        <div class="plant-image-container plant-image">
+                            <svg viewBox="0 0 100 100" class="plant-svg" ${colorSvg}>
+                                ${especie.pathsvg}
+                            </svg>
+                            <div>
+                                <h3>${especie.nombre}</h3>
+                            </div>
+                        </div>
+                        
+                        <div class="descripcion_planta">
+                            <h3 class="parrafo-detalles">REQUISITOS</h3>
+                            <h4>AGUA: ${especie.agua_requerida}L / d</h4>
+                            <h4>OXIGENO: ${especie.oxigeno_requerido}% / d</h4>
+                            <h4>NUTRIENTES: ${especie.nutrientes_requeridos}U / d</h4>
+                            <h4>ENERGIA: ${especie.energia_requerida}W / d</h4>
+                        </div>
+                        <div class="descripcion_planta">
+                            <h3 class="parrafo-detalles">BENEFICIOS</h3>
+                            <h4>AGUA: ${especie.agua_generada}L</h4>
+                            <h4>OXIGENO: ${especie.oxigeno_generado}%</h4>
+                            <h4>NUTRIENTES: ${especie.nutrientes_generados}U</h4>
+                            <h4>ENERGIA: ${especie.comida_generada}W</h4>
+                        </div>
+                        <div class="descripcion_planta">
+                            <p>Tiempo de sembrado: ${especie.duracion} días</p>
+                            <p>Tamaño: ${especie.tamanio}</p>
+                        </div>
+                    </div>
+                    
+                    <p>${especie.descripcion}</p>
+
+                    <button id="sembrar-button" class="btn-action ${statusClass}">SEMBRAR</button>
+                `;
+
+                
+                if (bloqueado) {
+                    card_descripcion.classList.add("plant-card-descripcion-desactivada")
+                }
+                main_view.appendChild(card_descripcion);
+
+                let btn_back = document.getElementById("btn-back")
+
+                btn_back.addEventListener("click", () => {
+                    card_descripcion.remove();
+                    main_view.appendChild(catalog)
+                })
+
+                let btn_sembrar = document.getElementById("sembrar-button")
+                btn_sembrar.addEventListener("click", async () => {
+                    let response = await fetch(`http://localhost:3000/plantas/${especie.id}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(modulo)
+                    })
+
+                    if (response.ok) {
+                        generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
+                    } else {
+                        let msg = await response.json()
+                        generar_logs(msg.error, "alerta")
+                    }
+                })
+            })
+        })
+
+        desactivar_botones();
+        let btn_close = document.getElementById("btn-close-catalog");
+        btn_close.addEventListener("click", () => {
+            catalog.remove();
+            activar_botones();
+        });
     })
 
     let btn_eliminar_modulo = document.getElementById("btn-eliminar-modulo")

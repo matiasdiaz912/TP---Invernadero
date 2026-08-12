@@ -51,8 +51,10 @@ export const PROB_EVENTO_POR_DIA = 0.15
 export const REGEN_NUTRIENTES_POR_DIA = 2
 export const DIA_VICTORIA = 180
 
-// "_requerida/o" = por dia, sale del modulo.
-// "comida_por_dia" / "oxigeno_por_dia" = goteo diario a la base.
-// "agua_cosecha" / "comida_cosecha" = golpe unico al cosechar.
+export const AGUA_MAX = 200
+export const OXIGENO_MAX = 100
+export const ENERGIA_MAX = 150
+export const NUTRIENTES_MAX = 150
+export const COMIDA_MAX = 200
 
 

@@ -174,10 +174,6 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
 }
 
-.catalog-hidden {
-  display: none;
-}
-
 /* Grilla de Plantas */
 .plant-grid {
   display: grid;
@@ -230,9 +226,16 @@ footer {
   padding: 2px 5px;
 }
 
-.locked {
+.locked, .btn-alert{
   border-color: var(--neon-alert);
+  border-bottom: 2px solid var(--neon-alert);
   color: var(--neon-alert);
+}
+
+.btn-alert:hover{
+  background-color: var(--neon-alert);
+  color: var(--bg-color);
+  box-shadow: 0 0 15px var(--neon-alert);
 }
 
 /* Área de la Imagen (SVG Holográfico) */
@@ -243,6 +246,10 @@ footer {
   align-items: center;
   flex-direction: column;
   position: relative;
+}
+
+.plant-image{
+  flex-grow: 0;
 }
 
 /* Estilo base para los vectores de las plantas */
@@ -478,26 +485,11 @@ footer {
   flex-direction: column;
 }
 
-.planta-descripcion {
-  width: 90%;
-  max-width: 1000px;
-  background: var(--panel-bg);
-  border: 2px solid var(--neon-cyan);
-  box-shadow:
-    0 0 20px rgba(45, 212, 191, 0.2) inset,
-    0 0 30px rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  align-content: center;
-  padding: 10px;
-}
 
 .plant-card-descripcion {
   display: flex;
-  gap: 20px;
+  justify-content: space-around;
+  gap: 10px;
 }
 
 .parrafo-detalles{
@@ -510,10 +502,6 @@ footer {
   color: #f97316;
 }
 
-.header-planta {
-  width: 100%;
-  padding: 15px 10px;
-}
 
 /* BANNER-JUEGO-FINALIZADO */
 .banner-juego-finalizado {
