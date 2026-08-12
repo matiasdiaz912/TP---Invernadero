@@ -30,6 +30,55 @@ app.get("/especies", async (req, res) => {
     res.json(response.rows)
 })
 
+app.post("/especies", async (req, res) => {
+    const e = req.body
+    if (!e.nombre) return res.status(400).json({ error: "El nombre es obligatorio" })
+    const nueva = await pool.query(
+        `INSERT INTO especies (nombre, tamanio, nivel_requerido, duracion,
+            agua_requerida, oxigeno_requerido, nutrientes_requeridos, energia_requerida,
+            nutrientes_generados, oxigeno_generado, agua_generada, comida_generada,
+            pathSvg, descripcion)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+        [e.nombre, e.tamanio, e.nivel_requerido, e.duracion,
+         e.agua_requerida, e.oxigeno_requerido, e.nutrientes_requeridos, e.energia_requerida,
+         e.nutrientes_generados, e.oxigeno_generado, e.agua_generada, e.comida_generada,
+         e.pathSvg ?? null, e.descripcion ?? null]
+    )
+    res.status(201).json(nueva.rows[0])
+})
+
+app.put("/especies/:id", async (req, res) => {
+    const { id } = req.params
+    const e = req.body
+    if (!e.nombre) return res.status(400).json({ error: "El nombre es obligatorio" })
+    const existe = await pool.query("SELECT * FROM especies WHERE id = $1", [id])
+    if (existe.rows.length === 0) return res.status(404).json({ error: "Especie no encontrada" })
+    const actualizada = await pool.query(
+        `UPDATE especies SET nombre=$1, tamanio=$2, nivel_requerido=$3, duracion=$4,
+            agua_requerida=$5, oxigeno_requerido=$6, nutrientes_requeridos=$7, energia_requerida=$8,
+            nutrientes_generados=$9, oxigeno_generado=$10, agua_generada=$11, comida_generada=$12,
+            pathSvg=$13, descripcion=$14
+         WHERE id=$15 RETURNING *`,
+        [e.nombre, e.tamanio, e.nivel_requerido, e.duracion,
+         e.agua_requerida, e.oxigeno_requerido, e.nutrientes_requeridos, e.energia_requerida,
+         e.nutrientes_generados, e.oxigeno_generado, e.agua_generada, e.comida_generada,
+         e.pathSvg ?? null, e.descripcion ?? null, id]
+    )
+    res.status(200).json(actualizada.rows[0])
+})
+
+app.delete("/especies/:id", async (req, res) => {
+    const { id } = req.params
+    const existe = await pool.query("SELECT * FROM especies WHERE id = $1", [id])
+    if (existe.rows.length === 0) return res.status(404).json({ error: "Especie no encontrada" })
+    const plantas = await pool.query("SELECT COUNT(*) FROM plantas WHERE especie_id = $1", [id])
+    if (parseInt(plantas.rows[0].count) > 0) {
+        return res.status(400).json({ error: "No podés eliminar una especie que tiene plantas sembradas" })
+    }
+    await pool.query("DELETE FROM especies WHERE id = $1", [id])
+    res.status(200).json({ ok: true })
+})
+
 app.get("/plantas/todas", (req, res) => {
     res.json(ESPECIES)
 })
@@ -71,7 +120,12 @@ app.post("/plantas/:especieId", async (req, res) => {
 
 app.get("/plantas/:moduloId", async (req, res) => {
     const { moduloId } = req.params
-    const response = await pool.query("SELECT * FROM plantas WHERE modulo_id = $1", [moduloId])
+    const response = await pool.query(`
+        SELECT plantas.*, especies.pathsvg, especies.nombre as especie_nombre 
+        FROM plantas 
+        JOIN especies ON plantas.especie_id = especies.id 
+        WHERE plantas.modulo_id = $1
+    `, [moduloId])
     res.json(response.rows)
 })
 
@@ -293,8 +347,8 @@ app.get("/avanzar-dia", async (req, res) => {
     })
     const modulosActualizados = await pool.query("SELECT * FROM modulos")
     for (const modulo of modulosActualizados.rows) {
-        const faltaEnergia = modulo.cant_energia <= 0
-        const nuevoEstado = faltaEnergia ? "critico" : "estable"
+        const esCritico = modulo.cant_energia <= 0 || modulo.cant_agua <= 0 || modulo.cant_nutrientes <= 0 || modulo.cant_oxigeno <= 0
+        const nuevoEstado = esCritico ? "critico" : "estable"
         await pool.query("UPDATE modulos SET estado = $1 WHERE id = $2", [nuevoEstado, modulo.id])
     }
     if (estado_juego.tripulantes <= 0 || estado_juego.dias_oxigeno_insuficiente == 3) { 
