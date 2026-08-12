@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invernadero Espacial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #020f14;
+            font-family: 'Share Tech Mono', monospace;
+            color: #2dd4bf;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(45,212,191,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(45,212,191,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .title {
+            font-size: 4rem;
+            letter-spacing: 8px;
+            color: #2dd4bf;
+            text-shadow:
+                0 0 10px #2dd4bf,
+                0 0 30px #2dd4bf,
+                0 0 60px rgba(45,212,191,0.5);
+            text-transform: uppercase;
+        }
+        .subtitle {
+            font-size: 1rem;
+            letter-spacing: 6px;
+            color: rgba(45,212,191,0.6);
+            margin-bottom: 20px;
+        }
+        .btn-start {
+            margin-top: 30px;
+            padding: 14px 40px;
+            background: transparent;
+            border: 2px solid #2dd4bf;
+            color: #2dd4bf;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(45,212,191,0.3) inset;
+            transition: all 0.3s ease;
+        }
+        .btn-start:hover {
+            background: #2dd4bf;
+            color: #020f14;
+            box-shadow: 0 0 20px #2dd4bf;
+        }
+        .data-left {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            color: rgba(45,212,191,0.4);
+            line-height: 1.8;
+            z-index: 1;
+        }
+        .data-left .alert { color: #f97316; }
+        .data-right {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            color: rgba(45,212,191,0.4);
+            line-height: 1.8;
+            text-align: right;
+            z-index: 1;
+        }
+        .data-right .alert { color: #f97316; }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <audio id="musica-fondo" loop autoplay>
+    <source src="assets/audio/cancion_inicio.mp3" type="audio/mpeg">
+</audio>
+<audio id="sonido-transicion">
+    <source src="assets/audio/slash_3.wav" type="audio/wav">
+</audio>
+
+    <div class="data-left">
+        OSINFO : 2126059<br>
+        DORETA : 11288<br>
+        TRENPO : 50%<br>
+        <span class="alert">REROUT : #F57316</span><br>
+        DTINTS : 13<br>
+        VSLAGE : 95
+    </div>
+
+    <div class="data-right">
+        [-03.212]<br>
+        [ 01.395]<br>
+        <br>
+        COBVDS1 : +105<br>
+        HONOR : 88<br>
+        <span class="alert">[#F57316 . : #F57316]</span><br>
+        [+0. 195', -.0 112']
+    </div>
+
+    <div class="content">
+        <h1 class="title">INVERNADERO ESPACIAL</h1>
+        <p class="subtitle">BASE ESPACIAL // MARTE</p>
+
+        <svg width="280" height="280" viewBox="0 0 280 280">
+            <circle cx="140" cy="140" r="120"
+                stroke="#2dd4bf" stroke-width="2" fill="none"
+                opacity="0.8"/>
+            <circle cx="140" cy="140" r="115"
+                stroke="#2dd4bf" stroke-width="0.5" fill="none"
+                opacity="0.3"/>
+            <!-- lineas decorativas -->
+            <line x1="20" y1="140" x2="60" y2="140" stroke="#2dd4bf" stroke-width="1" opacity="0.5"/>
+            <line x1="220" y1="140" x2="260" y2="140" stroke="#2dd4bf" stroke-width="1" opacity="0.5"/>
+            <line x1="140" y1="20" x2="140" y2="60" stroke="#2dd4bf" stroke-width="1" opacity="0.5"/>
+            <line x1="140" y1="220" x2="140" y2="260" stroke="#2dd4bf" stroke-width="1" opacity="0.5"/>
+            <!-- esquinas del circulo -->
+            <line x1="55" y1="55" x2="70" y2="70" stroke="#2dd4bf" stroke-width="1" opacity="0.4"/>
+            <line x1="225" y1="55" x2="210" y2="70" stroke="#2dd4bf" stroke-width="1" opacity="0.4"/>
+            <line x1="55" y1="225" x2="70" y2="210" stroke="#2dd4bf" stroke-width="1" opacity="0.4"/>
+            <line x1="225" y1="225" x2="210" y2="210" stroke="#2dd4bf" stroke-width="1" opacity="0.4"/>
+            <!-- punto centro -->
+            <circle cx="140" cy="140" r="3" fill="#2dd4bf" opacity="0.6"/>
+        </svg>
+
+        <button class="btn-start" onclick="
+            const musica = document.getElementById('musica-fondo');
+            const transicion = document.getElementById('sonido-transicion');
+            musica.pause();
+            transicion.play();
+            setTimeout(() => { window.location.href='index.html'; }, 800);
+        ">
+            [ COMENZAR MISIÓN ]
+        </button>
+    </div>
+</body>
+</html>
