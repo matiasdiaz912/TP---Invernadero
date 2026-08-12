@@ -120,7 +120,12 @@ app.post("/plantas/:especieId", async (req, res) => {
 
 app.get("/plantas/:moduloId", async (req, res) => {
     const { moduloId } = req.params
-    const response = await pool.query("SELECT * FROM plantas WHERE modulo_id = $1", [moduloId])
+    const response = await pool.query(`
+        SELECT plantas.*, especies.pathsvg, especies.nombre as especie_nombre 
+        FROM plantas 
+        JOIN especies ON plantas.especie_id = especies.id 
+        WHERE plantas.modulo_id = $1
+    `, [moduloId])
     res.json(response.rows)
 })
 
@@ -337,8 +342,8 @@ app.get("/avanzar-dia", async (req, res) => {
     })
     const modulosActualizados = await pool.query("SELECT * FROM modulos")
     for (const modulo of modulosActualizados.rows) {
-        const faltaEnergia = modulo.cant_energia <= 0
-        const nuevoEstado = faltaEnergia ? "critico" : "estable"
+        const esCritico = modulo.cant_energia <= 0 || modulo.cant_agua <= 0 || modulo.cant_nutrientes <= 0 || modulo.cant_oxigeno <= 0
+        const nuevoEstado = esCritico ? "critico" : "estable"
         await pool.query("UPDATE modulos SET estado = $1 WHERE id = $2", [nuevoEstado, modulo.id])
     }
     if (estado_juego.tripulantes <= 0 || estado_juego.dias_oxigeno_insuficiente == 3) { 

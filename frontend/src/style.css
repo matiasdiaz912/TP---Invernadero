@@ -154,6 +154,8 @@ footer {
   backdrop-filter: blur(5px);
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 10;
 }
 
 .catalog-header {
@@ -405,6 +407,8 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
   box-shadow: 0 0 5px var(--neon-cyan) inset;
   background-color: #0f172a;
+  position: relative; 
+  z-index: 10;
 
   & form {
     display: flex;
@@ -522,6 +526,8 @@ footer {
   justify-content: center;
   gap: 20px;
   align-items: center;
+  position: relative;
+  z-index: 10;
 }
 
 .banner-derrota {
@@ -596,7 +602,6 @@ footer {
   text-shadow: 0 0 5px var(--neon-cyan);
 }
 
-/* --- SECCIÓN 1: ANILLOS VITALES (Soporte de Vida) --- */
 .vital-rings-container {
   display: flex;
   justify-content: space-evenly;
@@ -614,12 +619,11 @@ footer {
   flex-direction: column;
 }
 
-/* SVG para el anillo de progreso */
 .progress-ring {
   position: absolute;
   top: 0;
   left: 0;
-  transform: rotate(-90deg); /* Para que empiece arriba */
+  transform: rotate(-90deg); 
 }
 
 .progress-ring-circle-bg {
@@ -632,8 +636,8 @@ footer {
   fill: transparent;
   stroke: var(--neon-cyan);
   stroke-width: 6;
-  stroke-dasharray: 251.2; /* Circunferencia = 2 * PI * r (r=40) */
-  stroke-dashoffset: 251.2; /* Inicia vacío, se llena con JS */
+  stroke-dasharray: 251.2; 
+  stroke-dashoffset: 251.2; 
   stroke-linecap: round;
   transition:
     stroke-dashoffset 1s ease-out,
@@ -641,7 +645,6 @@ footer {
   filter: drop-shadow(0 0 4px var(--neon-cyan));
 }
 
-/* Modificadores de color según estado */
 .ring-wrapper.warning .progress-ring-circle {
   stroke: var(--neon-alert);
   filter: drop-shadow(0 0 4px var(--neon-alert));
@@ -662,7 +665,6 @@ footer {
   margin-top: 2px;
 }
 
-/* --- SECCIÓN 2: BARRAS DE INVENTARIO (Consumibles) --- */
 .inventory-bars-container {
   display: flex;
   flex-direction: column;
@@ -693,7 +695,6 @@ footer {
   color: var(--neon-alert);
 }
 
-/* Estilo de barra fragmentada/segmentada tecnológica */
 .bar-bg {
   width: 100%;
   height: 12px;
@@ -712,14 +713,13 @@ footer {
     rgba(45, 212, 191, 0.8) 5px,
     rgba(45, 212, 191, 0.8) 10px
   );
-  width: 0%; /* Se llena con JS */
+  width: 0%; 
   transition:
     width 1s ease-out,
     background 0.3s ease;
   box-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
 }
 
-/* Patrón de cuadrícula sobre la barra para darle textura */
 .bar-bg::after {
   content: "";
   position: absolute;
@@ -775,4 +775,126 @@ footer {
   font-weight: bold;
   font-size: 0.8rem;
 }
+.grilla-modulos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 30px;
+    margin-top: 10px;
+    width: 95%;
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+}
 
+.modulo-slot {
+    background: rgba(10, 25, 35, 0.9);
+    border: 1px solid var(--neon-cyan);
+    border-radius: 0;
+    padding: 14px;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.modulo-slot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.modulo-estable::before { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+.modulo-critico::before { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+.modulo-vacio {
+    border: 1px dashed rgba(45, 212, 191, 0.2);
+    align-items: center;
+    justify-content: center;
+    color: rgba(45, 212, 191, 0.3);
+    font-size: 0.85rem;
+}
+
+.modulo-bloqueado {
+    border: 1px dashed rgba(249, 115, 22, 0.3);
+    align-items: center;
+    justify-content: center;
+    color: rgba(249, 115, 22, 0.5);
+    font-size: 1.4rem;
+    gap: 4px;
+}
+
+.modulo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 8px;
+    margin: -14px -14px 0 -14px;
+}
+
+.modulo-nombre {
+    color: var(--neon-cyan);
+    font-weight: monospace;
+}
+
+.modulo-nivel {
+    color: var(--neon-cyan);
+    font-size: 0.7rem;
+}
+
+.modulo-estado-badge {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: bold;
+    padding-left: 0;
+    margin-left: -7px;
+}
+
+.modulo-estable .modulo-estado-badge { color: #22c55e; }
+.modulo-critico .modulo-estado-badge { color: #ef4444; }
+
+.modulo-plantas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 8px;
+    margin-top: auto;
+    justify-items: center;
+}
+
+.planta-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-self: center;
+    font-size: 0.7rem;
+    color: rgba(45, 212, 191, 0.85);
+}
+
+.planta-slot svg {
+    width: 42px;
+    height: 42px;
+    stroke: var(--neon-cyan);
+    fill: none;
+    stroke-width: 3;
+}
+
+.planta-slot-vacio {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#main_view {
+    position: relative;
+}
