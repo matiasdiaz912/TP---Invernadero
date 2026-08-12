@@ -80,6 +80,10 @@ boton_avanzar_dia.addEventListener("click", async () => {
             }
         }
 
+        if(data.estado_base.cant_energia <= 30 && data.estado_base.cant_energia % 10 == 0){
+            
+        }
+
         if (data.estado_base.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
