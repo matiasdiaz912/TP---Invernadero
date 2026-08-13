@@ -1,9 +1,39 @@
+// import express from 'express'
+// import { Pool } from 'pg'
+// import cors from 'cors'
+// import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
+// import { procesarModulos } from './dia.js';
+
+// import 'dotenv/config' 
+
+
+// const app = express()
+
+// app.use(cors());
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
+
+//const pool = new Pool({
+//    host: "db",
+//    port: 5432,
+//    database: "biospatial",
+//    user: "postgres",
+//    password: "1234",
+//})
+
+// const pool = new Pool({
+//     connectionString: "postgresql://postgres.[TU_PROYECTO]:[TU_PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres",
+//     ssl: {
+//         rejectUnauthorized: false 
+//     }
+// })
+
+import 'dotenv/config' 
 import express from 'express'
 import { Pool } from 'pg'
 import cors from 'cors'
 import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
 import { procesarModulos } from './dia.js';
-
 
 const app = express()
 
@@ -12,11 +42,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 const pool = new Pool({
-    host: "db",
-    port: 5432,
-    database: "biospatial",
-    user: "postgres",
-    password: "1234",
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false 
+    }
 })
 
 
