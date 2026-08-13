@@ -19,9 +19,7 @@ let contador_encendido = false
 fetch("http://localhost:3000/recursos")
     .then((response) => response.json())
     .then(async (data) => {
-        generar_nuevos_datos(data)
-        console.log(data);
-        
+        generar_nuevos_datos(data)        
         if(data.cant_energia <= 30 && data.dia_actual % 5 == 0){
             await convertir_energia(data)
         }}
