@@ -540,19 +540,19 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         </div>
         <form class="gestionar-recursos" id="gestionar-recursos-form">
             <label>Cantidad de agua:
-                <input value="0" id="input_water" type="range" min="${-modulo.cant_agua}" max="${recursos.cant_agua}"></input>
+                <input value="${modulo.cant_agua}" id="input_water" type="range" min="0" max="${recursos.cant_agua + modulo.cant_agua}"></input>
                 <p id="p_water">${recursos.cant_agua}</p>
             </label>
             <label>Cantidad de oxígeno:
-                <input value="0" id="input_oxygen" type="range" min="${-modulo.cant_oxigeno}" max="${recursos.cant_oxigeno}"></input>
+                <input value="${modulo.cant_oxigeno}" id="input_oxygen" type="range" min="0" max="${recursos.cant_oxigeno + modulo.cant_oxigeno}"></input>
                 <p id="p_oxygen">${recursos.cant_oxigeno}</p>
             </label>
             <label>Cantidad de energía:
-                <input value="0" id="input_energy" type="range" min="${-modulo.cant_energia}" max="${recursos.cant_energia}"></input>
+                <input value="${modulo.cant_energia}" id="input_energy" type="range" min="0" max="${recursos.cant_energia + modulo.cant_energia}"></input>
                 <p id="p_energy">${recursos.cant_energia}</p>
             </label>
             <label>Cantidad de nutrientes:
-                <input value="0" id="input_nutrients" type="range" min="${-modulo.cant_nutrientes}" max="${recursos.cant_nutrientes}"></input>
+                <input value="${modulo.cant_nutrientes}" id="input_nutrients" type="range" min="0" max="${recursos.cant_nutrientes + modulo.cant_nutrientes}"></input>
                 <p id="p_nutrients">${recursos.cant_nutrientes}</p>
             </label>
             <button id="btn-confirmar-recursos" class="btn-action">CONFIRMAR</button>
