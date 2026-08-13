@@ -2,18 +2,20 @@ const catalog_grid = document.getElementById("catalog-grid")
 const main_view = document.getElementById("main_view")
 const catalog_page = document.getElementById("catalog-page")
 
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://intro-camejor-despliegue-bd.onrender.com';
 
-fetch("https://intro-camejor-despliegue-bd.onrender.com/especies")
-        .then((res) => res.json())
-        .then( async (data) => {
-            const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/estado-juego")
-            const estado_juego = await response.json()
-            let nivel = estado_juego.nivel
-            
-            let info = cargarCatalogo(data, nivel)
-        })
-        .catch((error) => console.error("Error al cargar el catálogo:", error));
+fetch(`${API_BASE_URL}/especies`)
+    .then((res) => res.json())
+    .then(async (data) => {
+        const response = await fetch(`${API_BASE_URL}/estado-juego`);
+        const estado_juego = await response.json();
+        let nivel = estado_juego.nivel;
 
+        let info = cargarCatalogo(data, nivel);
+    })
+    .catch((error) => console.error("Error al cargar el catálogo:", error));
 
 const cargarCatalogo = (especies, nivel) => {
     especies.forEach((especie) => {
