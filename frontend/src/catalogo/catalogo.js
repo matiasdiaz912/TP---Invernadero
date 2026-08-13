@@ -41,7 +41,7 @@ const cargarCatalogo = (especies, nivel) => {
                                 H2O: ${especie.agua_requerida} | O2: ${especie.oxigeno_requerido}
                             </div>
                         </div>
-                `;``
+                `;
 
         catalog_grid.appendChild(card_especie);
         card_especie.addEventListener("click", () => {
