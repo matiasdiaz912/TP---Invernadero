@@ -493,15 +493,17 @@ app.patch("/eventos/:id", async (req, res) => {
     const costo_energia = Math.abs(evento.efecto_energia) * 0.2
     const costo_nutrientes = Math.abs(evento.efecto_nutrientes) * 0.2
 
-    if (RECURSOS.cant_agua < costo_agua) return res.status(400).json({ error: `Necesitás ${costo_agua} de agua` })
-    if (RECURSOS.cant_oxigeno < costo_oxigeno) return res.status(400).json({ error: `Necesitás ${costo_oxigeno} de oxígeno` })
-    if (RECURSOS.cant_energia < costo_energia) return res.status(400).json({ error: `Necesitás ${costo_energia} de energía` })
-    if (RECURSOS.cant_nutrientes < costo_nutrientes) return res.status(400).json({ error: `Necesitás ${costo_nutrientes} de nutrientes` })
+    const recursosBD = await pool.query("SELECT * FROM base_espacial")
+    const recursos = recursosBD.rows[0]
 
-    RECURSOS.cant_agua -= costo_agua
-    RECURSOS.cant_oxigeno -= costo_oxigeno
-    RECURSOS.cant_energia -= costo_energia
-    RECURSOS.cant_nutrientes -= costo_nutrientes
+    if (recursos.cant_agua < costo_agua) return res.status(400).json({ error: `Necesitás ${costo_agua} de agua` })
+    if (recursos.cant_oxigeno < costo_oxigeno) return res.status(400).json({ error: `Necesitás ${costo_oxigeno} de oxígeno` })
+    if (recursos.cant_energia < costo_energia) return res.status(400).json({ error: `Necesitás ${costo_energia} de energía` })
+    if (recursos.cant_nutrientes < costo_nutrientes) return res.status(400).json({ error: `Necesitás ${costo_nutrientes} de nutrientes` })
+
+    await pool.query("UPDATE base_espacial SET cant_agua = cant_agua - $1, cant_oxigeno = cant_oxigeno - $2, cant_energia = cant_energia - $3, cant_nutrientes = cant_nutrientes - $4 WHERE id = 1",
+        [costo_agua, costo_oxigeno, costo_energia, costo_nutrientes]
+    )
 
     const { efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
     const max_reduccion = 0.5
