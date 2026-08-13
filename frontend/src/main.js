@@ -906,7 +906,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                 let btn_sembrar = document.getElementById("sembrar-button")
                 btn_sembrar.addEventListener("click", async () => {
-                    let response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas/${especie.id}`, {
+                    let response = await fetch(`http://localhost:3000/plantas/${especie.id}`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
@@ -1177,10 +1177,10 @@ button_eventos.addEventListener("click", async () => {
     main_view.appendChild(neutralizar_window)
 
     document.getElementById("btn-back-neutralizar").addEventListener("click", () => {
-    neutralizar_window.remove()
-    activar_botones()
-    button_eventos.click()
-})
+        neutralizar_window.remove()
+        activar_botones()
+        button_eventos.click()
+    })
 
     document.getElementById("btn-close-neutralizar").addEventListener("click", () => {
         neutralizar_window.remove()
@@ -1189,7 +1189,7 @@ button_eventos.addEventListener("click", async () => {
 
     document.querySelectorAll(".btn-confirmar-neutralizar").forEach(btn => {
         btn.addEventListener("click", async () => {
-            const response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/eventos/${btn.dataset.id}/neutralizar`, {
+            const response = await fetch(`http://localhost:3000/eventos/${btn.dataset.id}/neutralizar`, {
                 method: "DELETE"
             })
             const data = await response.json()
