@@ -341,8 +341,9 @@ app.get("/reiniciar", async (req, res) => {
 
     await pool.query("DELETE FROM plantas")
     await pool.query("DELETE FROM modulos")
-    await pool.query("UPDATE base_espacial SET nivel = 1, dia_actual = 0, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, total_cosechas = 0, estado = 'en_curso', dias_comida_insuficiente = 0, dias_agua_insuficiente = 0, dias_oxigeno_insuficiente = 0, tripulantes = $6",
+    await pool.query("UPDATE base_espacial SET nivel = 1, dia_actual = 0, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, total_cosechas = 0, estado = 'en_curso', dias_comida_insuficiente = 0, dias_agua_insuficiente = 0, dias_oxigeno_insuficiente = 0, tripulantes = $6, evento_bloqueado_id = NULL, dias_restantes_bloqueo = 0, eventos_creados = 0, fertilizaciones_disponibles = 1",
         [RECURSOS_INICIALES.cant_agua, RECURSOS_INICIALES.cant_nutrientes, RECURSOS_INICIALES.cant_energia, RECURSOS_INICIALES.cant_oxigeno, RECURSOS_INICIALES.cant_comida, TRIPULANTES_INICIALES]
+
     )
 
     res.status(200).json(ESTADO_JUEGO)
@@ -439,10 +440,10 @@ app.patch("/eventos/:id", async (req, res) => {
         return res.status(400).json({ error: "No podés modificar un evento bloqueado" })
     }    
     
-    const costo_agua = Math.abs(evento.efecto_agua) * 0.2
-    const costo_oxigeno = Math.abs(evento.efecto_oxigeno) * 0.2
-    const costo_energia = Math.abs(evento.efecto_energia) * 0.2
-    const costo_nutrientes = Math.abs(evento.efecto_nutrientes) * 0.2
+    const costo_agua = Math.round(Math.abs(evento.efecto_agua) * 0.2)
+    const costo_oxigeno = Math.round(Math.abs(evento.efecto_oxigeno) * 0.2)
+    const costo_energia = Math.round(Math.abs(evento.efecto_energia) * 0.2)
+    const costo_nutrientes = Math.round(Math.abs(evento.efecto_nutrientes) * 0.2)
 
     const recursosBD = await pool.query("SELECT * FROM base_espacial")
     const recursos = recursosBD.rows[0]
@@ -502,7 +503,7 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
 
     const recursosBD = await pool.query("SELECT * FROM base_espacial")
     if (recursosBD.rows[0].cant_energia < costo) return res.status(400).json({ error: `Necesitás ${costo} de energía para bloquear este evento` })
-    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [costo])
+    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [Math.round(costo)])
 
     await pool.query("UPDATE base_espacial SET evento_bloqueado_id = $1, dias_restantes_bloqueo = 15", [evento.id])
 
