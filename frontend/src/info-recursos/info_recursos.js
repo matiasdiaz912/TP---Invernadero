@@ -38,7 +38,7 @@ function setBarProgress(elementId, current, max, trendText) {
 
 
 async function fetchAndUpdateResources() {
-    const response = await fetch("http://localhost:3000/recursos")
+    const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/recursos")
     const recursos = await response.json()
     return recursos
 }

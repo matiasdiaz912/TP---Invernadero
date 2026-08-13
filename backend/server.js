@@ -1,9 +1,39 @@
+// import express from 'express'
+// import { Pool } from 'pg'
+// import cors from 'cors'
+// import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
+// import { procesarModulos } from './dia.js';
+
+// import 'dotenv/config' 
+
+
+// const app = express()
+
+// app.use(cors());
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
+
+//const pool = new Pool({
+//    host: "db",
+//    port: 5432,
+//    database: "biospatial",
+//    user: "postgres",
+//    password: "1234",
+//})
+
+// const pool = new Pool({
+//     connectionString: "postgresql://postgres.[TU_PROYECTO]:[TU_PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres",
+//     ssl: {
+//         rejectUnauthorized: false 
+//     }
+// })
+
+import 'dotenv/config' 
 import express from 'express'
 import { Pool } from 'pg'
 import cors from 'cors'
 import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
 import { procesarModulos } from './dia.js';
-
 
 const app = express()
 
@@ -12,11 +42,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 const pool = new Pool({
-    host: "db",
-    port: 5432,
-    database: "biospatial",
-    user: "postgres",
-    password: "1234",
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false 
+    }
 })
 
 
@@ -379,8 +408,9 @@ app.get("/reiniciar", async (req, res) => {
 
     await pool.query("DELETE FROM plantas")
     await pool.query("DELETE FROM modulos")
-    await pool.query("UPDATE base_espacial SET nivel = 1, dia_actual = 0, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, total_cosechas = 0, estado = 'en_curso', dias_comida_insuficiente = 0, dias_agua_insuficiente = 0, dias_oxigeno_insuficiente = 0, tripulantes = $6",
+    await pool.query("UPDATE base_espacial SET nivel = 1, dia_actual = 0, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, total_cosechas = 0, estado = 'en_curso', dias_comida_insuficiente = 0, dias_agua_insuficiente = 0, dias_oxigeno_insuficiente = 0, tripulantes = $6, evento_bloqueado_id = NULL, dias_restantes_bloqueo = 0, eventos_creados = 0, fertilizaciones_disponibles = 1",
         [RECURSOS_INICIALES.cant_agua, RECURSOS_INICIALES.cant_nutrientes, RECURSOS_INICIALES.cant_energia, RECURSOS_INICIALES.cant_oxigeno, RECURSOS_INICIALES.cant_comida, TRIPULANTES_INICIALES]
+
     )
 
     res.status(200).json(ESTADO_JUEGO)
@@ -477,20 +507,22 @@ app.patch("/eventos/:id", async (req, res) => {
         return res.status(400).json({ error: "No podés modificar un evento bloqueado" })
     }    
     
-    const costo_agua = Math.abs(evento.efecto_agua) * 0.2
-    const costo_oxigeno = Math.abs(evento.efecto_oxigeno) * 0.2
-    const costo_energia = Math.abs(evento.efecto_energia) * 0.2
-    const costo_nutrientes = Math.abs(evento.efecto_nutrientes) * 0.2
+    const costo_agua = Math.round(Math.abs(evento.efecto_agua) * 0.2)
+    const costo_oxigeno = Math.round(Math.abs(evento.efecto_oxigeno) * 0.2)
+    const costo_energia = Math.round(Math.abs(evento.efecto_energia) * 0.2)
+    const costo_nutrientes = Math.round(Math.abs(evento.efecto_nutrientes) * 0.2)
 
-    if (RECURSOS.cant_agua < costo_agua) return res.status(400).json({ error: `Necesitás ${costo_agua} de agua` })
-    if (RECURSOS.cant_oxigeno < costo_oxigeno) return res.status(400).json({ error: `Necesitás ${costo_oxigeno} de oxígeno` })
-    if (RECURSOS.cant_energia < costo_energia) return res.status(400).json({ error: `Necesitás ${costo_energia} de energía` })
-    if (RECURSOS.cant_nutrientes < costo_nutrientes) return res.status(400).json({ error: `Necesitás ${costo_nutrientes} de nutrientes` })
+    const recursosBD = await pool.query("SELECT * FROM base_espacial")
+    const recursos = recursosBD.rows[0]
 
-    RECURSOS.cant_agua -= costo_agua
-    RECURSOS.cant_oxigeno -= costo_oxigeno
-    RECURSOS.cant_energia -= costo_energia
-    RECURSOS.cant_nutrientes -= costo_nutrientes
+    if (recursos.cant_agua < costo_agua) return res.status(400).json({ error: `Necesitás ${costo_agua} de agua` })
+    if (recursos.cant_oxigeno < costo_oxigeno) return res.status(400).json({ error: `Necesitás ${costo_oxigeno} de oxígeno` })
+    if (recursos.cant_energia < costo_energia) return res.status(400).json({ error: `Necesitás ${costo_energia} de energía` })
+    if (recursos.cant_nutrientes < costo_nutrientes) return res.status(400).json({ error: `Necesitás ${costo_nutrientes} de nutrientes` })
+
+    await pool.query("UPDATE base_espacial SET cant_agua = cant_agua - $1, cant_oxigeno = cant_oxigeno - $2, cant_energia = cant_energia - $3, cant_nutrientes = cant_nutrientes - $4 WHERE id = 1",
+        [costo_agua, costo_oxigeno, costo_energia, costo_nutrientes]
+    )
 
     const { efecto_agua, efecto_oxigeno, efecto_energia, efecto_nutrientes } = req.body
     const max_reduccion = 0.5
@@ -538,13 +570,31 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
 
     const recursosBD = await pool.query("SELECT * FROM base_espacial")
     if (recursosBD.rows[0].cant_energia < costo) return res.status(400).json({ error: `Necesitás ${costo} de energía para bloquear este evento` })
-    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [costo])
+    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [Math.round(costo)])
 
     await pool.query("UPDATE base_espacial SET evento_bloqueado_id = $1, dias_restantes_bloqueo = 15", [evento.id])
 
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
 })
 
+app.delete("/eventos/:id/neutralizar", async (req, res) => {
+    const eventoDb = await pool.query("SELECT * FROM eventos WHERE id = $1", [req.params.id])
+    if (eventoDb.rows.length === 0) return res.status(404).json({ error: "Evento no encontrado" })
+    const evento = eventoDb.rows[0]
+    
+    if (evento.tipo !== "negativo") return res.status(400).json({ error: "Solo podés neutralizar eventos negativos" })
+
+    const costo = Math.abs(evento.efecto_energia + evento.efecto_oxigeno + evento.efecto_agua + evento.efecto_nutrientes) * 0.5
+    const recursosBD = await pool.query("SELECT * FROM base_espacial")
+    const recursos = recursosBD.rows[0]
+
+    if (recursos.cant_energia < costo) return res.status(400).json({ error: `Necesitás ${costo} de energía para neutralizar este evento` })
+
+    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [costo])
+    await pool.query("DELETE FROM eventos WHERE id = $1", [req.params.id])
+
+    res.status(200).json({ msg: `Evento "${evento.nombre}" neutralizado permanentemente`, costo })
+})
 
 app.listen(3000, () => {
     console.log("Servidor iniciado")
