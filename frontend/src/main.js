@@ -236,12 +236,6 @@ boton_avanzar_dia.addEventListener("click", async () => {
             }
         }
 
-        if(data.estado_base.cant_energia <= 30 && data.estado_base.dia_actual % 5 == 0){
-            await convertir_energia(data.estado_base)
-            boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
-            clearInterval(timer)
-            return     
-        }
 
         if (data.estado_base.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
@@ -328,6 +322,12 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
         }else{
             generar_nuevos_datos(data.estado_base)
+            if(data.estado_base.cant_energia <= 30 && data.estado_base.dia_actual % 5 == 0){
+            await convertir_energia(data.estado_base)
+            boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
+            clearInterval(timer)
+            return     
+            }
         }
 
     }, 1000)
