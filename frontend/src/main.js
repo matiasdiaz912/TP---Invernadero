@@ -753,6 +753,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                     if (response.ok) {
                         generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
+                        renderizarModulos()
                     } else {
                         let msg = await response.json()
                         generar_logs(msg.error, "alerta")

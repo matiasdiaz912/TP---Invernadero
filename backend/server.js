@@ -345,6 +345,7 @@ app.get("/avanzar-dia", async (req, res) => {
             await pool.query("UPDATE plantas SET estado = 'perdida' WHERE id = $1", [planta.id])
         }
     })
+    
     const modulosActualizados = await pool.query("SELECT * FROM modulos")
     for (const modulo of modulosActualizados.rows) {
         const esCritico = modulo.cant_energia <= 0 || modulo.cant_agua <= 0 || modulo.cant_nutrientes <= 0 || modulo.cant_oxigeno <= 0
