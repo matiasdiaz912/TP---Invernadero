@@ -259,6 +259,7 @@ const generar_nuevos_datos = (data) => {
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
     renderizarModulos()
+    contador_nivel.textContent = `NIVEL: [ ${data.nivel} ]`
 }
 
 
@@ -406,6 +407,7 @@ module_manage_button.addEventListener("click", async () => {
         activar_botones()
     })
 })
+
 
 async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     const [modulosRes, plantasRes, moduloPlantasRes] = await Promise.all([
