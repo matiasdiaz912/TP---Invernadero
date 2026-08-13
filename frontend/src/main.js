@@ -18,7 +18,12 @@ let contador_encendido = false
 
 fetch("https://intro-camejor-despliegue-bd.onrender.com/recursos")
     .then((response) => response.json())
-    .then((data) => generar_nuevos_datos(data))
+    .then(async (data) => {
+        generar_nuevos_datos(data)        
+        if(data.cant_energia <= 30 && data.dia_actual % 5 == 0){
+            await convertir_energia(data)
+        }}
+    )
 
 function activar_botones() {
     crear_modulo_button.disabled = false
@@ -41,6 +46,157 @@ const reiniciarJuego = async () => {
     const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/reiniciar")
     let data = await response.json()
     return data
+}
+
+const convertir_energia = async (data) => {
+            let decision_maker = document.createElement("div")
+            decision_maker.classList.add("catalog-window")
+            decision_maker.innerHTML = `
+                <h2 class="titulo">ENERGIA: ESTADO CRITICO</h2>
+                <p class="subtitulo">Protocolo de conversión de materia activado.</p>
+
+                <div class="grid-opciones" id="contenedor-botones">
+
+                </div>
+
+            <div class="area-conversion">
+                <div class="info-tasa" id="info-tasa">
+            
+                </div>
+
+                <div class="controles">
+                    <input type="range" id="slider" min="0" max="0" value="0" class="slider" />
+                    <div class="inputs-texto">
+                        <span>Sacrificar: <strong id="val-sacrificar">0</strong> <span id="nom-sacrificar">Comida</span></span>
+                        <span class="resaltado">Generar: <strong>⚡ <span id="val-generar">0</span></strong></span>
+                    </div>
+                </div>
+
+                <button id="btn-ejecutar" class="boton-ejecutar">
+                    Ejecutar Conversión
+                </button>
+            </div>
+            `
+            main_view.appendChild(decision_maker)
+            contador_encendido = false
+            desactivar_botones()
+
+            let recursosActuales = { comida: data.cant_comida, nutrientes: data.cant_nutrientes, oxigeno: data.cant_oxigeno, agua: data.cant_agua };
+        
+            const tasasConversion = {
+                comida: { tasa: 2, nombre: 'Comida', color: '#e63946', descripcion: 'Biocombustión sólida' },
+                nutrientes: { tasa: 2, nombre: 'Nutrientes', color: '#2a9d8f', descripcion: 'Fermentación de biogás' },
+                oxigeno: { tasa: 1, nombre: 'Oxígeno', color: '#48cae4', descripcion: 'Oxidación rápida' },
+                agua: { tasa: 2, nombre: 'Agua', color: '#0096c7', descripcion: 'Electrólisis de emergencia' }
+            };
+
+            let recursoSeleccionado = 'comida';
+            let cantidadSeleccionada = 0;
+            const contenedorBotones = document.getElementById('contenedor-botones');
+            const infoTasa = document.getElementById('info-tasa');
+            const slider = document.getElementById('slider');
+            const valSacrificar = document.getElementById('val-sacrificar');
+            const nomSacrificar = document.getElementById('nom-sacrificar');
+            const valGenerar = document.getElementById('val-generar');
+            const btnEjecutar = document.getElementById('btn-ejecutar');
+
+        function inicializarUI() {
+            renderizarBotones();
+            actualizarVistaRecurso();
+            
+            slider.addEventListener('input', (e) => {
+                cantidadSeleccionada = parseInt(e.target.value);
+                actualizarValoresCalculados();
+            });
+
+            btnEjecutar.addEventListener('click', async () => {                
+                const energiaGenerada = cantidadSeleccionada * tasasConversion[recursoSeleccionado].tasa;
+                
+                let dataUpdated = await fetch("http://localhost:3000/convertir-energia", {
+                    method: "PUT",
+                    body: JSON.stringify({ 
+                        recursoSeleccionado,
+                        cantidadSeleccionada,
+                        energiaGenerada
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                
+                let resources = await obtener_recursos()
+                generar_nuevos_datos(resources)
+                decision_maker.remove()   
+                activar_botones()  
+            });
+        }
+
+        function renderizarBotones() {
+            contenedorBotones.innerHTML = ''; // Limpiar grilla
+            
+            Object.keys(tasasConversion).forEach(clave => {
+                const recurso = tasasConversion[clave];
+                const stock = recursosActuales[clave] || 0;
+                const esActivo = recursoSeleccionado === clave;
+
+                const boton = document.createElement('button');
+                boton.className = `boton-recurso ${esActivo ? 'activo' : ''}`;
+                boton.style.borderColor = esActivo ? recurso.color : '#444';
+                
+                boton.innerHTML = `
+                    ${recurso.nombre}
+                    <div class="disponible">Stock: ${stock}</div>
+                `;
+
+                boton.addEventListener('click', () => {
+                    recursoSeleccionado = clave;
+                    cantidadSeleccionada = 0; 
+                    renderizarBotones();
+                    actualizarVistaRecurso();
+                });
+
+                contenedorBotones.appendChild(boton);
+            });
+        }
+
+        function actualizarVistaRecurso() {
+            const recurso = tasasConversion[recursoSeleccionado];
+            const maxDisponible = recursosActuales[recursoSeleccionado] || 0;
+
+            // Actualizar textos de información
+            infoTasa.innerHTML = `
+                <strong>Método:</strong> ${recurso.descripcion} <br />
+                <strong>Tasa:</strong> 1 ${recurso.nombre} = ${recurso.tasa} Energía
+            `;
+            nomSacrificar.textContent = recurso.nombre;
+
+            if(maxDisponible * recurso.tasa <= 150){
+                slider.max = maxDisponible;
+                slider.value = cantidadSeleccionada;
+            }else{
+                let cant_max = Math.floor(150 / recurso.tasa) - data.cant_energia
+                slider.max = cant_max;
+                slider.value = cantidadSeleccionada;
+            }
+
+            actualizarValoresCalculados();
+        }
+
+        function actualizarValoresCalculados() {
+            const recurso = tasasConversion[recursoSeleccionado];
+            const energiaGenerada = cantidadSeleccionada * recurso.tasa;
+
+            // Actualizar números en pantalla
+            valSacrificar.textContent = cantidadSeleccionada;
+            valGenerar.textContent = energiaGenerada;
+
+            // Habilitar/deshabilitar botón
+            if (cantidadSeleccionada > 0) {
+                btnEjecutar.disabled = false;
+            } else {
+                btnEjecutar.disabled = true;
+            }
+        }
+
+        inicializarUI();
 }
 
 //Manejo del contador de días
@@ -80,9 +236,6 @@ boton_avanzar_dia.addEventListener("click", async () => {
             }
         }
 
-        if(data.estado_base.cant_energia <= 30 && data.estado_base.cant_energia % 10 == 0){
-            
-        }
 
         if (data.estado_base.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
@@ -145,6 +298,8 @@ boton_avanzar_dia.addEventListener("click", async () => {
             })
 
         } else if (data.estado_base.estado == "derrota") {
+            generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! La base se ha quedado sin energia`, "alerta")
+
             const banner_derrota = document.createElement("div")
             banner_derrota.classList.add("banner-juego-finalizado", "banner-derrota")
             banner_derrota.innerHTML = `
@@ -167,6 +322,12 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
         }else{
             generar_nuevos_datos(data.estado_base)
+            if(data.estado_base.cant_energia <= 30 && data.estado_base.dia_actual % 5 == 0){
+            await convertir_energia(data.estado_base)
+            boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
+            clearInterval(timer)
+            return     
+            }
         }
 
     }, 1000)
@@ -259,6 +420,7 @@ const generar_nuevos_datos = (data) => {
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
     renderizarModulos()
+    contador_nivel.textContent = `NIVEL: [ ${data.nivel} ]`
 }
 
 
@@ -406,6 +568,7 @@ module_manage_button.addEventListener("click", async () => {
         activar_botones()
     })
 })
+
 
 async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     const [modulosRes, plantasRes, moduloPlantasRes] = await Promise.all([
@@ -753,6 +916,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                     if (response.ok) {
                         generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
+                        renderizarModulos()
                     } else {
                         let msg = await response.json()
                         generar_logs(msg.error, "alerta")

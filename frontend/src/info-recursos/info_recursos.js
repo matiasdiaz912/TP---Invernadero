@@ -1,5 +1,7 @@
-const main_view = document.getElementById("main_view")
 
+const main_view = document.getElementById("main_view")
+const loss_nutrients = document.getElementById("loss-nutrients")
+const loss_food = document.getElementById("loss-food")
 
 function setRingProgress(elementId, percent, valueText, maxPercent = 100) {
     const wrapper = document.getElementById(elementId);
@@ -43,17 +45,20 @@ async function fetchAndUpdateResources() {
 
 setTimeout(async () => {
     let recursos = await fetchAndUpdateResources();
-    setRingProgress('ring-energy', recursos.cant_energia, `${recursos.cant_energia}%`);
-    setRingProgress('ring-oxygen', recursos.cant_oxigeno, `${recursos.cant_oxigeno}%`);
+    console.log(recursos);
+    
+    setRingProgress('ring-energy', recursos.cant_energia, `${recursos.cant_energia}W`, 150);
+    setRingProgress('ring-oxygen', recursos.cant_oxigeno, `${recursos.cant_oxigeno}%`,);
 
     const aguaActual = recursos.cant_agua;
-    const aguaMax = 150;
+    const aguaMax = 200;
     const porcentajeAgua = (aguaActual / aguaMax) * 100;
-    setRingProgress('ring-water', porcentajeAgua, `${aguaActual}L`);
+    setRingProgress('ring-water', porcentajeAgua, `${aguaActual}L`, 200);
 
 
-    setBarProgress('bar-food', recursos.cant_comida, 75);
-    setBarProgress('bar-nutrients', recursos.cant_nutrientes, 350);
+    setBarProgress('bar-food', recursos.cant_comida, 200);
+    setBarProgress('bar-nutrients', recursos.cant_nutrientes, 150);
+    loss_food.innerText = `-${recursos.comida_usada_por_dia}/d`
 
 }, 100);
 
