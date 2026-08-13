@@ -1,9 +1,39 @@
+// import express from 'express'
+// import { Pool } from 'pg'
+// import cors from 'cors'
+// import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
+// import { procesarModulos } from './dia.js';
+
+// import 'dotenv/config' 
+
+
+// const app = express()
+
+// app.use(cors());
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: true }))
+
+//const pool = new Pool({
+//    host: "db",
+//    port: 5432,
+//    database: "biospatial",
+//    user: "postgres",
+//    password: "1234",
+//})
+
+// const pool = new Pool({
+//     connectionString: "postgresql://postgres.[TU_PROYECTO]:[TU_PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres",
+//     ssl: {
+//         rejectUnauthorized: false 
+//     }
+// })
+
+import 'dotenv/config' 
 import express from 'express'
 import { Pool } from 'pg'
 import cors from 'cors'
 import { RECURSOS_INICIALES, MODULO, TRIPULANTES_INICIALES, DIA_VICTORIA, AGUA_MAX, COMIDA_MAX, NUTRIENTES_MAX, ENERGIA_MAX, OXIGENO_MAX } from './constantes.js';
 import { procesarModulos } from './dia.js';
-
 
 const app = express()
 
@@ -12,11 +42,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 const pool = new Pool({
-    host: "db",
-    port: 5432,
-    database: "biospatial",
-    user: "postgres",
-    password: "1234",
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false 
+    }
 })
 
 
@@ -51,6 +80,26 @@ app.get("/recursos", async (req, res) => {
     res.status(200).json(recursos.rows[0])
 })
 
+app.put("/convertir-energia", async (req, res) =>{
+    const {recursoSeleccionado, cantidadSeleccionada, energiaGenerada} = req.body
+    if(recursoSeleccionado == "comida"){
+        await pool.query("UPDATE base_espacial SET cant_energia = cant_energia + $1, cant_comida = cant_comida - $2", [energiaGenerada, cantidadSeleccionada])
+    }
+
+    if(recursoSeleccionado == "nutrientes"){
+        await pool.query("UPDATE base_espacial SET cant_energia = cant_energia + $1, cant_nutrientes = cant_nutrientes - $2", [energiaGenerada, cantidadSeleccionada])
+    }
+
+    if(recursoSeleccionado == "oxigeno"){
+        await pool.query("UPDATE base_espacial SET cant_energia = cant_energia + $1, cant_oxigeno = cant_oxigeno - $2", [energiaGenerada, cantidadSeleccionada])
+    }
+
+    if(recursoSeleccionado == "agua"){
+        await pool.query("UPDATE base_espacial SET cant_energia = cant_energia + $1, cant_agua = cant_agua - $2", [energiaGenerada, cantidadSeleccionada])
+    }
+
+    res.status(200).json([])
+})
 
 /////////////////////////////////////////////////// Plantas //////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +197,7 @@ app.put("/modulos", async (req, res) => {
         return res.status(200).json({ msg: `El modulo ha sido mejorado al nivel ${moduloDB.rows[0].nivel + 1} y ahora tiene capacidad para ${moduloDB.rows[0].bloques_totales + 1} plantas`, type: "succes" })
     }
 
-    res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${10 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel} de las ${moduloDB.rows[0].cosechas} cosechas actuales`, type: "error" })
+    res.status(200).json({ msg: `Para poder mejorar el modulo necesita ${5 * moduloDB.rows[0].nivel ** moduloDB.rows[0].nivel} de las ${moduloDB.rows[0].cosechas} cosechas actuales`, type: "error" })
 })
 
 app.put("/modulos/:moduloId/recursos", async (req, res) => {
@@ -223,7 +272,7 @@ app.get("/avanzar-dia", async (req, res) => {
             if (estado_juego.dias_comida_insuficiente > 5) {
                 estado_juego.tripulantes--
             }
-        } else if(estado_juego.cant_comida < 30 && estado_juego.cant_comida > 0){
+        } else if(estado_juego.cant_comida < 30 && estado_juego.cant_comida >= 0){
             if (estado_juego.dias_comida_insuficiente > 3) {
                 estado_juego.tripulantes--
             }
@@ -267,9 +316,12 @@ app.get("/avanzar-dia", async (req, res) => {
     estado_juego.cant_comida -= estado_juego.comida_usada_por_dia
     estado_juego.cant_agua -= estado_juego.agua_usada_por_dia
     estado_juego.cant_oxigeno -= estado_juego.oxigeno_usado_por_dia
+    estado_juego.cant_energia -= estado_juego.energia_usada_por_dia
+
     if (estado_juego.cant_agua < 0) estado_juego.cant_agua = 0
     if (estado_juego.cant_oxigeno < 0) estado_juego.cant_oxigeno = 0
     if(estado_juego.cant_comida < 0) estado_juego.cant_comida = 0
+    if(estado_juego.cant_energia < 0) estado_juego.cant_energia = 0
 
     await pool.query("UPDATE base_espacial SET dia_actual = dia_actual + 1, cant_agua = $1, cant_nutrientes = $2, cant_energia = $3, cant_oxigeno = $4, cant_comida = $5, dias_comida_insuficiente = $6, dias_agua_insuficiente = $7, dias_oxigeno_insuficiente = $8, tripulantes = $9, agua_usada_por_dia = $10, energia_usada_por_dia = $11, oxigeno_usado_por_dia = $12, comida_usada_por_dia = $13 WHERE id = 1",
         [estado_juego.cant_agua, estado_juego.cant_nutrientes, estado_juego.cant_energia, estado_juego.cant_oxigeno, estado_juego.cant_comida, estado_juego.dias_comida_insuficiente, estado_juego.dias_agua_insuficiente, estado_juego.dias_oxigeno_insuficiente, estado_juego.tripulantes, estado_juego.agua_usada_por_dia, estado_juego.energia_usada_por_dia, estado_juego.oxigeno_usado_por_dia, estado_juego.comida_usada_por_dia]
@@ -283,6 +335,22 @@ app.get("/avanzar-dia", async (req, res) => {
         especie = especie.rows[0]
         modulo = modulo.rows[0]
         if(modulo.cant_agua > 0 && modulo.cant_nutrientes > 0 && modulo.cant_energia > 0 && modulo.cant_oxigeno > 0){
+            if(modulo.cant_agua - especie.agua_requerida < 0){
+                especie.agua_requerida = modulo.cant_agua
+            }
+
+            if(modulo.cant_nutrientes - especie.nutrientes_requeridos < 0){
+                especie.nutrientes_requeridos = modulo.cant_nutrientes
+            }
+
+            if(modulo.cant_energia - especie.energia_requerida < 0){
+                especie.energia_requerida = modulo.cant_energia
+            }
+
+            if(modulo.cant_oxigeno - especie.oxigeno_requerido < 0){
+                especie.oxigeno_requerido = modulo.cant_oxigeno
+            }
+            
             await pool.query("UPDATE modulos SET cant_agua = cant_agua - $1, cant_nutrientes = cant_nutrientes - $2, cant_energia = cant_energia - $3, cant_oxigeno = cant_oxigeno - $4 WHERE id = $5",
             [especie.agua_requerida, especie.nutrientes_requeridos, especie.energia_requerida, especie.oxigeno_requerido, planta.modulo_id]
             )
@@ -302,7 +370,7 @@ app.get("/avanzar-dia", async (req, res) => {
         const nuevoEstado = esCritico ? "critico" : "estable"
         await pool.query("UPDATE modulos SET estado = $1 WHERE id = $2", [nuevoEstado, modulo.id])
     }
-    if (estado_juego.tripulantes <= 0 || estado_juego.dias_oxigeno_insuficiente == 3) { 
+    if (estado_juego.tripulantes <= 0 || estado_juego.dias_oxigeno_insuficiente == 3 || estado_juego.cant_energia == 0) { 
         await pool.query("UPDATE base_espacial SET estado = $1", ["derrota"])
     } else if (estado_juego.dia_actual >= DIA_VICTORIA) {      
         await pool.query("UPDATE base_espacial SET estado = $1", ["victoria"])
@@ -314,7 +382,6 @@ app.get("/recursos-actualizados", async (req, res) =>{
     let estado_juego = await pool.query("SELECT * FROM base_espacial")
     let modulos = await pool.query("SELECT * FROM modulos")
     let plantas = await pool.query("SELECT * FROM plantas")
-    console.log(plantas.rows);
     
     
     res.status(200).json({

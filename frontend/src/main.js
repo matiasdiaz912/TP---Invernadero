@@ -16,9 +16,14 @@ const button_eventos = document.getElementById("button-eventos")
 let contador = 0
 let contador_encendido = false
 
-fetch("http://localhost:3000/recursos")
+fetch("https://intro-camejor-despliegue-bd.onrender.com/recursos")
     .then((response) => response.json())
-    .then((data) => generar_nuevos_datos(data))
+    .then(async (data) => {
+        generar_nuevos_datos(data)        
+        if(data.cant_energia <= 30 && data.dia_actual % 5 == 0){
+            await convertir_energia(data)
+        }}
+    )
 
 function activar_botones() {
     crear_modulo_button.disabled = false
@@ -38,9 +43,160 @@ function desactivar_botones() {
 
 const reiniciarJuego = async () => {
     activar_botones()
-    const response = await fetch("http://localhost:3000/reiniciar")
+    const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/reiniciar")
     let data = await response.json()
     return data
+}
+
+const convertir_energia = async (data) => {
+            let decision_maker = document.createElement("div")
+            decision_maker.classList.add("catalog-window")
+            decision_maker.innerHTML = `
+                <h2 class="titulo">ENERGIA: ESTADO CRITICO</h2>
+                <p class="subtitulo">Protocolo de conversión de materia activado.</p>
+
+                <div class="grid-opciones" id="contenedor-botones">
+
+                </div>
+
+            <div class="area-conversion">
+                <div class="info-tasa" id="info-tasa">
+            
+                </div>
+
+                <div class="controles">
+                    <input type="range" id="slider" min="0" max="0" value="0" class="slider" />
+                    <div class="inputs-texto">
+                        <span>Sacrificar: <strong id="val-sacrificar">0</strong> <span id="nom-sacrificar">Comida</span></span>
+                        <span class="resaltado">Generar: <strong>⚡ <span id="val-generar">0</span></strong></span>
+                    </div>
+                </div>
+
+                <button id="btn-ejecutar" class="boton-ejecutar">
+                    Ejecutar Conversión
+                </button>
+            </div>
+            `
+            main_view.appendChild(decision_maker)
+            contador_encendido = false
+            desactivar_botones()
+
+            let recursosActuales = { comida: data.cant_comida, nutrientes: data.cant_nutrientes, oxigeno: data.cant_oxigeno, agua: data.cant_agua };
+        
+            const tasasConversion = {
+                comida: { tasa: 2, nombre: 'Comida', color: '#e63946', descripcion: 'Biocombustión sólida' },
+                nutrientes: { tasa: 2, nombre: 'Nutrientes', color: '#2a9d8f', descripcion: 'Fermentación de biogás' },
+                oxigeno: { tasa: 1, nombre: 'Oxígeno', color: '#48cae4', descripcion: 'Oxidación rápida' },
+                agua: { tasa: 2, nombre: 'Agua', color: '#0096c7', descripcion: 'Electrólisis de emergencia' }
+            };
+
+            let recursoSeleccionado = 'comida';
+            let cantidadSeleccionada = 0;
+            const contenedorBotones = document.getElementById('contenedor-botones');
+            const infoTasa = document.getElementById('info-tasa');
+            const slider = document.getElementById('slider');
+            const valSacrificar = document.getElementById('val-sacrificar');
+            const nomSacrificar = document.getElementById('nom-sacrificar');
+            const valGenerar = document.getElementById('val-generar');
+            const btnEjecutar = document.getElementById('btn-ejecutar');
+
+        function inicializarUI() {
+            renderizarBotones();
+            actualizarVistaRecurso();
+            
+            slider.addEventListener('input', (e) => {
+                cantidadSeleccionada = parseInt(e.target.value);
+                actualizarValoresCalculados();
+            });
+
+            btnEjecutar.addEventListener('click', async () => {                
+                const energiaGenerada = cantidadSeleccionada * tasasConversion[recursoSeleccionado].tasa;
+                
+                let dataUpdated = await fetch("http://localhost:3000/convertir-energia", {
+                    method: "PUT",
+                    body: JSON.stringify({ 
+                        recursoSeleccionado,
+                        cantidadSeleccionada,
+                        energiaGenerada
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                })
+                
+                let resources = await obtener_recursos()
+                generar_nuevos_datos(resources)
+                decision_maker.remove()   
+                activar_botones()  
+            });
+        }
+
+        function renderizarBotones() {
+            contenedorBotones.innerHTML = ''; // Limpiar grilla
+            
+            Object.keys(tasasConversion).forEach(clave => {
+                const recurso = tasasConversion[clave];
+                const stock = recursosActuales[clave] || 0;
+                const esActivo = recursoSeleccionado === clave;
+
+                const boton = document.createElement('button');
+                boton.className = `boton-recurso ${esActivo ? 'activo' : ''}`;
+                boton.style.borderColor = esActivo ? recurso.color : '#444';
+                
+                boton.innerHTML = `
+                    ${recurso.nombre}
+                    <div class="disponible">Stock: ${stock}</div>
+                `;
+
+                boton.addEventListener('click', () => {
+                    recursoSeleccionado = clave;
+                    cantidadSeleccionada = 0; 
+                    renderizarBotones();
+                    actualizarVistaRecurso();
+                });
+
+                contenedorBotones.appendChild(boton);
+            });
+        }
+
+        function actualizarVistaRecurso() {
+            const recurso = tasasConversion[recursoSeleccionado];
+            const maxDisponible = recursosActuales[recursoSeleccionado] || 0;
+
+            // Actualizar textos de información
+            infoTasa.innerHTML = `
+                <strong>Método:</strong> ${recurso.descripcion} <br />
+                <strong>Tasa:</strong> 1 ${recurso.nombre} = ${recurso.tasa} Energía
+            `;
+            nomSacrificar.textContent = recurso.nombre;
+
+            if(maxDisponible * recurso.tasa <= 150){
+                slider.max = maxDisponible;
+                slider.value = cantidadSeleccionada;
+            }else{
+                let cant_max = Math.floor(150 / recurso.tasa) - data.cant_energia
+                slider.max = cant_max;
+                slider.value = cantidadSeleccionada;
+            }
+
+            actualizarValoresCalculados();
+        }
+
+        function actualizarValoresCalculados() {
+            const recurso = tasasConversion[recursoSeleccionado];
+            const energiaGenerada = cantidadSeleccionada * recurso.tasa;
+
+            // Actualizar números en pantalla
+            valSacrificar.textContent = cantidadSeleccionada;
+            valGenerar.textContent = energiaGenerada;
+
+            // Habilitar/deshabilitar botón
+            if (cantidadSeleccionada > 0) {
+                btnEjecutar.disabled = false;
+            } else {
+                btnEjecutar.disabled = true;
+            }
+        }
+
+        inicializarUI();
 }
 
 //Manejo del contador de días
@@ -58,8 +214,8 @@ boton_avanzar_dia.addEventListener("click", async () => {
             return
         }
 
-        await fetch("http://localhost:3000/avanzar-dia")
-        const response = await fetch("http://localhost:3000/recursos-actualizados")
+        await fetch("https://intro-camejor-despliegue-bd.onrender.com/avanzar-dia")
+        const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/recursos-actualizados")
         const data = await response.json()        
 
 
@@ -80,9 +236,6 @@ boton_avanzar_dia.addEventListener("click", async () => {
             }
         }
 
-        if(data.estado_base.cant_energia <= 30 && data.estado_base.cant_energia % 10 == 0){
-            
-        }
 
         if (data.estado_base.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
@@ -145,6 +298,8 @@ boton_avanzar_dia.addEventListener("click", async () => {
             })
 
         } else if (data.estado_base.estado == "derrota") {
+            generar_logs(`DIA ${data.estado_base.dia_actual}: ALERTA! La base se ha quedado sin energia`, "alerta")
+
             const banner_derrota = document.createElement("div")
             banner_derrota.classList.add("banner-juego-finalizado", "banner-derrota")
             banner_derrota.innerHTML = `
@@ -167,13 +322,19 @@ boton_avanzar_dia.addEventListener("click", async () => {
 
         }else{
             generar_nuevos_datos(data.estado_base)
+            if(data.estado_base.cant_energia <= 30 && data.estado_base.dia_actual % 5 == 0){
+            await convertir_energia(data.estado_base)
+            boton_avanzar_dia.innerText = "AVANZAR CICLO DÍA"
+            clearInterval(timer)
+            return     
+            }
         }
 
     }, 1000)
 })
 
 const generar_evento = async () => {
-    const response = await fetch("http://localhost:3000/evento")
+    const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/evento")
     const evento = await response.json()
     let evento_banner = document.createElement("div")
     evento_banner.innerHTML = `
@@ -210,7 +371,7 @@ const generar_logs = (mensaje, tipo) => {
 }
 
 const obtener_recursos = async () => {
-    const response = await fetch("http://localhost:3000/recursos")
+    const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/recursos")
     const recursos = await response.json()
     return recursos
 }
@@ -259,6 +420,7 @@ const generar_nuevos_datos = (data) => {
     contador = data.dia_actual
     contador_dias.innerText = `DÍA: [ ${data.dia_actual} ]`
     renderizarModulos()
+    contador_nivel.textContent = `NIVEL: [ ${data.nivel} ]`
 }
 
 
@@ -312,7 +474,7 @@ crear_modulo_button.addEventListener("click", async () => {
     form_modulo.addEventListener("submit", async (event) => {
         event.preventDefault()
 
-        const response = await fetch("http://localhost:3000/modulos", {
+        const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/modulos", {
             method: "POST",
             body: JSON.stringify({
                 nombre: inputs[0].value,
@@ -328,7 +490,7 @@ crear_modulo_button.addEventListener("click", async () => {
             generar_logs(`Módulo "${inputs[0].value}" creado correctamente`, "info")
             form_modulo.remove()
             activar_botones()
-            let recursos = await fetch(`http://localhost:3000/recursos`)
+            let recursos = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/recursos`)
             recursos = await recursos.json()
             generar_nuevos_datos(recursos)
         } else {
@@ -357,7 +519,7 @@ function create_header(title) {
 }
 
 module_manage_button.addEventListener("click", async () => {
-    let dataServer = await fetch("http://localhost:3000/modulos")
+    let dataServer = await fetch("https://intro-camejor-despliegue-bd.onrender.com/modulos")
     let data = await dataServer.json()
 
     let modulos_contenedor = document.createElement("div")
@@ -407,11 +569,12 @@ module_manage_button.addEventListener("click", async () => {
     })
 })
 
+
 async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     const [modulosRes, plantasRes, moduloPlantasRes] = await Promise.all([
-        fetch(`http://localhost:3000/modulos/${modulo_id}`),
-        fetch("http://localhost:3000/especies"),
-        fetch(`http://localhost:3000/plantas/${modulo_id}`)
+        fetch(`https://intro-camejor-despliegue-bd.onrender.com/modulos/${modulo_id}`),
+        fetch("https://intro-camejor-despliegue-bd.onrender.com/especies"),
+        fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas/${modulo_id}`)
     ])
 
     const modulo = await modulosRes.json()
@@ -472,13 +635,13 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                 btn_cosechar.addEventListener("click", async () => {
                     planta_sembrada.remove()
-                    let plantaActual = await fetch(`http://localhost:3000/plantas`, {
+                    let plantaActual = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas`, {
                         method: "PUT",
                         body: JSON.stringify(planta),
                         headers: { "Content-Type": "application/json" }
                     })
                     
-                    let res = await fetch(`http://localhost:3000/plantas`, {
+                    let res = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas`, {
                         method: "DELETE",
                         body: JSON.stringify(planta),
                         headers: { "Content-Type": "application/json" }
@@ -488,7 +651,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
                     contador_nivel.textContent = `NIVEL: [ ${res.nivel} ]`
                     generar_nuevos_datos(res.recursos)
                     
-                    let moduloPlantasActualizado = await fetch(`http://localhost:3000/plantas/${modulo_id}`)
+                    let moduloPlantasActualizado = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas/${modulo_id}`)
                     moduloPlantasActualizado = await moduloPlantasActualizado.json()
                     if (moduloPlantasActualizado.length === 0) {
                         lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
@@ -504,13 +667,13 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                 btn_desechar.addEventListener("click", async () =>{
                     planta_sembrada.remove()
-                    await fetch(`http://localhost:3000/plantas`, {
+                    await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas`, {
                         method: "DELETE",
                         body: JSON.stringify(planta),
                         headers: { "Content-Type": "application/json" }
                     })
 
-                    let moduloPlantasActualizado = await fetch(`http://localhost:3000/plantas/${modulo_id}`)
+                    let moduloPlantasActualizado = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas/${modulo_id}`)
                     moduloPlantasActualizado = await moduloPlantasActualizado.json()
                     if (moduloPlantasActualizado.length === 0) {
                         lista_plantas.innerHTML = "<li>Todavía no hay plantas sembradas</li>"
@@ -590,7 +753,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         const energia = parseInt(document.getElementById("input_energy").value) || 0
         const oxigeno = parseInt(document.getElementById("input_oxygen").value) || 0
 
-        const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/recursos`, {
+        const response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/modulos/${modulo.id}/recursos`, {
             method: "PUT",
             body: JSON.stringify({ agua, nutrientes, energia, oxigeno }),
             headers: { "Content-Type": "application/json" }
@@ -603,7 +766,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         }
         gestionar_recursos.remove()
         activar_botones()
-        let recursos = await fetch(`http://localhost:3000/recursos`)
+        let recursos = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/recursos`)
         recursos = await recursos.json()
         generar_nuevos_datos(recursos)
     })
@@ -612,7 +775,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     btn_sembrar.addEventListener("click", async () => {
         modulo_detalles.remove()
         desactivar_botones()
-        const response = await fetch("http://localhost:3000/estado-juego")
+        const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/estado-juego")
         const estado_juego = await response.json()
         let nivel = estado_juego.nivel
 
@@ -753,6 +916,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
 
                     if (response.ok) {
                         generar_logs(`Planta sembrada en "${modulo.nombre}"`, "info")
+                        renderizarModulos()
                     } else {
                         let msg = await response.json()
                         generar_logs(msg.error, "alerta")
@@ -774,7 +938,7 @@ async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
         modulo_detalles.remove()
         activar_botones()
         generar_logs(`Modulo ${modulo.nombre} eliminado`, "alerta")
-        await fetch(`http://localhost:3000/modulos/${modulo.id}`, {
+        await fetch(`https://intro-camejor-despliegue-bd.onrender.com/modulos/${modulo.id}`, {
             method: "DELETE"
         })
     })
@@ -811,7 +975,7 @@ btn_renombrar_modulo.addEventListener("click", () => {
 
     document.getElementById("btn-confirmar-nombre").addEventListener("click", async () => {
         const nombre = document.getElementById("input-nombre-modulo").value
-        const response = await fetch(`http://localhost:3000/modulos/${modulo.id}/nombre`, {
+        const response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/modulos/${modulo.id}/nombre`, {
             method: "PATCH",
             body: JSON.stringify({ nombre }),
             headers: { "Content-Type": "application/json" }
@@ -830,7 +994,7 @@ btn_renombrar_modulo.addEventListener("click", () => {
     let btn_mejorar_modulo = document.getElementById("btn-mejorar-modulo")
     btn_mejorar_modulo.addEventListener("click", async () => {
 
-        const response = await fetch(`http://localhost:3000/modulos`, {
+        const response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/modulos`, {
             method: "PUT",
             body: JSON.stringify(modulo),
             headers: { "Content-Type": "application/json" }
@@ -873,8 +1037,8 @@ btn_renombrar_modulo.addEventListener("click", () => {
 button_eventos.addEventListener("click", async () => {
     desactivar_botones()
     const [eventosRes, estadoRes] = await Promise.all([
-        fetch("http://localhost:3000/eventos"),
-        fetch("http://localhost:3000/estado-juego")
+        fetch("https://intro-camejor-despliegue-bd.onrender.com/eventos"),
+        fetch("https://intro-camejor-despliegue-bd.onrender.com/estado-juego")
     ])
     const eventos = await eventosRes.json()
     const estado = await estadoRes.json()
@@ -906,7 +1070,7 @@ button_eventos.addEventListener("click", async () => {
             <p>Efectos: Agua ${evento.efecto_agua} | Oxígeno ${evento.efecto_oxigeno} | Energía ${evento.efecto_energia} | Nutrientes ${evento.efecto_nutrientes}</p>
             <div style="display:flex; gap:8px; margin-top:8px">
                 ${evento.tipo === 'negativo' && !estado.evento_bloqueado_id ? `<button class="btn-action btn-bloquear" data-id="${evento.id}">BLOQUEAR</button>` : ''}
-                ${!evento.modificado && estado.evento_bloqueado_id !== evento.id ? `<button class="btn-action btn-modificar" data-id="${evento.id}">MODIFICAR</button>` : ''}
+                ${!evento.modificado && estado.evento_bloqueado_id !== evento.id ? `<button class="btn-action btn-modificar" data-id="${evento.id}">SINTETIZAR</button>` : ''}
             </div>
         `
         lista.appendChild(card)
@@ -967,7 +1131,7 @@ button_eventos.addEventListener("click", async () => {
                 efecto_energia: parseFloat(document.getElementById("input-evento-energia").value) || 0,
                 efecto_nutrientes: parseFloat(document.getElementById("input-evento-nutrientes").value) || 0,
             }
-            const response = await fetch("http://localhost:3000/eventos", {
+            const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/eventos", {
                 method: "POST",
                 body: JSON.stringify(body),
                 headers: { "Content-Type": "application/json" }
@@ -1066,7 +1230,7 @@ button_eventos.addEventListener("click", async () => {
         })
 
         document.getElementById("btn-confirmar-bloquear").addEventListener("click", async () => {
-            const response = await fetch(`http://localhost:3000/eventos/${btn.dataset.id}/bloquear`, {
+            const response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/eventos/${btn.dataset.id}/bloquear`, {
                 method: "DELETE"
             })
             const data = await response.json()
@@ -1127,7 +1291,7 @@ button_eventos.addEventListener("click", async () => {
                     efecto_energia: document.getElementById("mod-energia") ? parseFloat(document.getElementById("mod-energia").value) || 0 : null,
                     efecto_nutrientes: document.getElementById("mod-nutrientes") ? parseFloat(document.getElementById("mod-nutrientes").value) || 0 : null,
                 }
-                const response = await fetch(`http://localhost:3000/eventos/${evento.id}`, {
+                const response = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/eventos/${evento.id}`, {
                     method: "PATCH",
                     body: JSON.stringify(body),
                     headers: { "Content-Type": "application/json" }
@@ -1173,8 +1337,8 @@ button_help.addEventListener("click", () => {
 
 const renderizarModulos = async () => {
     const [modulosRes, estadoRes] = await Promise.all([
-        fetch("http://localhost:3000/modulos"),
-        fetch("http://localhost:3000/estado-juego")
+        fetch("https://intro-camejor-despliegue-bd.onrender.com/modulos"),
+        fetch("https://intro-camejor-despliegue-bd.onrender.com/estado-juego")
     ])
     const modulos = await modulosRes.json()
     const estado = await estadoRes.json()
@@ -1200,7 +1364,7 @@ const renderizarModulos = async () => {
             slot.innerHTML = bloqueado ? `<p>🔒</p><p>NVL ${i + 1}</p>` : `<p>+ VACÍO</p>`
         } else {
             slot.classList.add(`modulo-${modulo.estado}`)
-            const plantasRes = await fetch(`http://localhost:3000/plantas/${modulo.id}`)
+            const plantasRes = await fetch(`https://intro-camejor-despliegue-bd.onrender.com/plantas/${modulo.id}`)
             const plantas = await plantasRes.json()
             const bloquesVacios = modulo.bloques_totales - modulo.bloques_ocupados
 
