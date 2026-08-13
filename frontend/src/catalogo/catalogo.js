@@ -3,10 +3,10 @@ const main_view = document.getElementById("main_view")
 const catalog_page = document.getElementById("catalog-page")
 
 
-fetch("http://localhost:3000/especies")
+fetch("https://intro-camejor-despliegue-bd.onrender.com/especies")
         .then((res) => res.json())
         .then( async (data) => {
-            const response = await fetch("http://localhost:3000/estado-juego")
+            const response = await fetch("https://intro-camejor-despliegue-bd.onrender.com/estado-juego")
             const estado_juego = await response.json()
             let nivel = estado_juego.nivel
             
