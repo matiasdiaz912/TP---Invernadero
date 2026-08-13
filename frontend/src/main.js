@@ -890,6 +890,7 @@ button_eventos.addEventListener("click", async () => {
         </div>
         <p>Eventos creados: ${estado.eventos_creados}/3 | Evento bloqueado: ${estado.evento_bloqueado_id ? estado.evento_bloqueado_id + ' (' + estado.dias_restantes_bloqueo + ' días)' : 'Ninguno'}</p>
         <button id="btn-crear-evento" class="btn-action">+ SINTETIZAR EVENTO</button>
+        <button id="btn-neutralizar-evento" class="btn-action">- NEUTRALIZAR EVENTO</button>
         <div id="lista-eventos"></div>
     `
     main_view.appendChild(eventos_window)
@@ -981,6 +982,63 @@ button_eventos.addEventListener("click", async () => {
             activar_botones()
         })
     })
+
+    document.getElementById("btn-neutralizar-evento").addEventListener("click", () => {
+    eventos_window.remove()
+    let neutralizar_window = document.createElement("div")
+    neutralizar_window.classList.add("catalog-window")
+    const eventos_negativos = eventos.filter(e => e.tipo === "negativo")
+    neutralizar_window.innerHTML = `
+        <div class="catalog-header">
+            <h2>> NEUTRALIZAR EVENTO</h2>
+            <div style="display:flex; gap:8px;">
+                <button id="btn-back-neutralizar" class="btn-action">[ VOLVER ATRAS ]</button>
+                <button id="btn-close-neutralizar" class="btn-action">[ CERRAR ]</button>
+            </div>
+        </div>
+        <p style="padding:10px;">Seleccioná un evento negativo para neutralizarlo permanentemente. Costo: 50% de sus efectos en energía.</p>
+        <div id="lista-neutralizar">
+            ${eventos_negativos.map(e => {
+                const costo = Math.abs(e.efecto_energia + e.efecto_oxigeno + e.efecto_agua + e.efecto_nutrientes) * 0.5
+                return `
+                <div style="padding:10px; border-bottom:1px solid rgba(45,212,191,0.2);">
+                    <p>${e.nombre}</p>
+                    <p style="font-size:0.75rem; color:rgba(45,212,191,0.6);">Efectos: Agua ${e.efecto_agua} | Oxígeno ${e.efecto_oxigeno} | Energía ${e.efecto_energia} | Nutrientes ${e.efecto_nutrientes}</p>
+                    <p style="font-size:0.75rem; color:#f97316;">Costo: ${costo} de energía</p>
+                    <button class="btn-action btn-confirmar-neutralizar" data-id="${e.id}" data-nombre="${e.nombre}">NEUTRALIZAR</button>
+                </div>`
+            }).join('')}
+        </div>
+    `
+    main_view.appendChild(neutralizar_window)
+
+    document.getElementById("btn-back-neutralizar").addEventListener("click", () => {
+        neutralizar_window.remove()
+        activar_botones()
+        button_eventos.click()
+    })
+
+    document.getElementById("btn-close-neutralizar").addEventListener("click", () => {
+        neutralizar_window.remove()
+        activar_botones()
+    })
+
+    document.querySelectorAll(".btn-confirmar-neutralizar").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const response = await fetch(`http://localhost:3000/eventos/${btn.dataset.id}/neutralizar`, {
+                method: "DELETE"
+            })
+            const data = await response.json()
+            if (response.ok) {
+                generar_logs(data.msg, "info")
+            } else {
+                generar_logs(data.error, "alerta")
+            }
+            neutralizar_window.remove()
+            activar_botones()
+        })
+    })
+})
 
     document.querySelectorAll(".btn-bloquear").forEach(btn => {
     btn.addEventListener("click", async () => {
