@@ -558,6 +558,24 @@ app.delete("/eventos/:id/bloquear", async (req, res) => {
     res.status(200).json({ msg: `Evento "${evento.nombre}" bloqueado por 15 días`, costo })
 })
 
+app.delete("/eventos/:id/neutralizar", async (req, res) => {
+    const eventoDb = await pool.query("SELECT * FROM eventos WHERE id = $1", [req.params.id])
+    if (eventoDb.rows.length === 0) return res.status(404).json({ error: "Evento no encontrado" })
+    const evento = eventoDb.rows[0]
+    
+    if (evento.tipo !== "negativo") return res.status(400).json({ error: "Solo podés neutralizar eventos negativos" })
+
+    const costo = Math.abs(evento.efecto_energia + evento.efecto_oxigeno + evento.efecto_agua + evento.efecto_nutrientes) * 0.5
+    const recursosBD = await pool.query("SELECT * FROM base_espacial")
+    const recursos = recursosBD.rows[0]
+
+    if (recursos.cant_energia < costo) return res.status(400).json({ error: `Necesitás ${costo} de energía para neutralizar este evento` })
+
+    await pool.query("UPDATE base_espacial SET cant_energia = cant_energia - $1 WHERE id = 1", [costo])
+    await pool.query("DELETE FROM eventos WHERE id = $1", [req.params.id])
+
+    res.status(200).json({ msg: `Evento "${evento.nombre}" neutralizado permanentemente`, costo })
+})
 
 app.listen(3000, () => {
     console.log("Servidor iniciado")
