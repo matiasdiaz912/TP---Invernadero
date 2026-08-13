@@ -278,6 +278,22 @@ app.get("/avanzar-dia", async (req, res) => {
         especie = especie.rows[0]
         modulo = modulo.rows[0]
         if(modulo.cant_agua > 0 && modulo.cant_nutrientes > 0 && modulo.cant_energia > 0 && modulo.cant_oxigeno > 0){
+            if(modulo.cant_agua - especie.agua_requerida < 0){
+                especie.agua_requerida = modulo.cant_agua
+            }
+
+            if(modulo.cant_nutrientes - especie.nutrientes_requeridos < 0){
+                especie.nutrientes_requeridos = modulo.cant_nutrientes
+            }
+
+            if(modulo.cant_energia - especie.energia_requerida < 0){
+                especie.energia_requerida = modulo.cant_energia
+            }
+
+            if(modulo.cant_oxigeno - especie.oxigeno_requerido < 0){
+                especie.oxigeno_requerido = modulo.cant_oxigeno
+            }
+            
             await pool.query("UPDATE modulos SET cant_agua = cant_agua - $1, cant_nutrientes = cant_nutrientes - $2, cant_energia = cant_energia - $3, cant_oxigeno = cant_oxigeno - $4 WHERE id = $5",
             [especie.agua_requerida, especie.nutrientes_requeridos, especie.energia_requerida, especie.oxigeno_requerido, planta.modulo_id]
             )
@@ -291,6 +307,7 @@ app.get("/avanzar-dia", async (req, res) => {
             await pool.query("UPDATE plantas SET estado = 'perdida' WHERE id = $1", [planta.id])
         }
     })
+
     const modulosActualizados = await pool.query("SELECT * FROM modulos")
     for (const modulo of modulosActualizados.rows) {
         const faltaEnergia = modulo.cant_energia <= 0

@@ -80,10 +80,6 @@ boton_avanzar_dia.addEventListener("click", async () => {
             }
         }
 
-        if(data.estado_base.cant_energia <= 30 && data.estado_base.cant_energia % 10 == 0){
-            
-        }
-
         if (data.estado_base.dia_actual == 1) {
             generar_logs("SISTEMA INICIADO... [OK]", "info")
         }
@@ -406,6 +402,7 @@ module_manage_button.addEventListener("click", async () => {
         activar_botones()
     })
 })
+
 
 async function mostrarDetalleModulo(modulo_id, modulos_contenedor) {
     const [modulosRes, plantasRes, moduloPlantasRes] = await Promise.all([
